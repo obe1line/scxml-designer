@@ -1,0 +1,45 @@
+<scxml xmlns="http://www.w3.org/2005/07/scxml" name="TestLog" version="1.0">
+    <datamodel>
+        <data id="parameters">
+            <data expr="Integer" id="value"/>
+            <data expr="Integer" id="increment"/>
+            <data expr="Integer" id="multiplier"/>
+        </data>
+        <data expr="-2000000000" id="highestnegative"/>
+    </datamodel>
+    <state id="CalculatorState" uuid="{630d79ca-5525-4b62-8447-7b832b5bd492}">
+        <transition type="external" uuid="{04ecaca2-0f09-4476-94b6-4d66e8db2db9}" event="done.invoke.multiplyadder" target="LoopState">
+            <!--controlx2="-78" controly2="-47" x2="14" y2="0" -->
+        </transition>
+        <invoke type="MultiplyAdder" autoforward="false" id="multiplyadder">
+            <content>
+                <data expr="parameters.value" id="first"/>
+                <data expr="parameters.increment" id="second"/>
+                <data expr="parameters.multiplier" id="multiplier"/>
+            </content>
+            <finalize>
+                <script>parameters.value = _event.data.result</script>
+            </finalize>
+        </invoke>
+        <!--x="263" y="194" -->
+    </state>
+    <state id="LoggerState">
+        <onentry>
+            <script>TestLog(parameters.value)</script>
+        </onentry>
+        <!--description="Logs the calculated parameter " height="100" width="200" x="647" y="218" -->
+        <state id="LoopState" uuid="{669ea3b0-2ac3-43fa-84f1-5a5bfe9c1f67}">
+            <transition type="external" uuid="{ae538490-02fc-11e3-8ffd-0800200c9a66}" event="" cond="parameters.value &lt; 0 &amp;&amp; parameters.value &gt; highestnegative" target="CheckState"/>
+            <transition type="external" uuid="{0232ecbd-a197-4606-ae88-afe280c190fe}" event="test.log" target="CalculatorState"/>
+            <!--description="Loops around" height="50" width="100" x="647" y="218" -->
+        </state>
+        <state id="CheckState" uuid="{fc8c15a0-02fc-11e3-8ffd-0800200c9a66}">
+            <onentry>
+                <script>LogNewHighestNegative(parameters.value)
+highestnegative = parameters.value</script>
+            </onentry>
+            <transition type="external" uuid="{bb12ea40-02fc-11e3-8ffd-0800200c9a66}" event="" target="CalculatorState"/>
+            <!--description="Loops around" height="50" width="100" x="247" y="218" -->
+        </state>
+    </state>
+</scxml>

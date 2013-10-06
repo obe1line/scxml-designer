@@ -1,0 +1,16 @@
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="Adder">
+    <datamodel>
+        <data id="parameters">
+            <data id="first" expr="Integer"/>
+            <data id="second" expr="Integer"/>
+        </data>
+    </datamodel>
+    <final uuid="{669ea3b0-2ac3-43fa-84f1-5a5bfe9c1f67}" id="AdderState">
+        <donedata>
+            <content>
+                <data id="result" expr="parameters.first + parameters.second"/>
+            </content>
+        </donedata>
+        <!--description="Adds two numbers" height="50" width="100" x="143" y="100" -->
+    </final>
+</scxml>

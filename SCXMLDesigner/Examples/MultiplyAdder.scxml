@@ -1,0 +1,33 @@
+<scxml name="MultiplyAdder" xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+    <datamodel>
+        <data id="parameters">
+            <data id="first" expr="Integer"/>
+            <data id="second" expr="Integer"/>
+            <data id="multiplier" expr="Integer"/>
+        </data>
+        <data id="addResult" expr="Integer"/>
+    </datamodel>
+    <state uuid="{630d79ca-5525-4b62-8447-7b832b5bd492}" id="AdderState">
+        <transition uuid="{04ecaca2-0f09-4476-94b6-4d66e8db2db9}" target="MultiplierState" type="external" event="done.invoke.adder">
+            <!--controlx2="-78" controly2="-47" x2="14" y2="0" -->
+        </transition>
+        <invoke id="adder" autoforward="false" type="Adder">
+            <content>
+                <data id="first" expr="parameters.first"/>
+                <data id="second" expr="parameters.second"/>
+            </content>
+            <finalize>
+                <script>addResult = _event.data.result</script>
+            </finalize>
+        </invoke>
+        <!--x="263" y="194" -->
+    </state>
+    <final uuid="{669ea3b0-2ac3-43fa-84f1-5a5bfe9c1f67}" id="MultiplierState">
+        <donedata>
+            <content>
+                <data id="result" expr="addResult * parameters.multiplier"/>
+            </content>
+        </donedata>
+        <!--description="Adds two numbers" height="50" width="100" x="647" y="218" -->
+    </final>
+</scxml>
