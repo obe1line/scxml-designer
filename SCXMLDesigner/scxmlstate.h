@@ -22,7 +22,6 @@ public slots:
 
 private:
   QString mId;
-
 };
 
 #endif // SCXMLSTATE_H

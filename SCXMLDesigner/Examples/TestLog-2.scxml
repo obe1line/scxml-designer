@@ -1,6 +1,17 @@
-<scxml xmlns="http://www.w3.org/2005/07/scxml" name="TestLog" version="1.0">
- <state id="CalculatorState"/>
- <state id="LoggerState"/>
- <state id="LoopState"/>
- <state id="CheckState"/>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="TestLog">
+ <state id="CalculatorState">
+  <transition type="external" target="LoopState"/>
+ </state>
+ <state id="LoggerState">
+  <transition type="external" target="CheckState"/>
+  <transition type="external" target="CalculatorState"/>
+  <transition type="external" target="CalculatorState"/>
+ </state>
+ <state id="LoopState">
+  <transition type="external" target="CheckState"/>
+  <transition type="external" target="CalculatorState"/>
+ </state>
+ <state id="CheckState">
+  <transition type="external" target="CalculatorState"/>
+ </state>
 </scxml>

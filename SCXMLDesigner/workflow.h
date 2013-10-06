@@ -3,6 +3,7 @@
 
 #include <QStateMachine>
 #include <QDomDocument>
+#include "scxmlstate.h"
 
 //! Represents an SCXML workflow
 //!
@@ -24,6 +25,9 @@ public:
 
     //! Gets the raw SCXML for this workflow
     QString GetRawSCXML() { return mRawSCXMLText; }
+
+    //! Gets a state defined by id if it exists, NULL otherwise
+    SCXMLState* GetStateById(QString id);
 
 signals:
     

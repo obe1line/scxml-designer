@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QAbstractTransition>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "workflowtab.h"
@@ -44,6 +45,13 @@ void MainWindow::showStates()
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
         qDebug() << state->GetId();
         mUI->listOfStates->addItem(state->GetId());
+
+        foreach(QAbstractTransition* trans, state->transitions()) {
+            mUI->listOfStates->addItem(QString(" (T) %1").arg("trans"));
+            foreach(QAbstractState* targetTrans, trans->targetStates()) {
+                mUI->listOfStates->addItem(QString(" (T+) %1").arg("target"));
+            }
+        }
     }
 }
 
