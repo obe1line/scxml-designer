@@ -1,7 +1,7 @@
 #include "workflowtab.h"
 
 WorkflowTab::WorkflowTab(QWidget *parent, QString filename) :
-    QWidget(parent), mFilename(filename)
+    WorkflowSurface(parent), mFilename(filename)
 {
     mTabWidget = dynamic_cast<QTabWidget*>(parent);
 }
@@ -13,4 +13,19 @@ void WorkflowTab::SetFilename(QString filename)
     // set the tooltip to show the filename
     int tabIndex = mTabWidget->indexOf(this);
     mTabWidget->setTabToolTip(tabIndex, filename);
+}
+
+void WorkflowTab::SetWorkflowName(QString workflowName)
+{
+    mWorkflowName = workflowName;
+
+    // set the tab title to show the workflow name
+    int tabIndex = mTabWidget->indexOf(this);
+    mTabWidget->setTabText(tabIndex, workflowName);
+}
+
+void WorkflowTab::Update()
+{
+    QString scxml = mWorkflow.GetRawSCXML();
+    SetSCMLText(scxml);
 }

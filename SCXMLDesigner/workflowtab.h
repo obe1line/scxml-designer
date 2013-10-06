@@ -3,8 +3,9 @@
 
 #include <QTabWidget>
 #include "workflow.h"
+#include "workflowsurface.h"
 
-class WorkflowTab : public QWidget
+class WorkflowTab : public WorkflowSurface
 {
     Q_OBJECT
 public:
@@ -12,6 +13,8 @@ public:
     Workflow* GetWorkflow() { return &mWorkflow; }
     QString GetFilename() { return mFilename; }
     void SetFilename(QString filename);
+    void SetWorkflowName(QString workflowName);
+    void Update();
 
 private:
     inline QTabWidget* GetParentTabWidget() { return dynamic_cast<QTabWidget*>(parent()); }
@@ -24,6 +27,7 @@ private:
     Workflow mWorkflow;
     QTabWidget *mTabWidget;
     QString mFilename;
+    QString mWorkflowName;
 };
 
 #endif // WORKFLOWTAB_H

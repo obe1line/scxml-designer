@@ -18,15 +18,6 @@ MainWindow::~MainWindow()
     delete mUI;
 }
 
-void MainWindow::ShowWarning(QString msg)
-{
-    QMessageBox msgBox;
-    msgBox.setModal(true);
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(msg);
-    msgBox.exec();
-}
-
 void MainWindow::insertState()
 {
     WorkflowTab* activeTab = getActiveWorkflowTab();
@@ -78,7 +69,7 @@ void MainWindow::saveCurrentWorkflow()
 
         QFile scxmlFile(workflowFilename);
         if (!scxmlFile.open(QIODevice::Truncate | QIODevice::WriteOnly)) {
-            ShowWarning("SCXML file cannot be written");
+            Utilities::ShowWarning("SCXML file cannot be written");
             return;
         }
         QByteArray xml = doc.toByteArray();
@@ -101,27 +92,28 @@ void MainWindow::loadWorkflow()
     fileSelector.setDefaultSuffix(tr("scxml"));
     if (fileSelector.exec()) {
         QString workflowFilename = fileSelector.selectedFiles().first();
-        //FIXME: get active tab and call save funtion on it
-        // for now, just write a test file
         QDomDocument doc;
         QFile scxmlFile(workflowFilename);
         if (!scxmlFile.open(QIODevice::ReadOnly)) {
-            ShowWarning("SCXML file cannot be read");
+            Utilities::ShowWarning("SCXML file cannot be read");
             return;
         }
         if (!doc.setContent(&scxmlFile)) {
             qDebug() << doc.lineNumber();
             qDebug() << doc.columnNumber();
-            ShowWarning("SCXML file cannot be parsed");
+            Utilities::ShowWarning("SCXML file cannot be parsed");
             scxmlFile.close();
             return;
         }
         scxmlFile.close();
 
-        // create a new tab and sety the workflow on it
+
+        // create a new tab and add the workflow to it
         WorkflowTab* newTab = createWorkflow();
         newTab->SetFilename(workflowFilename);
         newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
+        newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
+        newTab->Update();
 
         //TODO: remove this when no longer needed
         setLCDValue(newTab->GetWorkflow()->children().length());

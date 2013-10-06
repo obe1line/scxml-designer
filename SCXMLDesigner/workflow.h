@@ -12,24 +12,26 @@ class Workflow : public QStateMachine
     Q_OBJECT
 public:
     explicit Workflow();
-    
-    //! Loads a workflow from an SCXML file
-    bool LoadWorkflow(QString workflowPath);
-
-    //! Saves a workflow to an SCXML file
-    bool SaveWorkflow(QString workflowPath);
 
     //! Builds an SCXML representation of this workflow
     void ConstructSCXMLFromStateMachine(QDomDocument& doc);
 
     //! Builds a state machine representation from the SCXML
     void ConstructStateMachineFromSCXML(QDomDocument& doc);
+
+    //! Gets the name of the workflow
+    QString GetWorkflowName() { return mName; }
+
+    //! Gets the raw SCXML for this workflow
+    QString GetRawSCXML() { return mRawSCXMLText; }
+
 signals:
     
 public slots:
     
 private:
     QString mName;
+    QString mRawSCXMLText;
 };
 
 #endif // WORKFLOW_H

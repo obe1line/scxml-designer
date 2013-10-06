@@ -7,6 +7,7 @@
 #include "scxmlstate.h"
 #include "workflow.h"
 #include "workflowtab.h"
+#include "utilities.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,8 +20,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-    void ShowWarning(QString msg);
 
 signals:
     void setLCDValue(int value);

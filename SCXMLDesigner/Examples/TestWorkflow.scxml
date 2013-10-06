@@ -1,9 +1,9 @@
 <scxml initial="state1" version="1.0" name="TestWorkflow" xmlns="http://www.w3.org/2005/07/scxml">
-    <state uuid="{6a89dbbf-86fa-4a80-bc8f-32370519b1b9}" id="state1">
-        <transition type="external" uuid="{f0c5629f-87c3-405d-92d9-b686eccf919e}" targetuid="{46d2e9b1-50cc-4e07-91fa-031d2a0cb266}" target="state2"/>
+    <state id="state1">
+        <transition type="external" target="state2"/>
         <!--description="description" height="60" width="100" x="27" y="20" -->
     </state>
-    <final uuid="{46d2e9b1-50cc-4e07-91fa-031d2a0cb266}" id="state2">
+    <final id="state2">
         <donedata>
             <content>
                 <data expr="15" id="something"/>

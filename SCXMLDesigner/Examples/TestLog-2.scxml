@@ -1,0 +1,6 @@
+<scxml xmlns="http://www.w3.org/2005/07/scxml" name="TestLog" version="1.0">
+ <state id="CalculatorState"/>
+ <state id="LoggerState"/>
+ <state id="LoopState"/>
+ <state id="CheckState"/>
+</scxml>

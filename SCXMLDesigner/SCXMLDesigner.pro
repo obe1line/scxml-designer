@@ -16,11 +16,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     scxmlstate.cpp \
     workflow.cpp \
-    workflowtab.cpp
+    workflowtab.cpp \
+    utilities.cpp \
+    workflowsurface.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
     workflow.h \
-    workflowtab.h
+    workflowtab.h \
+    utilities.h \
+    workflowsurface.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    workflowsurface.ui

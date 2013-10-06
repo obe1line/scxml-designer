@@ -5,7 +5,7 @@
             <data id="second" expr="Integer"/>
         </data>
     </datamodel>
-    <final uuid="{669ea3b0-2ac3-43fa-84f1-5a5bfe9c1f67}" id="AdderState">
+    <final id="AdderState">
         <donedata>
             <content>
                 <data id="result" expr="parameters.first + parameters.second"/>
