@@ -1,8 +1,9 @@
+#include <QDebug>
+#include <QGraphicsRectItem>
 #include "workflow.h"
 #include "scxmlstate.h"
 #include "scxmltransition.h"
 #include "utilities.h"
-#include <QDebug>
 
 Workflow::Workflow() :
     QStateMachine()
@@ -26,6 +27,10 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
 
         QDomElement element = doc.createElement("state");
         element.setAttribute("id", state->GetId());
+
+        // add the state meta-data comment
+        QDomComment metaDataComment = doc.createComment(state->GetMetaDataString());
+        element.appendChild(metaDataComment);
 
         // add the transitions
         foreach(QAbstractTransition* trans, state->transitions()) {
@@ -123,10 +128,11 @@ void Workflow::CreateSceneObjects(QGraphicsScene* scene)
     foreach(QObject* child, this->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
 
-        scene->addRect(state->GetXPosition(),
+        QGraphicsRectItem* item = scene->addRect(state->GetXPosition(),
                        state->GetYPosition(),
                        state->GetWidth(),
                        state->GetHeight());
+        item->setFlag(QGraphicsItem::ItemIsMovable, true);
     }
 }
 

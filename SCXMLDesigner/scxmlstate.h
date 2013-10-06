@@ -27,6 +27,7 @@ public:
 
     void ApplyMetaData(QMap<QString, QString>& mapMetaData);
 
+    QString GetMetaDataString();
 signals:
 
 public slots:

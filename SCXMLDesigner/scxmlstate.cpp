@@ -28,3 +28,10 @@ void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
         }
     }
 }
+
+QString SCXMLState::GetMetaDataString()
+{
+    QString metadata = QString(" META-DATA [x=%1] [y=%2] [width=%3] [height=%4]").arg(
+                GetXPosition()).arg(GetYPosition()).arg(GetWidth()).arg(GetHeight());
+    return metadata;
+}
