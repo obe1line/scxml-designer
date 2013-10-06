@@ -8,8 +8,9 @@
         <data expr="-2000000000" id="highestnegative"/>
     </datamodel>
     <state id="CalculatorState">
+        <!-- META-DATA [x=263] [y=194] -->
         <transition type="external" event="done.invoke.multiplyadder" target="LoopState">
-            <!--controlx2="-78" controly2="-47" x2="14" y2="0" -->
+            <!-- META-DATA [controlx2=-78] [controly2=-47] [x2=14] [y2=0] -->
         </transition>
         <invoke type="MultiplyAdder" autoforward="false" id="multiplyadder">
             <content>
@@ -21,17 +22,16 @@
                 <script>parameters.value = _event.data.result</script>
             </finalize>
         </invoke>
-        <!--x="263" y="194" -->
     </state>
     <state id="LoggerState">
         <onentry>
             <script>TestLog(parameters.value)</script>
         </onentry>
-        <!--description="Logs the calculated parameter " height="100" width="200" x="647" y="218" -->
+        <!-- META-DATA [description=Logs the calculated parameter] [height=100] [width=200] [x=647] [y=218] -->
         <state id="LoopState">
             <transition type="external" event="" cond="parameters.value &lt; 0 &amp;&amp; parameters.value &gt; highestnegative" target="CheckState"/>
             <transition type="external" event="test.log" target="CalculatorState"/>
-            <!--description="Loops around" height="50" width="100" x="647" y="218" -->
+            <!-- META-DATA [description=Loops around] [height=50] [width=100] [x=647] [y=218] -->
         </state>
         <state id="CheckState">
             <onentry>
@@ -39,7 +39,7 @@
 highestnegative = parameters.value</script>
             </onentry>
             <transition type="external" event="" target="CalculatorState"/>
-            <!--description="Loops around" height="50" width="100" x="247" y="218" -->
+            <!-- META-DATA [description=Loops around] [height=50] [width=100] [x=247] [y=218] -->
         </state>
     </state>
 </scxml>

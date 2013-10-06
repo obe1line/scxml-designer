@@ -17,3 +17,8 @@ void WorkflowSurface::SetSCMLText(QString scxml)
 {
     ui->textSCXML->setText(scxml);
 }
+
+QGraphicsView *WorkflowSurface::GetSurface()
+{
+    return ui->graphicsView;
+}

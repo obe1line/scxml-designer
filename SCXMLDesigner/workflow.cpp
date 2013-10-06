@@ -2,6 +2,7 @@
 #include "scxmlstate.h"
 #include "scxmltransition.h"
 #include "utilities.h"
+#include <QDebug>
 
 Workflow::Workflow() :
     QStateMachine()
@@ -66,7 +67,22 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
 
+        QMap<QString, QString> mapMetaData;
+        QDomNodeList allSubNodes = element.childNodes();
+        for (int subPos=0; subPos<allSubNodes.length(); subPos++) {
+            QDomNode node = allSubNodes.at(subPos);
+            if (!node.isComment()) continue;
+
+            // comment detected - is it meta data?
+            QDomComment comment = node.toComment();
+            QString text = comment.data();
+            if (text.contains("META-DATA")) {
+                ParseMetaData(text, mapMetaData);
+            }
+        }
+
         SCXMLState *newState = new SCXMLState(id);
+        newState->ApplyMetaData(mapMetaData);
         addState(newState);
     }
 
@@ -83,7 +99,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 
             SCXMLTransition* newTransition = new SCXMLTransition(parentState);
             newTransition->setTransitionType(transitionType);
-            //TODO: need to get the state, but not yet added it!
+
             QState* targetState = GetStateById(transitionTarget);
             newTransition->setTargetState(targetState);
             parentState->addTransition(newTransition);
@@ -100,4 +116,32 @@ SCXMLState* Workflow::GetStateById(QString id)
         if (state->GetId() == id) return state;
     }
     return NULL;
+}
+
+void Workflow::CreateSceneObjects(QGraphicsScene* scene)
+{
+    foreach(QObject* child, this->children()) {
+        SCXMLState* state = dynamic_cast<SCXMLState*>(child);
+
+        scene->addRect(state->GetXPosition(),
+                       state->GetYPosition(),
+                       state->GetWidth(),
+                       state->GetHeight());
+    }
+}
+
+void Workflow::ParseMetaData(QString text, QMap<QString, QString> &map)
+{
+    // may need to change this to handle more complex meta-data, for now looks for "[data]" and assumes a single = sign
+    QRegExp rx(tr("\\[([^\\[]+)\\]"));
+    int pos = 0;
+    while ((pos = rx.indexIn(text, pos)) != -1) {
+        QString metaData = rx.cap(1);
+        QStringList parts = metaData.split('=');
+        if (parts.length() > 1) {
+            map.remove(parts[0]);
+            map.insert(parts[0], parts[1]);
+        }
+        pos += rx.matchedLength();
+    }
 }

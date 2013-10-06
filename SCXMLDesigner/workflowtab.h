@@ -28,6 +28,7 @@ private:
     QTabWidget *mTabWidget;
     QString mFilename;
     QString mWorkflowName;
+    QGraphicsScene* mScene ;
 };
 
 #endif // WORKFLOWTAB_H

@@ -15,6 +15,17 @@ public:
 
     //! Retrieves the identifier of the state as defined in the SCXML file
     QString GetId() { return mId; }
+    int GetXPosition() { return mX; }
+    int GetYPosition() { return mY; }
+    int GetWidth() { return mW; }
+    int GetHeight() { return mH; }
+
+    void SetXPosition(int value) { mX = value; }
+    void SetYPosition(int value) { mY = value; }
+    void SetWidth(int value) { mW = value; }
+    void SetHeight(int value) { mH = value; }
+
+    void ApplyMetaData(QMap<QString, QString>& mapMetaData);
 
 signals:
 
@@ -22,6 +33,10 @@ public slots:
 
 private:
   QString mId;
+  int mX;
+  int mY;
+  int mW;
+  int mH;
 };
 
 #endif // SCXMLSTATE_H

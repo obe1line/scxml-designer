@@ -2,6 +2,7 @@
 #define WORKFLOWSURFACE_H
 
 #include <QWidget>
+#include <QGraphicsView>
 
 namespace Ui {
 class WorkflowSurface;
@@ -16,6 +17,7 @@ public:
     ~WorkflowSurface();
 
     void SetSCMLText(QString scxml);
+    QGraphicsView *GetSurface();
 private:
     Ui::WorkflowSurface *ui;
 };

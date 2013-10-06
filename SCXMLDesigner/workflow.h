@@ -3,6 +3,7 @@
 
 #include <QStateMachine>
 #include <QDomDocument>
+#include <QGraphicsScene>
 #include "scxmlstate.h"
 
 //! Represents an SCXML workflow
@@ -29,6 +30,11 @@ public:
     //! Gets a state defined by id if it exists, NULL otherwise
     SCXMLState* GetStateById(QString id);
 
+    //! Creates the scene objects that correspond with the workflow
+    void CreateSceneObjects(QGraphicsScene *scene);
+
+    //! Parser the meta data comment text
+    void ParseMetaData(QString text, QMap<QString, QString>& map);
 signals:
     
 public slots:

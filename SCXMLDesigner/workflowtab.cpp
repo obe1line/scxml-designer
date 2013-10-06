@@ -4,6 +4,10 @@ WorkflowTab::WorkflowTab(QWidget *parent, QString filename) :
     WorkflowSurface(parent), mFilename(filename)
 {
     mTabWidget = dynamic_cast<QTabWidget*>(parent);
+    mScene = new QGraphicsScene();
+
+    // create a scene for the view
+    GetSurface()->setScene(mScene);
 }
 
 void WorkflowTab::SetFilename(QString filename)
@@ -28,4 +32,5 @@ void WorkflowTab::Update()
 {
     QString scxml = mWorkflow.GetRawSCXML();
     SetSCMLText(scxml);
+    GetWorkflow()->CreateSceneObjects(mScene);
 }
