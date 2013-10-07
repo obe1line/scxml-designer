@@ -1,21 +1,21 @@
-<scxml xmlns="http://www.w3.org/2005/07/scxml" name="TestLog" version="1.0">
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="TestLog">
  <state id="CalculatorState">
-  <!-- META-DATA [x=263] [y=194] [width=100] [height=50]-->
-  <transition target="LoopState" type="external"/>
+  <!-- META-DATA [x=278] [y=134] [width=100] [height=50]-->
+  <transition type="external" target="LoopState"/>
  </state>
  <state id="LoggerState">
-  <!-- META-DATA [x=647] [y=218] [width=200] [height=100]-->
-  <transition target="CheckState" type="external"/>
-  <transition target="CalculatorState" type="external"/>
-  <transition target="CalculatorState" type="external"/>
+  <!-- META-DATA [x=486] [y=124] [width=200] [height=100]-->
+  <transition type="external" target="CheckState"/>
+  <transition type="external" target="CalculatorState"/>
+  <transition type="external" target="CalculatorState"/>
  </state>
  <state id="LoopState">
-  <!-- META-DATA [x=647] [y=218] [width=100] [height=50]-->
-  <transition target="CheckState" type="external"/>
-  <transition target="CalculatorState" type="external"/>
+  <!-- META-DATA [x=334] [y=217] [width=100] [height=50]-->
+  <transition type="external" target="CheckState"/>
+  <transition type="external" target="CalculatorState"/>
  </state>
  <state id="CheckState">
-  <!-- META-DATA [x=247] [y=218] [width=100] [height=50]-->
-  <transition target="CalculatorState" type="external"/>
+  <!-- META-DATA [x=344] [y=49] [width=100] [height=50]-->
+  <transition type="external" target="CalculatorState"/>
  </state>
 </scxml>

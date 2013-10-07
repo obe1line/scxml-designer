@@ -43,12 +43,12 @@ void MainWindow::showStates()
     mUI->listOfStates->clear();
     foreach(QObject* child, activeWorkflow->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
-        qDebug() << state->GetId();
         mUI->listOfStates->addItem(state->GetId());
 
         foreach(QAbstractTransition* trans, state->transitions()) {
             mUI->listOfStates->addItem(QString(" (T) %1").arg("trans"));
             foreach(QAbstractState* targetTrans, trans->targetStates()) {
+                Q_UNUSED(targetTrans)
                 mUI->listOfStates->addItem(QString(" (T+) %1").arg("target"));
             }
         }

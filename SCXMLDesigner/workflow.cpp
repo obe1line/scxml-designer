@@ -110,6 +110,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             parentState->addTransition(newTransition);
         }
 
+        //FIXME: implement this
         //setInitialState(newState);
     }
 }
@@ -127,12 +128,8 @@ void Workflow::CreateSceneObjects(QGraphicsScene* scene)
 {
     foreach(QObject* child, this->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
-
-        QGraphicsRectItem* item = scene->addRect(state->GetXPosition(),
-                       state->GetYPosition(),
-                       state->GetWidth(),
-                       state->GetHeight());
-        item->setFlag(QGraphicsItem::ItemIsMovable, true);
+        QGraphicsItem* item = dynamic_cast<QGraphicsItem*>(state);
+        scene->addItem(item);
     }
 }
 
