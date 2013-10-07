@@ -1,21 +1,21 @@
 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="TestLog">
  <state id="CalculatorState">
-  <!-- META-DATA [x=278] [y=134] [width=100] [height=50]-->
+  <!-- META-DATA [x=33] [y=108] [width=63] [height=58] [description=]-->
   <transition type="external" target="LoopState"/>
  </state>
  <state id="LoggerState">
-  <!-- META-DATA [x=486] [y=124] [width=200] [height=100]-->
+  <!-- META-DATA [x=228] [y=-87] [width=599] [height=246] [description=]-->
   <transition type="external" target="CheckState"/>
   <transition type="external" target="CalculatorState"/>
   <transition type="external" target="CalculatorState"/>
  </state>
  <state id="LoopState">
-  <!-- META-DATA [x=334] [y=217] [width=100] [height=50]-->
+  <!-- META-DATA [x=-311] [y=-54] [width=288] [height=82] [description=]-->
   <transition type="external" target="CheckState"/>
   <transition type="external" target="CalculatorState"/>
  </state>
  <state id="CheckState">
-  <!-- META-DATA [x=344] [y=49] [width=100] [height=50]-->
+  <!-- META-DATA [x=-276] [y=81] [width=278] [height=144] [description=]-->
   <transition type="external" target="CalculatorState"/>
  </state>
 </scxml>

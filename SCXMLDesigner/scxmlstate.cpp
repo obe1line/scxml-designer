@@ -1,15 +1,74 @@
 #include <QMap>
 #include <QCursor>
+#include <QDebug>
+#include <QGraphicsSceneMouseEvent>
 #include "scxmlstate.h"
 
+#define MIN_STATE_HEIGHT 30
+#define MIN_STATE_WIDTH 60
+
 SCXMLState::SCXMLState(QString id) :
-    QState(), mId(id), mWidth(0), mHeight(0)
+    QState(), mId(id), mDescription(""),
+    mWidth(0), mHeight(0),
+    mResizing(false),
+    mResizeOriginalWidth(0), mResizeOriginalHeight(0),
+    mResizeStartX(0), mResizeStartY(0)
 {
     setX(0);
     setY(0);
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setCursor(Qt::OpenHandCursor);
+    setAcceptHoverEvents(true);
+}
+
+void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (mResizing) {
+        prepareGeometryChange();
+        qreal newWidth = mResizeOriginalWidth + (event->pos().x() - mResizeStartX);
+        qreal newHeight = mResizeOriginalHeight + (event->pos().y() - mResizeStartY);
+        if (newWidth >= MIN_STATE_WIDTH) SetShapeWidth(newWidth);
+        if (newHeight >= MIN_STATE_HEIGHT) SetShapeHeight(newHeight);
+        event->accept();
+        return;
+    }
+
+    QGraphicsItem::mouseMoveEvent(event);
+}
+
+void SCXMLState::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    // alternatively, this could be done with a grabber corner - possible refactor
+    if ((event->pos().x() > (mWidth-10)) && (event->pos().y() > (mHeight-10))) {
+        mResizing = true;
+        mResizeOriginalWidth = mWidth;
+        mResizeOriginalHeight = mHeight;
+        mResizeStartX = event->pos().x();
+        mResizeStartY = event->pos().y();
+        event->accept();
+    }
+
+    QGraphicsItem::mousePressEvent(event);
+}
+
+void SCXMLState::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mResizing = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+}
+
+void SCXMLState::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event)
+    //grabMouse();    // Need all mouse moves for resize area detection
+    setCursor(Qt::OpenHandCursor);
+}
+
+void SCXMLState::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event)
+    //ungrabMouse();
 }
 
 void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
@@ -38,7 +97,6 @@ void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
 QRectF SCXMLState::boundingRect() const
 {
     qreal penWidth = 1;
-//    return QRectF(-10 - (penWidth / 2), -10 - (penWidth / 2), mWidth + penWidth, mHeight + penWidth);
     return QRectF(0 - penWidth/2, 0 - penWidth/2,
                   mWidth + penWidth, mHeight + penWidth);
 }
@@ -64,7 +122,7 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 QString SCXMLState::GetMetaDataString()
 {
-    QString metadata = QString(" META-DATA [x=%1] [y=%2] [width=%3] [height=%4]").arg(
-                GetShapeX()).arg(GetShapeY()).arg(GetShapeWidth()).arg(GetShapeHeight());
+    QString metadata = QString(" META-DATA [x=%1] [y=%2] [width=%3] [height=%4] [description=%5]").arg(
+                GetShapeX()).arg(GetShapeY()).arg(GetShapeWidth()).arg(GetShapeHeight()).arg(GetDescription());
     return metadata;
 }

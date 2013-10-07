@@ -23,11 +23,20 @@ public:
     qreal GetShapeY() { return y(); }
     qreal GetShapeWidth() { return mWidth; }
     qreal GetShapeHeight() { return mHeight; }
+    QString GetDescription() { return mDescription; }
 
     void SetShapeX(qreal value) { setX(value); }
     void SetShapeY(qreal value) { setY(value); }
     void SetShapeWidth(qreal value) { mWidth = value; }
     void SetShapeHeight(qreal value) { mHeight = value; }
+    void SetDescription(QString value) { mDescription = value; }
+
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
     void ApplyMetaData(QMap<QString, QString>& mapMetaData);
 
@@ -42,8 +51,14 @@ public slots:
 
 private:
   QString mId;
+  QString mDescription;
   qreal mWidth;
   qreal mHeight;
+  bool mResizing;
+  qreal mResizeOriginalWidth;
+  qreal mResizeOriginalHeight;
+  qreal mResizeStartX;
+  qreal mResizeStartY;
 };
 
 #endif // SCXMLSTATE_H

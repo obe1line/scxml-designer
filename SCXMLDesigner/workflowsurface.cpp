@@ -6,6 +6,10 @@ WorkflowSurface::WorkflowSurface(QWidget *parent) :
     ui(new Ui::WorkflowSurface)
 {
     ui->setupUi(this);
+    QList<int> sizes;
+    sizes.append(300);
+    sizes.append(100);
+    ui->splitter->setSizes(sizes);
 }
 
 WorkflowSurface::~WorkflowSurface()
