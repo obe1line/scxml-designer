@@ -49,6 +49,9 @@ void SCXMLState::mousePressEvent(QGraphicsSceneMouseEvent *event)
         event->accept();
     }
 
+    setSelected(!isSelected());
+    update();
+
     QGraphicsItem::mousePressEvent(event);
 }
 
@@ -113,7 +116,7 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     gradient.setColorAt(1, QColor::fromRgb(0xE6, 0xF2, 0xA2));  //E6F2A2
     QBrush stateBrush = QBrush(gradient);
     painter->setBrush(stateBrush);
-    QBrush blackBrush = QBrush(Qt::black);
+    QBrush blackBrush = QBrush(isSelected() ? Qt::blue : Qt::black);
     QPen statePen = QPen(blackBrush, 2, Qt::SolidLine);
     painter->setPen(statePen);
 
