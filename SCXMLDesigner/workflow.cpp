@@ -39,6 +39,11 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
             transitionElement.setAttribute("type", transition->getTransitionType());
             SCXMLState* targetState = dynamic_cast<SCXMLState*>(transition->targetState());
             transitionElement.setAttribute("target", targetState->GetId());
+
+            // add the transition meta-data comment
+            QDomComment metaDataComment = doc.createComment(transition->GetMetaDataString());
+            transitionElement.appendChild(metaDataComment);
+
             element.appendChild(transitionElement);
         }
         rootElement.appendChild(element);
@@ -72,22 +77,8 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
 
-        QMap<QString, QString> mapMetaData;
-        QDomNodeList allSubNodes = element.childNodes();
-        for (int subPos=0; subPos<allSubNodes.length(); subPos++) {
-            QDomNode node = allSubNodes.at(subPos);
-            if (!node.isComment()) continue;
-
-            // comment detected - is it meta data?
-            QDomComment comment = node.toComment();
-            QString text = comment.data();
-            if (text.contains("META-DATA")) {
-                ParseMetaData(text, mapMetaData);
-            }
-        }
-
         SCXMLState *newState = new SCXMLState(id);
-        newState->ApplyMetaData(mapMetaData);
+        ExtractMetaDataFromElementComments(&element, newState);
         addState(newState);
     }
 
@@ -104,6 +95,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 
             SCXMLTransition* newTransition = new SCXMLTransition(parentState);
             newTransition->setTransitionType(transitionType);
+            ExtractMetaDataFromElementComments(&stateTransition, newTransition);
 
             QState* targetState = GetStateById(transitionTarget);
             newTransition->setTargetState(targetState);
@@ -113,6 +105,25 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         //FIXME: implement this
         //setInitialState(newState);
     }
+}
+
+void Workflow::ExtractMetaDataFromElementComments(QDomElement* element, MetaDataSupport* metaDataObject)
+{
+    QMap<QString, QString> mapMetaData;
+    QDomNodeList allSubNodes = element->childNodes();
+    for (int subPos=0; subPos<allSubNodes.length(); subPos++) {
+        QDomNode node = allSubNodes.at(subPos);
+        if (!node.isComment()) continue;
+
+        // comment detected - is it meta data?
+        QDomComment comment = node.toComment();
+        QString text = comment.data();
+        if (text.contains("META-DATA")) {
+            ParseMetaData(text, mapMetaData);
+        }
+    }
+
+    metaDataObject->ApplyMetaData(mapMetaData);
 }
 
 SCXMLState* Workflow::GetStateById(QString id)
@@ -130,6 +141,12 @@ void Workflow::CreateSceneObjects(QGraphicsScene* scene)
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
         QGraphicsItem* item = dynamic_cast<QGraphicsItem*>(state);
         scene->addItem(item);
+
+        foreach(QAbstractTransition* abtran, state->transitions()) {
+            SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
+            QGraphicsItem* itemTran = dynamic_cast<QGraphicsItem*>(tran);
+            scene->addItem(itemTran);
+        }
     }
 }
 

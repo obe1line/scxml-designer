@@ -4,12 +4,13 @@
 #include <QState>
 #include <QGraphicsItem>
 #include <QPainter>
+#include "metadatasupport.h"
 
 //! Represents an SCXML state
 //!
 //! Implemented with QState as the underlying class. Additional attributes and meta data are
 //! added to this for import and export to external SCXML files.
-class SCXMLState : public QState, public QGraphicsItem
+class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -35,14 +36,11 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-
-    void ApplyMetaData(QMap<QString, QString>& mapMetaData);
-
+    // MetaDataSupport overrides
+    void ApplyMetaData(QMap<QString, QString> &mapMetaData);
     QString GetMetaDataString();
 
-    // graphics overrides
+    // QGraphicsItem overrides
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 signals:

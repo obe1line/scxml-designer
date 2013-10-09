@@ -12,7 +12,7 @@ SCXMLState::SCXMLState(QString id) :
     mWidth(0), mHeight(0),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
-    mResizeStartX(0), mResizeStartY(0) //, mSelected(false)
+    mResizeStartX(0), mResizeStartY(0)
 {
     setX(0);
     setY(0);
@@ -60,23 +60,14 @@ void SCXMLState::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     QGraphicsItem::mouseReleaseEvent(event);
 }
 
-void SCXMLState::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event)
-    //grabMouse();    // Need all mouse moves for resize area detection
-    setCursor(Qt::OpenHandCursor);
-}
-
-void SCXMLState::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event)
-    //ungrabMouse();
-}
-
 void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
 {
     foreach(QString key, mapMetaData.keys()) {
         QString value = mapMetaData.value(key);
+        if (key == "description") {
+            SetDescription(value);
+            continue;
+        }
         if (key == "x") {
             SetShapeX(value.toDouble());
             continue;
@@ -94,6 +85,13 @@ void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
             continue;
         }
     }
+}
+
+QString SCXMLState::GetMetaDataString()
+{
+    QString metadata = QString(" META-DATA [x=%1] [y=%2] [width=%3] [height=%4] [description=%5]").arg(
+                GetShapeX()).arg(GetShapeY()).arg(GetShapeWidth()).arg(GetShapeHeight()).arg(GetDescription());
+    return metadata;
 }
 
 QRectF SCXMLState::boundingRect() const
@@ -120,11 +118,4 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setPen(statePen);
 
     painter->drawRoundedRect(rect, 10.0, 10.0);
-}
-
-QString SCXMLState::GetMetaDataString()
-{
-    QString metadata = QString(" META-DATA [x=%1] [y=%2] [width=%3] [height=%4] [description=%5]").arg(
-                GetShapeX()).arg(GetShapeY()).arg(GetShapeWidth()).arg(GetShapeHeight()).arg(GetDescription());
-    return metadata;
 }

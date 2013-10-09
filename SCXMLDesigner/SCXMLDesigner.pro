@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     utilities.cpp \
     workflowsurface.cpp \
     scxmltransition.cpp \
-    workflowgraphicsview.cpp
+    workflowgraphicsview.cpp \
+    metadatasupport.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -29,7 +30,15 @@ HEADERS  += mainwindow.h \
     utilities.h \
     workflowsurface.h \
     scxmltransition.h \
-    workflowgraphicsview.h
+    workflowgraphicsview.h \
+    metadatasupport.h
 
 FORMS    += mainwindow.ui \
     workflowsurface.ui
+
+OTHER_FILES += \
+    Examples/TestWorkflow.scxml \
+    Examples/TestLog.scxml \
+    Examples/TestLog-2.scxml \
+    Examples/MultiplyAdder.scxml \
+    Examples/Adder.scxml

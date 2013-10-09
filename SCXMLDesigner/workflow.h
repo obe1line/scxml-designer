@@ -35,6 +35,9 @@ public:
 
     //! Parser the meta data comment text
     void ParseMetaData(QString text, QMap<QString, QString>& map);
+
+    //! Extract the meta data from an element comment child nodes
+    void ExtractMetaDataFromElementComments(QDomElement *element, MetaDataSupport *metaDataObject);
 signals:
     
 public slots:
