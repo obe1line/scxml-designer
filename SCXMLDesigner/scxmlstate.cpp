@@ -12,7 +12,7 @@ SCXMLState::SCXMLState(QString id) :
     mWidth(0), mHeight(0),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
-    mResizeStartX(0), mResizeStartY(0)
+    mResizeStartX(0), mResizeStartY(0) //, mSelected(false)
 {
     setX(0);
     setY(0);
@@ -49,7 +49,6 @@ void SCXMLState::mousePressEvent(QGraphicsSceneMouseEvent *event)
         event->accept();
     }
 
-    setSelected(!isSelected());
     update();
 
     QGraphicsItem::mousePressEvent(event);

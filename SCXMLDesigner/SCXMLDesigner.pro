@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     workflowtab.cpp \
     utilities.cpp \
     workflowsurface.cpp \
-    scxmltransition.cpp
+    scxmltransition.cpp \
+    workflowgraphicsview.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     workflowtab.h \
     utilities.h \
     workflowsurface.h \
-    scxmltransition.h
+    scxmltransition.h \
+    workflowgraphicsview.h
 
 FORMS    += mainwindow.ui \
     workflowsurface.ui
