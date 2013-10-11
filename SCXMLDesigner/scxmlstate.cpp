@@ -20,6 +20,8 @@ SCXMLState::SCXMLState(QString id) :
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setCursor(Qt::OpenHandCursor);
     setAcceptHoverEvents(true);
+    //TODO: remove this - only for testing
+    if (id == "CheckState") setRotation(45);
 }
 
 void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

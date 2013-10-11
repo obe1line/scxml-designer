@@ -1,8 +1,13 @@
+#include <QCursor>
 #include "scxmltransition.h"
 
 SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     QAbstractTransition(), mParentState(parent), mX1(0), mX2(0), mY1(0), mY2(0), mDescription("")
 {
+    setFlag(QGraphicsItem::ItemIsMovable, true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setCursor(Qt::OpenHandCursor);
+    setAcceptHoverEvents(true);
 }
 
 void SCXMLTransition::ApplyMetaData(QMap<QString, QString> &mapMetaData)

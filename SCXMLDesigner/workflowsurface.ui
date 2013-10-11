@@ -28,7 +28,7 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QSCXMLGraphicsView" name="graphicsView"/>
+     <widget class="WorkflowGraphicsView" name="graphicsView"/>
      <widget class="QTextEdit" name="textSCXML">
       <property name="minimumSize">
        <size>
@@ -49,9 +49,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QSCXMLGraphicsView</class>
+   <class>WorkflowGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>qscxmlgraphicsview.h</header>
+   <header>workflowgraphicsview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

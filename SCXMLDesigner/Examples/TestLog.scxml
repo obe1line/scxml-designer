@@ -39,7 +39,7 @@
 highestnegative = parameters.value</script>
             </onentry>
             <transition type="external" event="" target="CalculatorState"/>
-            <!-- META-DATA [description=Loops around] [height=50] [width=100] [x=247] [y=218] -->
+            <!-- META-DATA [description=Loops around] [height=50] [width=50] [x=247] [y=218] -->
         </state>
     </state>
 </scxml>
