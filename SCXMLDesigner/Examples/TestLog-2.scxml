@@ -1,35 +1,35 @@
-<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="TestLog">
+<scxml xmlns="http://www.w3.org/2005/07/scxml" name="TestLog" version="1.0">
  <state id="CalculatorState">
   <!-- META-DATA [x=263] [y=194] [width=0] [height=0] [description=]-->
   <transition target="LoopState" type="external">
-   <!-- META-DATA [x1=10] [y1=10] [x1=100] [x2=130] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
  </state>
  <state id="LoggerState">
   <!-- META-DATA [x=647] [y=218] [width=200] [height=100] [description=Logs the calculated parameter]-->
   <transition target="CheckState" type="external">
-   <!-- META-DATA [x1=0] [y1=0] [x1=0] [x2=0] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
   <transition target="CalculatorState" type="external">
-   <!-- META-DATA [x1=0] [y1=0] [x1=0] [x2=0] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
   <transition target="CalculatorState" type="external">
-   <!-- META-DATA [x1=0] [y1=0] [x1=0] [x2=0] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
  </state>
  <state id="LoopState">
   <!-- META-DATA [x=647] [y=218] [width=100] [height=50] [description=Loops around]-->
   <transition target="CheckState" type="external">
-   <!-- META-DATA [x1=0] [y1=0] [x1=0] [x2=0] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
   <transition target="CalculatorState" type="external">
-   <!-- META-DATA [x1=0] [y1=0] [x1=0] [x2=0] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
  </state>
  <state id="CheckState">
-  <!-- META-DATA [x=247] [y=218] [width=100] [height=50] [description=Loops around]-->
+  <!-- META-DATA [x=247] [y=218] [width=50] [height=50] [description=Loops around]-->
   <transition target="CalculatorState" type="external">
-   <!-- META-DATA [x1=0] [y1=0] [x1=0] [x2=0] [description=]-->
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
   </transition>
  </state>
 </scxml>

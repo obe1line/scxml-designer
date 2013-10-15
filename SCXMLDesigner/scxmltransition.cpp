@@ -1,4 +1,5 @@
 #include <QCursor>
+#include <QVector2D>
 #include "scxmltransition.h"
 
 SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
@@ -39,7 +40,7 @@ void SCXMLTransition::ApplyMetaData(QMap<QString, QString> &mapMetaData)
 
 QString SCXMLTransition::GetMetaDataString()
 {
-    QString metadata = QString(" META-DATA [x1=%1] [y1=%2] [x1=%3] [x2=%4] [description=%5]").arg(
+    QString metadata = QString(" META-DATA [x1=%1] [y1=%2] [x2=%3] [y2=%4] [description=%5]").arg(
                 GetX1()).arg(GetY1()).arg(GetX2()).arg(GetY2()).arg(GetDescription());
     return metadata;
 }
@@ -57,10 +58,25 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(widget)
 
     QBrush blackBrush = QBrush(isSelected() ? Qt::blue : Qt::black);
+    painter->setBrush(blackBrush);
     QPen transitionPen = QPen(blackBrush, 2, Qt::SolidLine);
     painter->setPen(transitionPen);
 
     QPoint pointStart = QPoint(mX1, mY1);
     QPoint pointEnd = QPoint(mX2, mY2);
-    painter->drawLine(pointStart, pointEnd);
+    QLineF lineToDraw = QLine(pointStart, pointEnd);
+    painter->drawLine(lineToDraw);
+
+    // calculate the arrowhead points
+    QVector2D vectorLength(lineToDraw.dx(), lineToDraw.dy());
+    vectorLength.normalize();
+    QVector2D vectorWidth(-vectorLength.y(), vectorLength.x());
+    // scale the vectors to resize the arrow head
+    vectorLength *= 20;
+    vectorWidth *= 4;
+    // draw the arrow head using the vectors for identifying the points
+    QPointF arrowP1 = lineToDraw.p1() + vectorLength.toPointF() + vectorWidth.toPointF();
+    QPointF arrowP2 = lineToDraw.p1() + vectorLength.toPointF() - vectorWidth.toPointF();
+    QPointF polyPoints[3] = { lineToDraw.p1(), arrowP1, arrowP2 };
+    painter->drawPolygon(polyPoints, 3);
 }
