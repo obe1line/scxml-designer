@@ -34,7 +34,7 @@ public:
     void onTransition(QEvent * event) { Q_UNUSED(event) }
 
     // MetaDataSupport overrides
-    void ApplyMetaData(QMap<QString, QString> &mapMetaData);
+    void ApplyMetaData(QMap<QString, QString>* mapMetaData);
     QString GetMetaDataString();
 
     // QGraphicsItem overrides

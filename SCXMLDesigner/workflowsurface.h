@@ -1,12 +1,18 @@
 #ifndef WORKFLOWSURFACE_H
 #define WORKFLOWSURFACE_H
 
-#include <QWidget>
-#include <QGraphicsView>
+#include <QtCore/QVariant>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QSplitter>
+#include <QtWidgets/QTextEdit>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
+#include <QtWidgets/QGraphicsView>
+#include "workflowgraphicsview.h"
 
-namespace Ui {
-class WorkflowSurface;
-}
 
 class WorkflowSurface : public QWidget
 {
@@ -18,8 +24,13 @@ public:
 
     void SetSCMLText(QString scxml);
     QGraphicsView *GetSurface();
+
+    void CreateWidgets();
+
 private:
-    Ui::WorkflowSurface *ui;
-};
+    QVBoxLayout* verticalLayout;
+    QSplitter* splitter;
+    WorkflowGraphicsView* graphicsView;
+    QTextEdit* textSCXML;};
 
 #endif // WORKFLOWSURFACE_H

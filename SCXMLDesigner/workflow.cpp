@@ -123,7 +123,7 @@ void Workflow::ExtractMetaDataFromElementComments(QDomElement* element, MetaData
         }
     }
 
-    metaDataObject->ApplyMetaData(mapMetaData);
+    metaDataObject->ApplyMetaData(&mapMetaData);
 }
 
 SCXMLState* Workflow::GetStateById(QString id)

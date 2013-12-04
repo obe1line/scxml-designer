@@ -11,10 +11,10 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     setAcceptHoverEvents(true);
 }
 
-void SCXMLTransition::ApplyMetaData(QMap<QString, QString> &mapMetaData)
+void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
 {
-    foreach(QString key, mapMetaData.keys()) {
-        QString value = mapMetaData.value(key);
+    foreach(QString key, mapMetaData->keys()) {
+        QString value = mapMetaData->value(key);
         if (key == "description") {
             SetDescription(value);
             continue;

@@ -37,7 +37,7 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     // MetaDataSupport overrides
-    void ApplyMetaData(QMap<QString, QString> &mapMetaData);
+    void ApplyMetaData(QMap<QString, QString>* mapMetaData);
     QString GetMetaDataString();
 
     // QGraphicsItem overrides

@@ -62,10 +62,10 @@ void SCXMLState::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     QGraphicsItem::mouseReleaseEvent(event);
 }
 
-void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
+void SCXMLState::ApplyMetaData(QMap<QString, QString>* mapMetaData)
 {
-    foreach(QString key, mapMetaData.keys()) {
-        QString value = mapMetaData.value(key);
+    foreach(QString key, mapMetaData->keys()) {
+        QString value = mapMetaData->value(key);
         if (key == "description") {
             SetDescription(value);
             continue;

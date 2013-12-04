@@ -33,8 +33,7 @@ HEADERS  += mainwindow.h \
     workflowgraphicsview.h \
     metadatasupport.h
 
-FORMS    += mainwindow.ui \
-    workflowsurface.ui
+FORMS    +=
 
 OTHER_FILES += \
     Examples/TestWorkflow.scxml \
@@ -42,3 +41,6 @@ OTHER_FILES += \
     Examples/TestLog-2.scxml \
     Examples/MultiplyAdder.scxml \
     Examples/Adder.scxml
+
+RESOURCES += \
+    resources.qrc
