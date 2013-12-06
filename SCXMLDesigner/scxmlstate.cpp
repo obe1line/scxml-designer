@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include "scxmlstate.h"
+#include "scxmltransition.h"
 
 #define MIN_STATE_HEIGHT 30
 #define MIN_STATE_WIDTH 60
@@ -12,7 +13,8 @@ SCXMLState::SCXMLState(QString id) :
     mWidth(0), mHeight(0),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
-    mResizeStartX(0), mResizeStartY(0)
+    mResizeStartX(0), mResizeStartY(0),
+    mFinal(false)
 {
     setX(0);
     setY(0);
@@ -20,8 +22,6 @@ SCXMLState::SCXMLState(QString id) :
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setCursor(Qt::OpenHandCursor);
     setAcceptHoverEvents(true);
-    //TODO: remove this - only for testing
-    if (id == "CheckState") setRotation(45);
 }
 
 void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -32,11 +32,14 @@ void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         qreal newHeight = mResizeOriginalHeight + (event->pos().y() - mResizeStartY);
         if (newWidth >= MIN_STATE_WIDTH) SetShapeWidth(newWidth);
         if (newHeight >= MIN_STATE_HEIGHT) SetShapeHeight(newHeight);
+
+        UpdateTransitions();
         event->accept();
         return;
     }
 
     QGraphicsItem::mouseMoveEvent(event);
+    UpdateTransitions();
 }
 
 void SCXMLState::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -60,12 +63,14 @@ void SCXMLState::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     mResizing = false;
     QGraphicsItem::mouseReleaseEvent(event);
+
+    UpdateTransitions();
 }
 
-void SCXMLState::ApplyMetaData(QMap<QString, QString> &mapMetaData)
+void SCXMLState::ApplyMetaData(QMap<QString, QString>* mapMetaData)
 {
-    foreach(QString key, mapMetaData.keys()) {
-        QString value = mapMetaData.value(key);
+    foreach(QString key, mapMetaData->keys()) {
+        QString value = mapMetaData->value(key);
         if (key == "description") {
             SetDescription(value);
             continue;
@@ -98,8 +103,8 @@ QString SCXMLState::GetMetaDataString()
 
 QRectF SCXMLState::boundingRect() const
 {
-    qreal penWidth = 1;
-    return QRectF(0 - penWidth/2, 0 - penWidth/2,
+    qreal penWidth = 2;
+    return QRectF(0 - penWidth, 0 - penWidth,
                   mWidth + penWidth, mHeight + penWidth);
 }
 
@@ -120,4 +125,25 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setPen(statePen);
 
     painter->drawRoundedRect(rect, 10.0, 10.0);
+}
+
+
+//!
+//! \brief SCXMLState::UpdateTransitions
+//!
+//! Forces a redraw of all the transitions that are attached to this state
+//!
+void SCXMLState::UpdateTransitions()
+{
+    // update outgoing transitions
+    foreach(QAbstractTransition* abtran, this->transitions()) {
+        SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
+        tran->Update();
+    }
+
+    // update incoming transitions
+    foreach(QAbstractTransition* abtran, this->mIncomingTransitions) {
+        SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
+        tran->Update();
+    }
 }

@@ -1,14 +1,16 @@
 <scxml initial="state1" version="1.0" name="TestWorkflow" xmlns="http://www.w3.org/2005/07/scxml">
     <state id="state1">
-        <transition type="external" target="state2"/>
-        <!--description="description" height="60" width="100" x="27" y="20" -->
+        <!-- META-DATA [x=100] [y=100] [width=200] [height=100] [description=state1]-->
+        <transition type="external" target="state2">
+            <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+        </transition>
     </state>
     <final id="state2">
+        <!-- META-DATA [x=120] [y=200] [width=200] [height=100] [description=state2]-->
         <donedata>
             <content>
                 <data expr="15" id="something"/>
             </content>
         </donedata>
-        <!--description="description" height="50" width="100" x="296" y="171" -->
     </final>
 </scxml>

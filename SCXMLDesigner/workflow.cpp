@@ -25,7 +25,7 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     foreach(QObject* child, this->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
 
-        QDomElement element = doc.createElement("state");
+        QDomElement element = doc.createElement(state->GetFinal() ? "final" : "state");
         element.setAttribute("id", state->GetId());
 
         // add the state meta-data comment
@@ -50,6 +50,20 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     }
 }
 
+QList<QDomNode> Workflow::GetElementsWithTagName(QDomDocument* doc, QStringList tags)
+{
+    QList<QDomNode> elems;
+
+    foreach (QString tag, tags) {
+        QDomNodeList elements = doc->elementsByTagName(tag);
+        for (int pos=0; pos < elements.length(); pos++) {
+            elems.append(elements.at(pos));
+        }
+    }
+
+    return elems;
+}
+
 void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 {
     mRawSCXMLText = doc.toString();
@@ -72,7 +86,9 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     mName = scxmlRoot.attribute("name", "Unnamed");
 
     // add all the states before we add transitions (they need to exist!)
-    QDomNodeList allElements = scxmlRoot.elementsByTagName("state");
+    QStringList stateTags;
+    stateTags << "state" << "final";
+    QList<QDomNode> allElements = GetElementsWithTagName(&doc, stateTags);
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
@@ -81,6 +97,18 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         ExtractMetaDataFromElementComments(&element, newState);
         addState(newState);
     }
+
+//    // add final states
+//    allElements = scxmlRoot.elementsByTagName("final");
+//    for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
+//        QDomElement element = allElements.at(elementPos).toElement();
+//        QString id = element.attribute("id", "unnamed");
+
+//        SCXMLState *newState = new SCXMLState(id);
+//        newState->SetFinal(true);
+//        ExtractMetaDataFromElementComments(&element, newState);
+//        addState(newState);
+//    }
 
     // add transitions
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
@@ -97,9 +125,9 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             newTransition->setTransitionType(transitionType);
             ExtractMetaDataFromElementComments(&stateTransition, newTransition);
 
-            QState* targetState = GetStateById(transitionTarget);
+            SCXMLState* targetState = GetStateById(transitionTarget);
             newTransition->setTargetState(targetState);
-            parentState->addTransition(newTransition);
+            newTransition->Connect(parentState, targetState);
         }
 
         //FIXME: implement this
@@ -123,7 +151,7 @@ void Workflow::ExtractMetaDataFromElementComments(QDomElement* element, MetaData
         }
     }
 
-    metaDataObject->ApplyMetaData(mapMetaData);
+    metaDataObject->ApplyMetaData(&mapMetaData);
 }
 
 SCXMLState* Workflow::GetStateById(QString id)

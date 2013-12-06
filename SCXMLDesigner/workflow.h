@@ -38,6 +38,9 @@ public:
 
     //! Extract the meta data from an element comment child nodes
     void ExtractMetaDataFromElementComments(QDomElement *element, MetaDataSupport *metaDataObject);
+
+    //! Extracts all DOM elements with a name in tags
+    QList<QDomNode> GetElementsWithTagName(QDomDocument *doc, QStringList tags);
 signals:
     
 public slots:

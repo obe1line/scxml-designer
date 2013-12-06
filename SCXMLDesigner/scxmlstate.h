@@ -25,24 +25,29 @@ public:
     qreal GetShapeWidth() { return mWidth; }
     qreal GetShapeHeight() { return mHeight; }
     QString GetDescription() { return mDescription; }
+    bool GetFinal() { return mFinal; }
 
     void SetShapeX(qreal value) { setX(value); }
     void SetShapeY(qreal value) { setY(value); }
     void SetShapeWidth(qreal value) { mWidth = value; }
     void SetShapeHeight(qreal value) { mHeight = value; }
     void SetDescription(QString value) { mDescription = value; }
+    void SetFinal(bool value) { mFinal = value; }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     // MetaDataSupport overrides
-    void ApplyMetaData(QMap<QString, QString> &mapMetaData);
+    void ApplyMetaData(QMap<QString, QString>* mapMetaData);
     QString GetMetaDataString();
 
     // QGraphicsItem overrides
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void UpdateTransitions();
+
+    void AddIncomingTransition(QAbstractTransition* transitionRef) { mIncomingTransitions.append(transitionRef); }
 signals:
 
 public slots:
@@ -57,6 +62,8 @@ private:
   qreal mResizeOriginalHeight;
   qreal mResizeStartX;
   qreal mResizeStartY;
+  bool mFinal;
+  QList<QAbstractTransition*> mIncomingTransitions;
 };
 
 #endif // SCXMLSTATE_H

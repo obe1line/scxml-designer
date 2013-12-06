@@ -34,13 +34,19 @@ public:
     void onTransition(QEvent * event) { Q_UNUSED(event) }
 
     // MetaDataSupport overrides
-    void ApplyMetaData(QMap<QString, QString> &mapMetaData);
+    void ApplyMetaData(QMap<QString, QString>* mapMetaData);
     QString GetMetaDataString();
 
     // QGraphicsItem overrides
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+    void Update();
+    void Connect(SCXMLState* parentState, SCXMLState* targetState)
+    {
+        parentState->addTransition(this);
+        targetState->AddIncomingTransition(this);
+    }
 signals:
     
 public slots:
