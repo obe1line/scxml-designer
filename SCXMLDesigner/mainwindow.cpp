@@ -37,20 +37,24 @@ void MainWindow::CreateWidgets()
     mCentralWidget = new QWidget(this);
     setCentralWidget(mCentralWidget);
 
-//    QDockWidget *dock = new QDockWidget(mCentralWidget);
-//    dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-//    mTabWidget = new QTabWidget(dock);
+    // create a dockable area for the properies
+    QDockWidget *dock = new QDockWidget(mCentralWidget);
+    dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    QDockWidget::DockWidgetFeatures dockFeatures = QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetVerticalTitleBar;
+    dock->setFeatures(dockFeatures);
+    dock->setWindowTitle("Worfklow properties and settings");
 
     mHorizontalLayout = new QHBoxLayout(mCentralWidget);
     mHorizontalLayout->setSpacing(6);
     mHorizontalLayout->setContentsMargins(11, 11, 11, 11);
 
-    mTabWidget = new QTabWidget();
+    mTabWidget = new QTabWidget(dock);
     mTabWidget->setTabsClosable(true);
     mTabWidget->setCurrentIndex(-1);
 
     mHorizontalLayout->addWidget(mTabWidget);
-//    addDockWidget(Qt::RightDockWidgetArea, dock);
+
+    addDockWidget(Qt::RightDockWidgetArea, dock);
 }
 
 //!

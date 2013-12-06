@@ -41,6 +41,12 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+    void Update();
+    void Connect(SCXMLState* parentState, SCXMLState* targetState)
+    {
+        parentState->addTransition(this);
+        targetState->AddIncomingTransition(this);
+    }
 signals:
     
 public slots:

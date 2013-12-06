@@ -47,9 +47,40 @@ QString SCXMLTransition::GetMetaDataString()
 
 QRectF SCXMLTransition::boundingRect() const
 {
-    qreal penWidth = 1;
-    return QRectF(0 - penWidth/2, 0 - penWidth/2,
-                  mX2-mX1 + penWidth, mY2-mY1 + penWidth);
+    //TODO: refactor duplicate code
+    SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
+    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
+    if (endState == nullptr) return QRectF();
+
+    QPoint pointStart = QPoint(startState->GetShapeX(), startState->GetShapeY());
+    QPoint pointEnd = QPoint(endState->GetShapeX(), endState->GetShapeY());
+    QLineF lineToDraw = QLine(pointStart, pointEnd);
+
+    //TODO: make this a moveable control point
+    QPoint pointControl = QPoint(50, 50);
+
+    // draw the Bezier curve
+    QPainterPath path;
+    path.moveTo(pointStart);
+    path.quadTo(pointControl,pointEnd);
+
+    // calculate the arrowhead points
+    QVector2D vectorLength(lineToDraw.dx(), lineToDraw.dy());
+    vectorLength.normalize();
+    QVector2D vectorWidth(-vectorLength.y(), vectorLength.x());
+    // scale the vectors to resize the arrow head
+    vectorLength *= 20;
+    vectorWidth *= 4;
+    // draw the arrow head using the vectors for identifying the points
+    QPointF arrowP1 = lineToDraw.p1() + vectorLength.toPointF() + vectorWidth.toPointF();
+    QPointF arrowP2 = lineToDraw.p1() + vectorLength.toPointF() - vectorWidth.toPointF();
+    QPolygonF poly;
+    poly.append(lineToDraw.p1());
+    poly.append(arrowP1);
+    poly.append(arrowP2);
+    path.addPolygon(poly);
+
+    return path.boundingRect();
 }
 
 void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -58,14 +89,32 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(widget)
 
     QBrush blackBrush = QBrush(isSelected() ? Qt::blue : Qt::black);
-    painter->setBrush(blackBrush);
     QPen transitionPen = QPen(blackBrush, 2, Qt::SolidLine);
+    //QPen arrowPen = QPen(blackBrush, 2, Qt::SolidLine);
     painter->setPen(transitionPen);
 
-    QPoint pointStart = QPoint(mX1, mY1);
-    QPoint pointEnd = QPoint(mX2, mY2);
+    // determine the transition start and end points
+    //TODO: anchor points
+    SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
+    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
+    if (endState == nullptr) return;
+
+    QPoint pointStart = QPoint(startState->GetShapeX(), startState->GetShapeY());
+    QPoint pointEnd = QPoint(endState->GetShapeX(), endState->GetShapeY());
     QLineF lineToDraw = QLine(pointStart, pointEnd);
-    painter->drawLine(lineToDraw);
+
+    //TODO: make this a moveable control point
+    QPoint pointControl = QPoint(50, 50);
+
+    SCXMLState* midPoint = new SCXMLState("test");
+    midPoint->setX(50);
+    midPoint->setY(50);
+
+    // draw the Bezier curve
+    QPainterPath path;
+    path.moveTo(pointStart);
+    path.quadTo(pointControl,pointEnd);
+    painter->drawPath(path);
 
     // calculate the arrowhead points
     QVector2D vectorLength(lineToDraw.dx(), lineToDraw.dy());
@@ -78,5 +127,12 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     QPointF arrowP1 = lineToDraw.p1() + vectorLength.toPointF() + vectorWidth.toPointF();
     QPointF arrowP2 = lineToDraw.p1() + vectorLength.toPointF() - vectorWidth.toPointF();
     QPointF polyPoints[3] = { lineToDraw.p1(), arrowP1, arrowP2 };
+    painter->setBrush(blackBrush);
     painter->drawPolygon(polyPoints, 3);
+}
+
+void SCXMLTransition::Update()
+{
+    prepareGeometryChange();
+    update();
 }
