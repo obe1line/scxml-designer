@@ -6,7 +6,6 @@
 #include <QAbstractTransition>
 #include <QHBoxLayout>
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "workflowtab.h"
 
 //!
@@ -133,7 +132,7 @@ void MainWindow::CreateToolbars()
     mInsertToolBar->addAction(mActionState);
     mInsertToolBar->addAction(mActionTransition);
 
-    statusBar()->showMessage("Status here");
+    statusBar()->showMessage(QString("Version: %1").arg(VERSION));
 }
 
 //!

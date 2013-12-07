@@ -11,7 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = SCXMLDesigner
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     scxmlstate.cpp \
@@ -31,7 +30,8 @@ HEADERS  += mainwindow.h \
     workflowsurface.h \
     scxmltransition.h \
     workflowgraphicsview.h \
-    metadatasupport.h
+    metadatasupport.h \
+    version.h
 
 FORMS    +=
 
@@ -44,3 +44,4 @@ OTHER_FILES += \
 
 RESOURCES += \
     resources.qrc
+

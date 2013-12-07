@@ -25,6 +25,7 @@
 #include "workflow.h"
 #include "workflowtab.h"
 #include "utilities.h"
+#include "version.h"
 
 
 class MainWindow : public QMainWindow
