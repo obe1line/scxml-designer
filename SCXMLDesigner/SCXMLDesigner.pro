@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     workflowsurface.cpp \
     scxmltransition.cpp \
     workflowgraphicsview.cpp \
-    metadatasupport.cpp
+    metadatasupport.cpp \
+    scxmldatamodel.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
     scxmltransition.h \
     workflowgraphicsview.h \
     metadatasupport.h \
-    version.h
+    version.h \
+    scxmldatamodel.h
 
 FORMS    +=
 

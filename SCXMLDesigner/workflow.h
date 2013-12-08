@@ -5,6 +5,7 @@
 #include <QDomDocument>
 #include <QGraphicsScene>
 #include "scxmlstate.h"
+#include "scxmldatamodel.h"
 
 //! Represents an SCXML workflow
 //!
@@ -41,6 +42,9 @@ public:
 
     //! Extracts all DOM elements with a name in tags
     QList<QDomNode> GetElementsWithTagName(QDomDocument *doc, QStringList tags);
+
+    //! Extracts the data model from a given element (looks in the child nodes)
+    void ExtractDataModelFromElement(QDomElement* element, SCXMLState* state);
 signals:
     
 public slots:
@@ -48,6 +52,7 @@ public slots:
 private:
     QString mName;
     QString mRawSCXMLText;
+    SCXMLDataModel mDataModel;
 };
 
 #endif // WORKFLOW_H

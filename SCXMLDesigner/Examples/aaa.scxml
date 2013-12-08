@@ -1,0 +1,42 @@
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="TestLog">
+ <datamodel>
+  <data id="highestnegative" expr="-2000000000"/>
+  <data id="increment" expr="Integer"/>
+  <data id="multiplier" expr="Integer"/>
+  <data id="parameters"/>
+  <data id="value" expr="Integer"/>
+ </datamodel>
+ <state id="CalculatorState">
+  <!-- META-DATA [x=263] [y=194] [width=0] [height=0] [description=]-->
+  <transition type="external" target="LoopState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+ </state>
+ <state id="LoggerState">
+  <!-- META-DATA [x=457] [y=274] [width=200] [height=100] [description=Logs the calculated parameter]-->
+  <transition type="external" target="CheckState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+  <transition type="external" target="CalculatorState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+  <transition type="external" target="CalculatorState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+ </state>
+ <state id="LoopState">
+  <!-- META-DATA [x=107] [y=285] [width=100] [height=50] [description=Loops around]-->
+  <transition type="external" target="CheckState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+  <transition type="external" target="CalculatorState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+ </state>
+ <state id="CheckState">
+  <!-- META-DATA [x=313] [y=373] [width=50] [height=50] [description=Loops around]-->
+  <transition type="external" target="CalculatorState">
+   <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  </transition>
+ </state>
+</scxml>

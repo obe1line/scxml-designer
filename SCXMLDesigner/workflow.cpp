@@ -21,6 +21,23 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     rootElement.setAttribute("version", "1.0");
     doc.appendChild(rootElement);
 
+    // data model
+    if (mDataModel.HasItems()) {
+        QDomElement dataModelElement = doc.createElement("datamodel");
+        rootElement.appendChild(dataModelElement);
+        foreach (SCXMLDataItem* dataItem, mDataModel.GetDataItemList()) {
+            QDomElement dataElement = doc.createElement("data");
+            dataElement.setAttribute("id", dataItem->GetId());
+            if (dataItem->GetSrc() != "") {
+                dataElement.setAttribute("src", dataItem->GetSrc());
+            }
+            if (dataItem->GetExpr() != "") {
+                dataElement.setAttribute("expr", dataItem->GetExpr());
+            }
+            dataModelElement.appendChild(dataElement);
+        }
+    }
+
     // traverse the states to build up the SCXML document
     foreach(QObject* child, this->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
@@ -95,20 +112,12 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 
         SCXMLState *newState = new SCXMLState(id);
         ExtractMetaDataFromElementComments(&element, newState);
+        ExtractDataModelFromElement(&element, newState);
         addState(newState);
     }
 
-//    // add final states
-//    allElements = scxmlRoot.elementsByTagName("final");
-//    for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
-//        QDomElement element = allElements.at(elementPos).toElement();
-//        QString id = element.attribute("id", "unnamed");
-
-//        SCXMLState *newState = new SCXMLState(id);
-//        newState->SetFinal(true);
-//        ExtractMetaDataFromElementComments(&element, newState);
-//        addState(newState);
-//    }
+    // add top level data model if exists
+    ExtractDataModelFromElement(&scxmlRoot, nullptr);
 
     // add transitions
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
@@ -132,6 +141,34 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 
         //FIXME: implement this
         //setInitialState(newState);
+    }
+}
+
+void Workflow::ExtractDataModelFromElement(QDomElement* element, SCXMLState* state)
+{
+    QDomNodeList allSubNodes = element->childNodes();
+    for (int subPos=0; subPos<allSubNodes.length(); subPos++) {
+        QDomNode node = allSubNodes.at(subPos);
+        if (!node.isElement()) continue;
+        QDomElement elementDataModel = node.toElement();
+        if (elementDataModel.nodeName() != "datamodel") continue;
+
+        // found the data model, now traverse the data items
+        QDomNodeList dataNodes = elementDataModel.elementsByTagName("data");
+        for (int dataPos=0; dataPos<dataNodes.length(); dataPos++) {
+            QDomNamedNodeMap attrMap = dataNodes.at(dataPos).attributes();
+            QString src = "";
+            QString expr = "";
+            if (attrMap.contains("src")) src = attrMap.namedItem("src").toAttr().value();
+            if (attrMap.contains("expr")) expr = attrMap.namedItem("expr").toAttr().value();
+            if (attrMap.contains("id")) {
+                SCXMLDataItem* dataItem = new SCXMLDataItem(attrMap.namedItem("id").toAttr().value(), src, expr);
+                mDataModel.AddDataItem(dataItem);
+                if (state != nullptr) {
+                    //TODO: add details to state
+                }
+            }
+        }
     }
 }
 
