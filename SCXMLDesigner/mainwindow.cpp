@@ -5,6 +5,8 @@
 #include <QMessageBox>
 #include <QAbstractTransition>
 #include <QHBoxLayout>
+#include <QTableView>
+
 #include "mainwindow.h"
 #include "workflowtab.h"
 
@@ -42,6 +44,8 @@ void MainWindow::CreateWidgets()
     QDockWidget::DockWidgetFeatures dockFeatures = QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetVerticalTitleBar;
     dock->setFeatures(dockFeatures);
     dock->setWindowTitle("Worfklow properties and settings");
+
+    mDataModelTable = new QTableView(dock);
 
     mHorizontalLayout = new QHBoxLayout(mCentralWidget);
     mHorizontalLayout->setSpacing(6);
@@ -227,7 +231,7 @@ void MainWindow::loadWorkflow()
     }
 }
 
-void MainWindow::on_tabWidget_tabCloseRequested(int index)
+void MainWindow::CloseTabRequested(int index)
 {
     Q_UNUSED(index)
     //TODO: close the tab after save check
@@ -242,6 +246,7 @@ WorkflowTab* MainWindow::createWorkflow()
     WorkflowTab* tab = new WorkflowTab(mTabWidget, "");
     int index = mTabWidget->addTab(tab, "Unnamed");
     mTabWidget->setCurrentIndex(index);
+    connect(mTabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(CloseTabRequested(int)));
     return tab;
 }
 

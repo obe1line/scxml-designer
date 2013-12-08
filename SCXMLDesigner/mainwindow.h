@@ -17,6 +17,7 @@
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QToolBox>
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QTableView>
 #include <QMainWindow>
 #include <QStateMachine>
 #include <QDomDocument>
@@ -43,7 +44,7 @@ public:
     void CreateToolbars();
 
 private slots:
-    void on_tabWidget_tabCloseRequested(int index);
+    void CloseTabRequested(int index);
     void insertState();
     void saveCurrentWorkflow();
     void loadWorkflow();
@@ -80,6 +81,8 @@ private:
     QLCDNumber *lcdNumber;
     QWidget *page_1;
     QWidget *page_2;
+
+    QTableView *mDataModelTable;
 };
 
 #endif // MAINWINDOW_H
