@@ -9,6 +9,7 @@
 
 #include "mainwindow.h"
 #include "workflowtab.h"
+#include "scxmltransition.h"
 
 //!
 //! \brief MainWindow::MainWindow
@@ -73,24 +74,27 @@ void MainWindow::CreateActions()
     mActionNew = new QAction(tr("&New"), this);
     mActionNew->setIcon(QIcon("://images/new.png"));
     mActionNew->setStatusTip(tr("New layout"));
-    QObject::connect(mActionNew, SIGNAL(triggered()), this, SLOT(createWorkflow()));
+    QObject::connect(mActionNew, SIGNAL(triggered()), this, SLOT(CreateWorkflow()));
 
     mActionOpen = new QAction(tr("&Open"), this);
     mActionOpen->setIcon(QIcon("://images/open.png"));
     mActionOpen->setStatusTip(tr("Open a layout"));
-    QObject::connect(mActionOpen, SIGNAL(triggered()), this, SLOT(loadWorkflow()));
+    QObject::connect(mActionOpen, SIGNAL(triggered()), this, SLOT(LoadWorkflow()));
 
     mActionSave = new QAction(tr("&Save"), this);
     mActionSave->setIcon(QIcon("://images/save.png"));
     mActionSave->setStatusTip(tr("Save the current layout"));
-    QObject::connect(mActionSave, SIGNAL(triggered()), this, SLOT(saveCurrentWorkflow()));
+    QObject::connect(mActionSave, SIGNAL(triggered()), this, SLOT(SaveCurrentWorkflow()));
 
     mActionState = new QAction(tr("&State"), this);
     mActionState->setIcon(QIcon("://images/new.png"));
     mActionState->setStatusTip(tr("Add a new state"));
-    QObject::connect(mActionState, SIGNAL(triggered()), this, SLOT(insertState()));
+    QObject::connect(mActionState, SIGNAL(triggered()), this, SLOT(InsertState()));
 
     mActionTransition = new QAction(tr("&Transition"), this);
+    //mActionTransition->setIcon(QIcon("://images/link.png"));
+    mActionTransition->setStatusTip(tr("Add a new transition"));
+    QObject::connect(mActionTransition, SIGNAL(triggered()), this, SLOT(InsertTransition()));
 
     //TODO: connect these
     mActionAbout = new QAction(tr("&About"), this);
@@ -143,9 +147,9 @@ void MainWindow::CreateToolbars()
 //! \brief MainWindow::insertState
 //! Add a new state to the workflow with a default metadata describing the dimensions
 //!
-void MainWindow::insertState()
+void MainWindow::InsertState()
 {
-    WorkflowTab* activeTab = getActiveWorkflowTab();
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
     if (activeTab == NULL) return;
     Workflow* activeWorkflow = activeTab->GetWorkflow();
     int nodeCount = activeWorkflow->children().length();
@@ -159,13 +163,44 @@ void MainWindow::insertState()
     newState->ApplyMetaData(&metaData);
     activeWorkflow->addState(newState);
     activeWorkflow->setInitialState(newState);
-    activeTab->AddStateToScene(newState);
+    activeTab->AddItemToScene(newState);
+}
+
+//!
+//! \brief MainWindow::insertTransition
+//! Add a new transition to the workflow between two selected states
+//!
+void MainWindow::InsertTransition()
+{
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
+    if (activeTab == NULL) return;
+    Workflow* activeWorkflow = activeTab->GetWorkflow();
+    QObjectList nodes = activeWorkflow->children();
+    QList<SCXMLState*> nodesSelected;
+    foreach (QObject *obj, nodes) {
+        SCXMLState* state = static_cast<SCXMLState*>(obj);
+        if (state->isSelected()) nodesSelected.append(state);
+    }
+
+    if (nodesSelected.count() == 2) {
+        SCXMLTransition* transition = new SCXMLTransition();
+        transition->SetX1(50);
+        transition->SetY1(50);
+        transition->SetX2(150);
+        transition->SetY2(150);
+        SCXMLState* stateFrom = nodesSelected.at(0);
+        SCXMLState* stateTo = nodesSelected.at(1);
+        transition->Connect(stateFrom, stateTo);
+        // add the new transition to the scene
+        QGraphicsItem* itemTran = dynamic_cast<QGraphicsItem*>(transition);
+        activeTab->AddItemToScene(itemTran);
+    }
 }
 
 //!
 //! \brief Saves the current workflow to a file in SCXML format
 //!
-void MainWindow::saveCurrentWorkflow()
+void MainWindow::SaveCurrentWorkflow()
 {
     QFileDialog fileSelector(this);
     fileSelector.setWindowTitle(tr("Save SCXML workflow"));
@@ -179,7 +214,7 @@ void MainWindow::saveCurrentWorkflow()
         //FIXME: get active tab and call save funtion on it
         // for now, just write a test file
         QDomDocument doc;
-        WorkflowTab* activeTab = getActiveWorkflowTab();
+        WorkflowTab* activeTab = GetActiveWorkflowTab();
         activeTab->GetWorkflow()->ConstructSCXMLFromStateMachine(doc);
 
         QFile scxmlFile(workflowFilename);
@@ -196,7 +231,7 @@ void MainWindow::saveCurrentWorkflow()
 //!
 //! \brief Loads an SCXML file as a new workflow
 //!
-void MainWindow::loadWorkflow()
+void MainWindow::LoadWorkflow()
 {
     QFileDialog fileSelector(this);
     fileSelector.setWindowTitle(tr("Open SCXML workflow"));
@@ -223,7 +258,7 @@ void MainWindow::loadWorkflow()
         scxmlFile.close();
 
         // create a new tab and add the workflow to it
-        WorkflowTab* newTab = createWorkflow();
+        WorkflowTab* newTab = CreateWorkflow();
         newTab->SetFilename(workflowFilename);
         newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
         newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
@@ -241,7 +276,7 @@ void MainWindow::CloseTabRequested(int index)
 //!
 //! \brief Create a new blank workflow
 //!
-WorkflowTab* MainWindow::createWorkflow()
+WorkflowTab* MainWindow::CreateWorkflow()
 {
     WorkflowTab* tab = new WorkflowTab(mTabWidget, "");
     int index = mTabWidget->addTab(tab, "Unnamed");
@@ -250,7 +285,7 @@ WorkflowTab* MainWindow::createWorkflow()
     return tab;
 }
 
-WorkflowTab *MainWindow::getActiveWorkflowTab()
+WorkflowTab *MainWindow::GetActiveWorkflowTab()
 {
     QWidget* activeWidget = mTabWidget->currentWidget();
     if (activeWidget == NULL) return NULL;

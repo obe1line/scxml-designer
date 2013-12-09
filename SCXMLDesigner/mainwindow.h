@@ -45,11 +45,12 @@ public:
 
 private slots:
     void CloseTabRequested(int index);
-    void insertState();
-    void saveCurrentWorkflow();
-    void loadWorkflow();
-    WorkflowTab* createWorkflow();
-    WorkflowTab* getActiveWorkflowTab();
+    void InsertTransition();
+    void InsertState();
+    void SaveCurrentWorkflow();
+    void LoadWorkflow();
+    WorkflowTab* CreateWorkflow();
+    WorkflowTab* GetActiveWorkflowTab();
 
 private:
     QMenu *mMenuFile;

@@ -35,8 +35,7 @@ void WorkflowTab::Update()
     GetWorkflow()->CreateSceneObjects(mScene);
 }
 
-void WorkflowTab::AddStateToScene(SCXMLState *state)
+void WorkflowTab::AddItemToScene(QGraphicsItem *item)
 {
-    QGraphicsItem* item = dynamic_cast<QGraphicsItem*>(state);
     mScene->addItem(item);
 }

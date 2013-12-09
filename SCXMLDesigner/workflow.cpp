@@ -135,7 +135,6 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             ExtractMetaDataFromElementComments(&stateTransition, newTransition);
 
             SCXMLState* targetState = GetStateById(transitionTarget);
-            newTransition->setTargetState(targetState);
             newTransition->Connect(parentState, targetState);
         }
 

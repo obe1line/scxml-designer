@@ -44,9 +44,12 @@ public:
     void Update();
     void Connect(SCXMLState* parentState, SCXMLState* targetState)
     {
+        setTargetState(targetState);
         parentState->addTransition(this);
         targetState->AddIncomingTransition(this);
     }
+
+    bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath) const;
 signals:
     
 public slots:
@@ -59,6 +62,8 @@ private:
     qreal mY1;
     qreal mY2;
     QString mDescription;
+    QPoint mPointControl1;
+    QPoint mPointControl2;
 };
 
 #endif // SCXMLTRANSITION_H

@@ -15,7 +15,7 @@ public:
     void SetFilename(QString filename);
     void SetWorkflowName(QString workflowName);
     void Update();
-    void AddStateToScene(SCXMLState* state);
+    void AddItemToScene(QGraphicsItem *item);
 
 private:
     inline QTabWidget* GetParentTabWidget() { return dynamic_cast<QTabWidget*>(parent()); }
