@@ -1,23 +1,23 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtCore/QVariant>
-#include <QtWidgets/QAction>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
-#include <QtWidgets/QLCDNumber>
-#include <QtWidgets/QListWidget>
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMenuBar>
-#include <QtWidgets/QStatusBar>
-#include <QtWidgets/QTabWidget>
-#include <QtWidgets/QToolBar>
-#include <QtWidgets/QToolBox>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QTableView>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLCDNumber>
+#include <QListWidget>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QTabWidget>
+#include <QToolBar>
+#include <QToolBox>
+#include <QWidget>
+#include <QTableWidget>
 #include <QMainWindow>
 #include <QStateMachine>
 #include <QDomDocument>
@@ -83,7 +83,7 @@ private:
     QWidget *page_1;
     QWidget *page_2;
 
-    QTableView *mDataModelTable;
+    QTableWidget *mDataModelTable;
 };
 
 #endif // MAINWINDOW_H

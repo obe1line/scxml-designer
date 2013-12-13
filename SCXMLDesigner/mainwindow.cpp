@@ -1,11 +1,6 @@
-#include <QLCDNumber>
 #include <QDebug>
 #include <QDockWidget>
 #include <QFileDialog>
-#include <QMessageBox>
-#include <QAbstractTransition>
-#include <QHBoxLayout>
-#include <QTableView>
 
 #include "mainwindow.h"
 #include "workflowtab.h"
@@ -39,26 +34,34 @@ void MainWindow::CreateWidgets()
     mCentralWidget = new QWidget(this);
     setCentralWidget(mCentralWidget);
 
-    // create a dockable area for the properies
-    QDockWidget *dock = new QDockWidget(mCentralWidget);
-    dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-    QDockWidget::DockWidgetFeatures dockFeatures = QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetVerticalTitleBar;
-    dock->setFeatures(dockFeatures);
-    dock->setWindowTitle("Worfklow properties and settings");
+    QDockWidget *propertyDock = new QDockWidget(this);
+    propertyDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    QDockWidget::DockWidgetFeatures dockPropertyFeatures = QDockWidget::DockWidgetMovable;
+    propertyDock->setFeatures(dockPropertyFeatures);
+    propertyDock->setWindowTitle("DataModel");
 
-    mDataModelTable = new QTableView(dock);
+    // data model properties
+    mDataModelTable = new QTableWidget(0, 3);
+    mDataModelTable->setStyleSheet("QTableView {selection-background-color: green;}");
+    mDataModelTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mDataModelTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    mDataModelTable->setColumnWidth(1, 50);
+    QStringList tableHeader;
+    tableHeader << "Id" << "Expr" << "Src";
+    mDataModelTable->setHorizontalHeaderLabels(tableHeader);
+    propertyDock->setWidget(mDataModelTable);
 
     mHorizontalLayout = new QHBoxLayout(mCentralWidget);
     mHorizontalLayout->setSpacing(6);
     mHorizontalLayout->setContentsMargins(11, 11, 11, 11);
 
-    mTabWidget = new QTabWidget(dock);
+    mTabWidget = new QTabWidget();
     mTabWidget->setTabsClosable(true);
     mTabWidget->setCurrentIndex(-1);
 
     mHorizontalLayout->addWidget(mTabWidget);
 
-    addDockWidget(Qt::RightDockWidgetArea, dock);
+    addDockWidget(Qt::RightDockWidgetArea, propertyDock);
 }
 
 //!
@@ -211,8 +214,6 @@ void MainWindow::SaveCurrentWorkflow()
     fileSelector.setDefaultSuffix(tr("scxml"));
     if (fileSelector.exec() && !fileSelector.selectedFiles().isEmpty()) {
         QString workflowFilename = fileSelector.selectedFiles().first();
-        //FIXME: get active tab and call save funtion on it
-        // for now, just write a test file
         QDomDocument doc;
         WorkflowTab* activeTab = GetActiveWorkflowTab();
         activeTab->GetWorkflow()->ConstructSCXMLFromStateMachine(doc);
@@ -263,6 +264,7 @@ void MainWindow::LoadWorkflow()
         newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
         newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
         newTab->Update();
+        newTab->TestDataModel(mDataModelTable);
     }
 }
 

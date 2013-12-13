@@ -45,6 +45,9 @@ public:
 
     //! Extracts the data model from a given element (looks in the child nodes)
     void ExtractDataModelFromElement(QDomElement* element, SCXMLState* state);
+
+    //! Gets the underlying data model
+    SCXMLDataModel *GetDataModel() { return &mDataModel; }
 signals:
     
 public slots:

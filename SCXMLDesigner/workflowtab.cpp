@@ -1,3 +1,4 @@
+#include <QModelIndex>
 #include "workflowtab.h"
 
 WorkflowTab::WorkflowTab(QWidget *parent, QString filename) :
@@ -33,6 +34,19 @@ void WorkflowTab::Update()
     QString scxml = mWorkflow.GetRawSCXML();
     SetSCMLText(scxml);
     GetWorkflow()->CreateSceneObjects(mScene);
+}
+
+// test only
+void WorkflowTab::TestDataModel(QTableWidget *dataView)
+{
+    SCXMLDataModel* dataModel = GetWorkflow()->GetDataModel();
+
+    foreach (SCXMLDataItem* dataItem, dataModel->GetDataItemList()) {
+        dataView->insertRow(0);
+        dataView->setItem(0, 0, new QTableWidgetItem(dataItem->GetId()));
+        dataView->setItem(0, 1, new QTableWidgetItem(dataItem->GetExpr()));
+        dataView->setItem(0, 2, new QTableWidgetItem(dataItem->GetSrc()));
+    }
 }
 
 void WorkflowTab::AddItemToScene(QGraphicsItem *item)

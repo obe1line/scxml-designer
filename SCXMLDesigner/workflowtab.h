@@ -2,6 +2,8 @@
 #define WORKFLOWTAB_H
 
 #include <QTabWidget>
+#include <QTableWidget>
+
 #include "workflow.h"
 #include "workflowsurface.h"
 
@@ -17,6 +19,7 @@ public:
     void Update();
     void AddItemToScene(QGraphicsItem *item);
 
+    void TestDataModel(QTableWidget *dataView);
 private:
     inline QTabWidget* GetParentTabWidget() { return dynamic_cast<QTabWidget*>(parent()); }
 
