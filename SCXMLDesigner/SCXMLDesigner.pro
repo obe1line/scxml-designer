@@ -42,7 +42,8 @@ OTHER_FILES += \
     Examples/TestLog.scxml \
     Examples/TestLog-2.scxml \
     Examples/MultiplyAdder.scxml \
-    Examples/Adder.scxml
+    Examples/Adder.scxml \
+    Examples/DataModelTest.scxml
 
 RESOURCES += \
     resources.qrc
