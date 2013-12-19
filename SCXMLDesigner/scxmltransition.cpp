@@ -32,21 +32,21 @@ void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-//    if (mMovingControlPoint2) {
-//        prepareGeometryChange();
+    if (mMovingControlPoint2) {
+        prepareGeometryChange();
 
-//        mNewControlPoint2StartX = event->pos().x();
-//        mNewControlPoint2StartY = event->pos().y();
-//        mPointControl2.setX(mNewControlPoint2StartX);
-//        mPointControl2.setY(mNewControlPoint2StartY);
+        mNewControlPoint2StartX = event->pos().x();
+        mNewControlPoint2StartY = event->pos().y();
+        mPointControl2.setX(mNewControlPoint2StartX);
+        mPointControl2.setY(mNewControlPoint2StartY);
 
-//        update();
-//        event->accept();
-//        return;
-//    }
+        update();
+        event->accept();
+        return;
+    }
 
     //QGraphicsItem::mouseMoveEvent(event);
-    //UpdateTransitions();
+    update();
 }
 
 void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -59,7 +59,6 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
     qDebug() << "mPointControl1 x,y: " << mPointControl1.x() << " , " << mPointControl1.y();
     qDebug() << "contains? " << controlPoint1Rect.contains(x, y);
     if (controlPoint1Rect.contains(x, y)) {
-    //if (true) {
         mMovingControlPoint1 = true;
         mNewControlPoint1StartX = x;
         mNewControlPoint1StartY = y;
@@ -70,16 +69,16 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-//    QRect controlPoint2Rect = QRect(mPointControl2.x()-3, mPointControl2.y()-3, 6, 6);
-//    if (controlPoint2Rect.contains(event->pos().x(), event->pos().y())) {
-//        mMovingControlPoint2 = true;
-//        mNewControlPoint2StartX = event->pos().x();
-//        mNewControlPoint2StartY = event->pos().y();
-//        mPointControl2.setX(mNewControlPoint2StartX);
-//        mPointControl2.setY(mNewControlPoint2StartY);
-//        event->accept();
-//        return;
-//    }
+    QRect controlPoint2Rect = QRect(mPointControl2.x()-3, mPointControl2.y()-3, 6, 6);
+    if (controlPoint2Rect.contains(event->pos().x(), event->pos().y())) {
+        mMovingControlPoint2 = true;
+        mNewControlPoint2StartX = event->pos().x();
+        mNewControlPoint2StartY = event->pos().y();
+        mPointControl2.setX(mNewControlPoint2StartX);
+        mPointControl2.setY(mNewControlPoint2StartY);
+        event->accept();
+        return;
+    }
 
     QGraphicsItem::mousePressEvent(event);
     update();
@@ -189,7 +188,13 @@ bool SCXMLTransition::CalculatePaths(QPainterPath *bezierPath, QPainterPath *arr
     controlLine1.append(pointStart);
     controlLine1.append(mPointControl1);
     controlLine1Path->addPolygon(controlLine1);
-    //controlLine2Path;
+
+    controlLine2Path->addEllipse(pointEnd, 5, 5);
+    controlLine2Path->addEllipse(mPointControl2, 5, 5);
+    QPolygonF controlLine2;
+    controlLine2.append(pointEnd);
+    controlLine2.append(mPointControl2);
+    controlLine2Path->addPolygon(controlLine2);
 
     return true;
 }
@@ -201,7 +206,7 @@ QRectF SCXMLTransition::boundingRect() const
     combinedPath.addPath(bezierPath);
     combinedPath.addPath(arrowHeadPath);
     combinedPath.addPath(controlLine1);
-    //combinedPath.addPath(controlLine2);
+    combinedPath.addPath(controlLine2);
 
     return combinedPath.boundingRect();
 }
@@ -235,17 +240,9 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     // only show anchor points if selected
     if (isSelected()) {
         // anchor points
-        //QPoint pointStart = QPoint(startState->GetShapeX(), startState->GetShapeY());
-        //QPoint pointEnd = QPoint(endState->GetShapeX(), endState->GetShapeY());
         painter->setPen(controlPointPen);
-
-        //painter->drawEllipse(pointStart, 5, 5);
-        //painter->drawEllipse(mPointControl1, 5, 5);
-        //painter->drawLine(pointStart, mPointControl1);
         painter->drawPath(controlLine1Path);
-        //painter->drawEllipse(pointEnd, 5, 5);
-        //painter->drawEllipse(mPointControl2, 5, 5);
-        //painter->drawLine(pointEnd, mPointControl2);
+        painter->drawPath(controlLine2Path);
     }
 }
 
