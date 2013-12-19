@@ -7,7 +7,8 @@
 SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     QAbstractTransition(), mParentState(parent), mX1(0), mX2(0), mY1(0), mY2(0), mDescription(""),
     mMovingControlPoint1(false), mNewControlPoint1StartX(0), mNewControlPoint1StartY(0),
-    mMovingControlPoint2(false), mNewControlPoint2StartX(0), mNewControlPoint2StartY(0)
+    mMovingControlPoint2(false), mNewControlPoint2StartX(0), mNewControlPoint2StartY(0),
+    mMovingStartPoint(false)
 {
     mPointControl1 = QPoint(100, 100);
     mPointControl2 = QPoint(50, 50);
@@ -20,10 +21,12 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
 
 void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+    QPointF mousePos = event->pos();
+
     if (mMovingControlPoint1) {
         prepareGeometryChange();
-        mNewControlPoint1StartX = event->pos().x();
-        mNewControlPoint1StartY = event->pos().y();
+        mNewControlPoint1StartX = mousePos.x();
+        mNewControlPoint1StartY = mousePos.y();
         mPointControl1.setX(mNewControlPoint1StartX);
         mPointControl1.setY(mNewControlPoint1StartY);
 
@@ -35,10 +38,21 @@ void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     if (mMovingControlPoint2) {
         prepareGeometryChange();
 
-        mNewControlPoint2StartX = event->pos().x();
-        mNewControlPoint2StartY = event->pos().y();
+        mNewControlPoint2StartX = mousePos.x();
+        mNewControlPoint2StartY = mousePos.y();
         mPointControl2.setX(mNewControlPoint2StartX);
         mPointControl2.setY(mNewControlPoint2StartY);
+
+        update();
+        event->accept();
+        return;
+    }
+
+    if (mMovingStartPoint) {
+        prepareGeometryChange();
+
+        SetX1(mousePos.x());
+        SetY1(mousePos.y());
 
         update();
         event->accept();
@@ -51,10 +65,12 @@ void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    QPointF mousePos = event->pos();
+
     // if mouse is over control point, move it
     QRect controlPoint1Rect = QRect(mPointControl1.x()-3, mPointControl1.y()-3, 12, 12);
-    qreal x = event->pos().x();
-    qreal y = event->pos().y();
+    qreal x = mousePos.x();
+    qreal y = mousePos.y();
     qDebug() << "x,y: " << x << " , " << y;
     qDebug() << "mPointControl1 x,y: " << mPointControl1.x() << " , " << mPointControl1.y();
     qDebug() << "contains? " << controlPoint1Rect.contains(x, y);
@@ -70,12 +86,21 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 
     QRect controlPoint2Rect = QRect(mPointControl2.x()-3, mPointControl2.y()-3, 6, 6);
-    if (controlPoint2Rect.contains(event->pos().x(), event->pos().y())) {
+    if (controlPoint2Rect.contains(mousePos.x(), mousePos.y())) {
         mMovingControlPoint2 = true;
-        mNewControlPoint2StartX = event->pos().x();
-        mNewControlPoint2StartY = event->pos().y();
+        mNewControlPoint2StartX = mousePos.x();
+        mNewControlPoint2StartY = mousePos.y();
         mPointControl2.setX(mNewControlPoint2StartX);
         mPointControl2.setY(mNewControlPoint2StartY);
+        event->accept();
+        return;
+    }
+
+    QRect startPointRect = QRect(GetX1()-3, GetY1()-3, 6, 6);
+    if (startPointRect.contains(mousePos.x(), mousePos.y())) {
+        mMovingStartPoint = true;
+        SetX1(mousePos.x());
+        SetY1(mousePos.y());
         event->accept();
         return;
     }
@@ -86,9 +111,11 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    QPointF mousePos = event->pos();
+
     if (mMovingControlPoint1) {
-        mNewControlPoint1StartX = event->pos().x();
-        mNewControlPoint1StartY = event->pos().y();
+        mNewControlPoint1StartX = mousePos.x();
+        mNewControlPoint1StartY = mousePos.y();
         mPointControl1.setX(mNewControlPoint1StartX);
         mPointControl1.setY(mNewControlPoint1StartY);
         mMovingControlPoint1 = false;
@@ -97,8 +124,8 @@ void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 
     if (mMovingControlPoint2) {
-        mNewControlPoint2StartX = event->pos().x();
-        mNewControlPoint2StartY = event->pos().y();
+        mNewControlPoint2StartX = mousePos.x();
+        mNewControlPoint2StartY = mousePos.y();
         mPointControl2.setX(mNewControlPoint2StartX);
         mPointControl2.setY(mNewControlPoint2StartY);
         mMovingControlPoint2 = false;
@@ -106,7 +133,9 @@ void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    //UpdateTransitions();
+    //TODO:mMovingStartPoint
+
+    update();
 }
 
 void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
@@ -216,7 +245,7 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
+    //SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
     SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
     if (endState == nullptr) return;
 

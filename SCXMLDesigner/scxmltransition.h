@@ -71,6 +71,7 @@ private:
     QPoint mPointControl2;
     bool mMovingControlPoint1;
     bool mMovingControlPoint2;
+    bool mMovingStartPoint;
     qreal mNewControlPoint1StartX;
     qreal mNewControlPoint1StartY;
     qreal mNewControlPoint2StartX;
