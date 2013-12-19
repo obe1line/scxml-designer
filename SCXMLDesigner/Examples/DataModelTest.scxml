@@ -1,0 +1,25 @@
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="DataModelTest" initial="shopping">
+<!--
+This state machine id a simple shopping cart. Adding an item increases the cart value until the tocheckout
+event occurs, where upon it waits in the checkout state until a toshopping event triggers.
+-->
+<datamodel>
+  <data id="cartValue" expr="0"/>
+</datamodel>
+<state id="shopping">
+<!-- META-DATA [x=263] [y=194] [width=0] [height=0] [description=]-->
+<transition event="tocheckout" target="checkout">
+  <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+</transition>
+<transition event="addItem">
+  <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+  <assign location="cartValue" expr="cartValue + _event.itemValue"/>
+</transition>
+</state>
+<state id="checkout">
+<!-- META-DATA [x=647] [y=218] [width=100] [height=50] [description=]-->
+<transition event="toshopping" target="shopping">
+  <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [description=]-->
+</transition>
+</state>
+</scxml>

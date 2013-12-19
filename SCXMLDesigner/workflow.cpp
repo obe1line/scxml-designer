@@ -131,10 +131,15 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             QString transitionType = stateTransition.attribute("type", "");
 
             SCXMLTransition* newTransition = new SCXMLTransition(parentState);
+            SCXMLState* targetState = GetStateById(transitionTarget);
+            if (targetState == nullptr) {
+                qDebug() << "No such state: " << transitionTarget;
+                continue;
+            }
+
             newTransition->setTransitionType(transitionType);
             ExtractMetaDataFromElementComments(&stateTransition, newTransition);
 
-            SCXMLState* targetState = GetStateById(transitionTarget);
             newTransition->Connect(parentState, targetState);
         }
 
