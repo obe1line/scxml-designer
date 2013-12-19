@@ -37,6 +37,10 @@ public:
     void ApplyMetaData(QMap<QString, QString>* mapMetaData);
     QString GetMetaDataString();
 
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
     // QGraphicsItem overrides
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -49,7 +53,8 @@ public:
         targetState->AddIncomingTransition(this);
     }
 
-    bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath) const;
+    bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
+                        QPainterPath * controlLine1Path, QPainterPath *controlLine2Path) const;
 signals:
     
 public slots:
@@ -64,6 +69,12 @@ private:
     QString mDescription;
     QPoint mPointControl1;
     QPoint mPointControl2;
+    bool mMovingControlPoint1;
+    bool mMovingControlPoint2;
+    qreal mNewControlPoint1StartX;
+    qreal mNewControlPoint1StartY;
+    qreal mNewControlPoint2StartX;
+    qreal mNewControlPoint2StartY;
 };
 
 #endif // SCXMLTRANSITION_H

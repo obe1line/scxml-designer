@@ -48,7 +48,8 @@ private slots:
     void InsertTransition();
     void InsertState();
     void SaveCurrentWorkflow();
-    void LoadWorkflow();
+    bool LoadWorkflowFromFile(QString workflowFilename);
+    bool LoadWorkflowFromDialog();
     WorkflowTab* CreateWorkflow();
     WorkflowTab* GetActiveWorkflowTab();
 

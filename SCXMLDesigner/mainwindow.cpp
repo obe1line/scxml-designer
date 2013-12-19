@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     CreateActions();
     CreateMenus();
     CreateToolbars();
+
+    // while testing
+    LoadWorkflowFromFile("../SCXMLDesigner/Examples/TestLog.scxml");
 }
 
 MainWindow::~MainWindow()
@@ -82,7 +85,7 @@ void MainWindow::CreateActions()
     mActionOpen = new QAction(tr("&Open"), this);
     mActionOpen->setIcon(QIcon("://images/open.png"));
     mActionOpen->setStatusTip(tr("Open a layout"));
-    QObject::connect(mActionOpen, SIGNAL(triggered()), this, SLOT(LoadWorkflow()));
+    QObject::connect(mActionOpen, SIGNAL(triggered()), this, SLOT(LoadWorkflowFromDialog()));
 
     mActionSave = new QAction(tr("&Save"), this);
     mActionSave->setIcon(QIcon("://images/save.png"));
@@ -232,7 +235,37 @@ void MainWindow::SaveCurrentWorkflow()
 //!
 //! \brief Loads an SCXML file as a new workflow
 //!
-void MainWindow::LoadWorkflow()
+bool MainWindow::LoadWorkflowFromFile(QString workflowFilename) {
+    QDomDocument doc;
+    QFile scxmlFile(workflowFilename);
+    if (!scxmlFile.open(QIODevice::ReadOnly)) {
+        Utilities::ShowWarning("SCXML file cannot be read");
+        return false;
+    }
+    if (!doc.setContent(&scxmlFile)) {
+        qDebug() << doc.lineNumber();
+        qDebug() << doc.columnNumber();
+        Utilities::ShowWarning("SCXML file cannot be parsed");
+        scxmlFile.close();
+        return false;
+    }
+    scxmlFile.close();
+
+    // create a new tab and add the workflow to it
+    WorkflowTab* newTab = CreateWorkflow();
+    newTab->SetFilename(workflowFilename);
+    newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
+    newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
+    newTab->Update();
+    newTab->TestDataModel(mDataModelTable);
+
+    return true;
+}
+
+//!
+//! \brief Loads an SCXML file via the file selection dialog
+//!
+bool MainWindow::LoadWorkflowFromDialog()
 {
     QFileDialog fileSelector(this);
     fileSelector.setWindowTitle(tr("Open SCXML workflow"));
@@ -242,30 +275,10 @@ void MainWindow::LoadWorkflow()
     fileSelector.setAcceptMode(QFileDialog::AcceptOpen);
     fileSelector.setDefaultSuffix(tr("scxml"));
     if (fileSelector.exec()) {
-        QString workflowFilename = fileSelector.selectedFiles().first();
-        QDomDocument doc;
-        QFile scxmlFile(workflowFilename);
-        if (!scxmlFile.open(QIODevice::ReadOnly)) {
-            Utilities::ShowWarning("SCXML file cannot be read");
-            return;
-        }
-        if (!doc.setContent(&scxmlFile)) {
-            qDebug() << doc.lineNumber();
-            qDebug() << doc.columnNumber();
-            Utilities::ShowWarning("SCXML file cannot be parsed");
-            scxmlFile.close();
-            return;
-        }
-        scxmlFile.close();
-
-        // create a new tab and add the workflow to it
-        WorkflowTab* newTab = CreateWorkflow();
-        newTab->SetFilename(workflowFilename);
-        newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
-        newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
-        newTab->Update();
-        newTab->TestDataModel(mDataModelTable);
+        return LoadWorkflowFromFile(fileSelector.selectedFiles().first());
     }
+
+    return false;
 }
 
 void MainWindow::CloseTabRequested(int index)
