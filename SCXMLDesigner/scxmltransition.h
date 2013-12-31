@@ -63,8 +63,10 @@ public:
     }
 
     bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
-                        QPainterPath * controlLine1Path, QPainterPath *controlLine2Path) const;
+                        QPainterPath *controlLine1Path, QPainterPath *controlLine2Path,
+                        QPainterPath *startPointPath, QPainterPath *endPointPath) const;
 
+    void UpdatePoints();
 signals:
     
 public slots:
