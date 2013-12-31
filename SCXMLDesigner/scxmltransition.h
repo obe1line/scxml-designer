@@ -14,16 +14,24 @@ class SCXMLTransition : public QAbstractTransition, public QGraphicsItem, public
 public:
     explicit SCXMLTransition(SCXMLState *parent = 0);
 
-    qreal GetX1() { return mX1; }
-    qreal GetY1() { return mY1; }
-    qreal GetX2() { return mX2; }
-    qreal GetY2() { return mY2; }
+    qreal GetX1() { return mStartPoint.x(); }
+    qreal GetY1() { return mStartPoint.y(); }
+    qreal GetX2() { return mEndPoint.x(); }
+    qreal GetY2() { return mEndPoint.y(); }
+    qreal GetControlPointX1() { return mControlPoint1.x(); }
+    qreal GetControlPointY1() { return mControlPoint1.y(); }
+    qreal GetControlPointX2() { return mControlPoint2.x(); }
+    qreal GetControlPointY2() { return mControlPoint2.y(); }
     QString GetDescription() { return mDescription; }
 
-    void SetX1(qreal value) { mX1 = value; }
-    void SetY1(qreal value) { mY1 = value; }
-    void SetX2(qreal value) { mX2 = value; }
-    void SetY2(qreal value) { mY2 = value; }
+    void SetX1(qreal value) { mStartPoint.setX(value); }
+    void SetY1(qreal value) { mStartPoint.setY(value); }
+    void SetX2(qreal value) { mEndPoint.setX(value); }
+    void SetY2(qreal value) { mEndPoint.setY(value); }
+    void SetControlPointX1(qreal value) { mControlPoint1.setX(value); }
+    void SetControlPointY1(qreal value) { mControlPoint1.setY(value); }
+    void SetControlPointX2(qreal value) { mControlPoint2.setX(value); }
+    void SetControlPointY2(qreal value) { mControlPoint2.setY(value); }
     void SetDescription(QString value) { mDescription = value; }
 
     void setTransitionType(QString transitionType) { mTransitionType = transitionType; }
@@ -43,6 +51,7 @@ public:
 
     // QGraphicsItem overrides
     QRectF boundingRect() const;
+    QPainterPath shape() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     void Update();
@@ -55,6 +64,7 @@ public:
 
     bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
                         QPainterPath * controlLine1Path, QPainterPath *controlLine2Path) const;
+
 signals:
     
 public slots:
@@ -62,13 +72,11 @@ public slots:
 private:
     SCXMLState* mParentState;
     QString mTransitionType;
-    qreal mX1;
-    qreal mX2;
-    qreal mY1;
-    qreal mY2;
+    QPoint mStartPoint;
+    QPoint mEndPoint;
     QString mDescription;
-    QPoint mPointControl1;
-    QPoint mPointControl2;
+    QPoint mControlPoint1;
+    QPoint mControlPoint2;
     bool mMovingControlPoint1;
     bool mMovingControlPoint2;
     bool mMovingStartPoint;

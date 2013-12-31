@@ -5,17 +5,20 @@
 #include "scxmltransition.h"
 
 SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
-    QAbstractTransition(), mParentState(parent), mX1(0), mX2(0), mY1(0), mY2(0), mDescription(""),
+    QAbstractTransition(), mParentState(parent), mStartPoint(0,0), mEndPoint(0,0), mDescription(""),
     mMovingControlPoint1(false), mNewControlPoint1StartX(0), mNewControlPoint1StartY(0),
     mMovingControlPoint2(false), mNewControlPoint2StartX(0), mNewControlPoint2StartY(0),
     mMovingStartPoint(false)
 {
-    mPointControl1 = QPoint(100, 100);
-    mPointControl2 = QPoint(50, 50);
+    mControlPoint1 = QPoint(100, 100);
+    mControlPoint2 = QPoint(50, 50);
 
-    setFlag(QGraphicsItem::ItemIsMovable, true);
+    // only the start, end and control points can be moved - not the full line
+    setFlag(QGraphicsItem::ItemIsMovable, false);
+    // can select to show property dialogs
     setFlag(QGraphicsItem::ItemIsSelectable, true);
-    setCursor(Qt::OpenHandCursor);
+
+    setCursor(Qt::ArrowCursor);
     setAcceptHoverEvents(true);
 }
 
@@ -27,8 +30,8 @@ void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         prepareGeometryChange();
         mNewControlPoint1StartX = mousePos.x();
         mNewControlPoint1StartY = mousePos.y();
-        mPointControl1.setX(mNewControlPoint1StartX);
-        mPointControl1.setY(mNewControlPoint1StartY);
+        mControlPoint1.setX(mNewControlPoint1StartX);
+        mControlPoint1.setY(mNewControlPoint1StartY);
 
         update();
         event->accept();
@@ -40,8 +43,8 @@ void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
         mNewControlPoint2StartX = mousePos.x();
         mNewControlPoint2StartY = mousePos.y();
-        mPointControl2.setX(mNewControlPoint2StartX);
-        mPointControl2.setY(mNewControlPoint2StartY);
+        mControlPoint2.setX(mNewControlPoint2StartX);
+        mControlPoint2.setY(mNewControlPoint2StartY);
 
         update();
         event->accept();
@@ -68,30 +71,31 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
     QPointF mousePos = event->pos();
 
     // if mouse is over control point, move it
-    QRect controlPoint1Rect = QRect(mPointControl1.x()-3, mPointControl1.y()-3, 12, 12);
+    QRect controlPoint1Rect = QRect(mControlPoint1.x()-3, mControlPoint1.y()-3, 12, 12);
     qreal x = mousePos.x();
     qreal y = mousePos.y();
-    qDebug() << "x,y: " << x << " , " << y;
-    qDebug() << "mPointControl1 x,y: " << mPointControl1.x() << " , " << mPointControl1.y();
-    qDebug() << "contains? " << controlPoint1Rect.contains(x, y);
+    //TODO: remove debug code
+//    qDebug() << "x,y: " << x << " , " << y;
+//    qDebug() << "mPointControl1 x,y: " << mPointControl1.x() << " , " << mPointControl1.y();
+//    qDebug() << "contains? " << controlPoint1Rect.contains(x, y);
     if (controlPoint1Rect.contains(x, y)) {
         mMovingControlPoint1 = true;
         mNewControlPoint1StartX = x;
         mNewControlPoint1StartY = y;
-        mPointControl1.setX(mNewControlPoint1StartX);
-        mPointControl1.setY(mNewControlPoint1StartY);
+        mControlPoint1.setX(mNewControlPoint1StartX);
+        mControlPoint1.setY(mNewControlPoint1StartY);
         event->accept();
         update();
         return;
     }
 
-    QRect controlPoint2Rect = QRect(mPointControl2.x()-3, mPointControl2.y()-3, 6, 6);
+    QRect controlPoint2Rect = QRect(mControlPoint2.x()-3, mControlPoint2.y()-3, 6, 6);
     if (controlPoint2Rect.contains(mousePos.x(), mousePos.y())) {
         mMovingControlPoint2 = true;
         mNewControlPoint2StartX = mousePos.x();
         mNewControlPoint2StartY = mousePos.y();
-        mPointControl2.setX(mNewControlPoint2StartX);
-        mPointControl2.setY(mNewControlPoint2StartY);
+        mControlPoint2.setX(mNewControlPoint2StartX);
+        mControlPoint2.setY(mNewControlPoint2StartY);
         event->accept();
         return;
     }
@@ -116,8 +120,8 @@ void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (mMovingControlPoint1) {
         mNewControlPoint1StartX = mousePos.x();
         mNewControlPoint1StartY = mousePos.y();
-        mPointControl1.setX(mNewControlPoint1StartX);
-        mPointControl1.setY(mNewControlPoint1StartY);
+        mControlPoint1.setX(mNewControlPoint1StartX);
+        mControlPoint1.setY(mNewControlPoint1StartY);
         mMovingControlPoint1 = false;
         QGraphicsItem::mouseReleaseEvent(event);
         return;
@@ -126,8 +130,8 @@ void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (mMovingControlPoint2) {
         mNewControlPoint2StartX = mousePos.x();
         mNewControlPoint2StartY = mousePos.y();
-        mPointControl2.setX(mNewControlPoint2StartX);
-        mPointControl2.setY(mNewControlPoint2StartY);
+        mControlPoint2.setX(mNewControlPoint2StartX);
+        mControlPoint2.setY(mNewControlPoint2StartY);
         mMovingControlPoint2 = false;
         QGraphicsItem::mouseReleaseEvent(event);
         return;
@@ -162,13 +166,37 @@ void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
             SetY2(value.toDouble());
             continue;
         }
+        if (key == "cx1") {
+            SetControlPointX1(value.toDouble());
+            continue;
+        }
+        if (key == "cy1") {
+            SetControlPointY1(value.toDouble());
+            continue;
+        }
+        if (key == "cx2") {
+            SetControlPointX2(value.toDouble());
+            continue;
+        }
+        if (key == "cy2") {
+            SetControlPointY2(value.toDouble());
+            continue;
+        }
     }
 }
 
 QString SCXMLTransition::GetMetaDataString()
 {
-    QString metadata = QString(" META-DATA [x1=%1] [y1=%2] [x2=%3] [y2=%4] [description=%5]").arg(
-                GetX1()).arg(GetY1()).arg(GetX2()).arg(GetY2()).arg(GetDescription());
+    QString metadata = QString(" META-DATA [x1=%1] [y1=%2] [x2=%3] [y2=%4] [cx1=%5] [cy1=%6] [cx2=%7] [cy2=%8] [description=%9]")
+            .arg(GetX1())
+            .arg(GetY1())
+            .arg(GetX2())
+            .arg(GetY2())
+            .arg(GetControlPointX1())
+            .arg(GetControlPointY1())
+            .arg(GetControlPointX2())
+            .arg(GetControlPointY2())
+            .arg(GetDescription());
     return metadata;
 }
 
@@ -192,8 +220,14 @@ bool SCXMLTransition::CalculatePaths(QPainterPath *bezierPath, QPainterPath *arr
 
 
     // draw the Bezier curve
-    bezierPath->moveTo(pointStart);
-    bezierPath->cubicTo(mPointControl1, mPointControl2, pointEnd);
+    QPainterPath tempBezierPath;
+    tempBezierPath.moveTo(pointStart);
+    tempBezierPath.cubicTo(mControlPoint1, mControlPoint2, pointEnd);
+
+    QPainterPathStroker stroker;
+    stroker.setWidth(1);
+    stroker.setCurveThreshold(0.1);
+    *bezierPath = stroker.createStroke(tempBezierPath);
 
     // calculate the arrowhead points
     QVector2D vectorLength(lineToDraw.dx(), lineToDraw.dy());
@@ -212,23 +246,23 @@ bool SCXMLTransition::CalculatePaths(QPainterPath *bezierPath, QPainterPath *arr
     arrowHeadPath->addPolygon(poly);
 
     controlLine1Path->addEllipse(pointStart, 5, 5);
-    controlLine1Path->addEllipse(mPointControl1, 5, 5);
+    controlLine1Path->addEllipse(mControlPoint1, 5, 5);
     QPolygonF controlLine1;
     controlLine1.append(pointStart);
-    controlLine1.append(mPointControl1);
+    controlLine1.append(mControlPoint1);
     controlLine1Path->addPolygon(controlLine1);
 
     controlLine2Path->addEllipse(pointEnd, 5, 5);
-    controlLine2Path->addEllipse(mPointControl2, 5, 5);
+    controlLine2Path->addEllipse(mControlPoint2, 5, 5);
     QPolygonF controlLine2;
     controlLine2.append(pointEnd);
-    controlLine2.append(mPointControl2);
+    controlLine2.append(mControlPoint2);
     controlLine2Path->addPolygon(controlLine2);
 
     return true;
 }
 
-QRectF SCXMLTransition::boundingRect() const
+QPainterPath SCXMLTransition::shape() const
 {
     QPainterPath bezierPath, arrowHeadPath, controlLine1, controlLine2, combinedPath;
     CalculatePaths(&bezierPath, &arrowHeadPath, &controlLine1, &controlLine2);
@@ -237,7 +271,12 @@ QRectF SCXMLTransition::boundingRect() const
     combinedPath.addPath(controlLine1);
     combinedPath.addPath(controlLine2);
 
-    return combinedPath.boundingRect();
+    return combinedPath;
+}
+
+QRectF SCXMLTransition::boundingRect() const
+{
+    return shape().boundingRect();
 }
 
 void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
