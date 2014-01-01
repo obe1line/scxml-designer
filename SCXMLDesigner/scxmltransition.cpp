@@ -349,4 +349,8 @@ void SCXMLTransition::Connect(SCXMLState *parentState, SCXMLState *targetState)
     // ensure size changes of the parent state are reflected in the transition start and end connectors
     connect(parentState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
     connect(targetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
+
+    // adjust start and end points with initial forced update
+    parentState->UpdateTransitions();
+    targetState->UpdateTransitions();
 }

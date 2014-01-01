@@ -125,6 +125,11 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setPen(statePen);
 
     painter->drawRoundedRect(rect, 10.0, 10.0);
+
+    // show the id on the state node
+    QFont labelFont = QFont("Helvetica", 8);
+    painter->setFont(labelFont);
+    painter->drawText(rect, Qt::AlignCenter, GetId());
 }
 
 
