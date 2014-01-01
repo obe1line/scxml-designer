@@ -135,6 +135,8 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 //!
 void SCXMLState::UpdateTransitions()
 {
+    sizeChanged();
+
     // update outgoing transitions
     foreach(QAbstractTransition* abtran, this->transitions()) {
         SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);

@@ -8,34 +8,34 @@
  </datamodel>
  <state id="CalculatorState">
   <!-- META-DATA [x=263] [y=194] [width=0] [height=0] [description=]-->
-  <transition type="external" target="LoopState">
+  <transition target="LoopState" event="done.invoke.multiplyadder" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=510] [cy1=168] [cx2=50] [cy2=50] [description=]-->
   </transition>
  </state>
  <state id="LoggerState">
   <!-- META-DATA [x=647] [y=218] [width=200] [height=100] [description=Logs the calculated parameter]-->
-  <transition type="external" target="CheckState">
+  <transition target="CheckState" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=220] [cy1=376] [cx2=82] [cy2=68] [description=]-->
   </transition>
-  <transition type="external" target="CalculatorState">
+  <transition target="CalculatorState" event="test.log" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=707] [cy1=397] [cx2=630] [cy2=388] [description=]-->
   </transition>
-  <transition type="external" target="CalculatorState">
+  <transition target="CalculatorState" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=11] [cy1=136] [cx2=399] [cy2=415] [description=]-->
   </transition>
  </state>
  <state id="LoopState">
   <!-- META-DATA [x=532] [y=58] [width=100] [height=50] [description=Loops around]-->
-  <transition type="external" target="CheckState">
+  <transition target="CheckState" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=407] [cy1=224] [cx2=159] [cy2=70] [description=]-->
   </transition>
-  <transition type="external" target="CalculatorState">
+  <transition target="CalculatorState" event="test.log" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=663] [cy1=365] [cx2=422] [cy2=257] [description=]-->
   </transition>
  </state>
  <state id="CheckState">
   <!-- META-DATA [x=211] [y=282] [width=50] [height=50] [description=Loops around]-->
-  <transition type="external" target="CalculatorState">
+  <transition target="CalculatorState" type="external">
    <!-- META-DATA [x1=10] [y1=10] [x2=100] [y2=130] [cx1=97] [cy1=370] [cx2=-27] [cy2=79] [description=]-->
   </transition>
  </state>

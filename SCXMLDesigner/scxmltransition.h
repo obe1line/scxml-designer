@@ -23,6 +23,7 @@ public:
     qreal GetControlPointX2() { return mControlPoint2.x(); }
     qreal GetControlPointY2() { return mControlPoint2.y(); }
     QString GetDescription() { return mDescription; }
+    QString GetEvent() { return mEvent; }
 
     void SetX1(qreal value) { mStartPoint.setX(value); }
     void SetY1(qreal value) { mStartPoint.setY(value); }
@@ -33,6 +34,7 @@ public:
     void SetControlPointX2(qreal value) { mControlPoint2.setX(value); }
     void SetControlPointY2(qreal value) { mControlPoint2.setY(value); }
     void SetDescription(QString value) { mDescription = value; }
+    void SetEvent(QString value) { mEvent = value; }
 
     void setTransitionType(QString transitionType) { mTransitionType = transitionType; }
     QString getTransitionType() { return mTransitionType; }
@@ -55,22 +57,17 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     void Update();
-    void Connect(SCXMLState* parentState, SCXMLState* targetState)
-    {
-        setTargetState(targetState);
-        parentState->addTransition(this);
-        targetState->AddIncomingTransition(this);
-    }
+    void Connect(SCXMLState* parentState, SCXMLState* targetState);
 
     bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
                         QPainterPath *controlLine1Path, QPainterPath *controlLine2Path,
                         QPainterPath *startPointPath, QPainterPath *endPointPath) const;
 
-    void UpdatePoints();
 signals:
     
 public slots:
-    
+    void UpdatePoints();
+
 private:
     SCXMLState* mParentState;
     QString mTransitionType;
@@ -86,6 +83,7 @@ private:
     qreal mNewControlPoint1StartY;
     qreal mNewControlPoint2StartX;
     qreal mNewControlPoint2StartY;
+    QString mEvent;
 };
 
 #endif // SCXMLTRANSITION_H

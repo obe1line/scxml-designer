@@ -8,7 +8,7 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     QAbstractTransition(), mParentState(parent), mStartPoint(0,0), mEndPoint(0,0), mDescription(""),
     mMovingControlPoint1(false), mNewControlPoint1StartX(0), mNewControlPoint1StartY(0),
     mMovingControlPoint2(false), mNewControlPoint2StartX(0), mNewControlPoint2StartY(0),
-    mMovingStartPoint(false)
+    mMovingStartPoint(false), mEvent("")
 {
     mControlPoint1 = QPoint(100, 100);
     mControlPoint2 = QPoint(50, 50);
@@ -222,17 +222,9 @@ bool SCXMLTransition::CalculatePaths(QPainterPath *bezierPath, QPainterPath *arr
                                      QPainterPath *controlLine1Path, QPainterPath *controlLine2Path,
                                      QPainterPath *startPointPath, QPainterPath *endPointPath) const
 {
-    //SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
     SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
     if (endState == nullptr) return false;
 
-//    QPoint pointStart = QPoint(startState->GetShapeX(), startState->GetShapeY());
-//    QPoint pointEnd = QPoint(endState->GetShapeX(), endState->GetShapeY());
-    //QLineF lineToDraw = QLine(pointStart, pointEnd);
-
-    //TODO: remove pointStart local?
-//    mStartPoint = pointStart;
-//    mEndPoint = pointEnd;
     QLineF lineToDraw = QLine(mStartPoint, mEndPoint);
 
     // draw the Bezier curve
@@ -346,4 +338,15 @@ void SCXMLTransition::Update()
 {
     prepareGeometryChange();
     update();
+}
+
+void SCXMLTransition::Connect(SCXMLState *parentState, SCXMLState *targetState)
+{
+    setTargetState(targetState);
+    parentState->addTransition(this);
+    targetState->AddIncomingTransition(this);
+
+    // ensure size changes of the parent state are reflected in the transition start and end connectors
+    connect(parentState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
+    connect(targetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
 }

@@ -56,6 +56,11 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
             transitionElement.setAttribute("type", transition->getTransitionType());
             SCXMLState* targetState = dynamic_cast<SCXMLState*>(transition->targetState());
             transitionElement.setAttribute("target", targetState->GetId());
+            QString event = transition->GetEvent();
+            if (!event.isEmpty()) {
+                transitionElement.setAttribute("event", event);
+            }
+            transitionElement.setAttribute("target", targetState->GetId());
 
             // add the transition meta-data comment
             QDomComment metaDataComment = doc.createComment(transition->GetMetaDataString());
@@ -129,6 +134,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             QDomElement stateTransition = stateTransitions.at(transitionPos).toElement();
             QString transitionTarget = stateTransition.attribute("target", "");
             QString transitionType = stateTransition.attribute("type", "");
+            QString transitionEvent = stateTransition.attribute("event", "");
 
             SCXMLTransition* newTransition = new SCXMLTransition(parentState);
             SCXMLState* targetState = GetStateById(transitionTarget);
@@ -138,10 +144,14 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             }
 
             newTransition->setTransitionType(transitionType);
+            newTransition->SetEvent(transitionEvent);
             ExtractMetaDataFromElementComments(&stateTransition, newTransition);
 
             newTransition->Connect(parentState, targetState);
         }
+
+        // need to adjust start and end points with update
+        parentState->UpdateTransitions();
 
         //FIXME: implement this
         //setInitialState(newState);

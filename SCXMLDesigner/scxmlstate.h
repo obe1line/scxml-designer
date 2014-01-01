@@ -27,10 +27,10 @@ public:
     QString GetDescription() { return mDescription; }
     bool GetFinal() { return mFinal; }
 
-    void SetShapeX(qreal value) { setX(value); }
-    void SetShapeY(qreal value) { setY(value); }
-    void SetShapeWidth(qreal value) { mWidth = value; }
-    void SetShapeHeight(qreal value) { mHeight = value; }
+    void SetShapeX(qreal value) { setX(value); sizeChanged(); }
+    void SetShapeY(qreal value) { setY(value); sizeChanged(); }
+    void SetShapeWidth(qreal value) { mWidth = value; sizeChanged(); }
+    void SetShapeHeight(qreal value) { mHeight = value; sizeChanged(); }
     void SetDescription(QString value) { mDescription = value; }
     void SetFinal(bool value) { mFinal = value; }
 
@@ -48,7 +48,9 @@ public:
     void UpdateTransitions();
 
     void AddIncomingTransition(QAbstractTransition* transitionRef) { mIncomingTransitions.append(transitionRef); }
+
 signals:
+    void sizeChanged();
 
 public slots:
 
