@@ -298,6 +298,8 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
+    painter->begin(this);
+
     //SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
     SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
     if (endState == nullptr) return;
@@ -332,6 +334,8 @@ void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
         painter->drawPath(startPointPath);
         painter->drawPath(endPointPath);
     }
+
+    painter->end();
 }
 
 void SCXMLTransition::Update()
