@@ -5,12 +5,22 @@
 
 ChaikinCurve::ChaikinCurve()
 {
+    // create brushes and pens
+    mYellowBrush = new QBrush(Qt::GlobalColor::yellow, Qt::SolidPattern);
+    mMoveablePointPen = new QPen(Qt::GlobalColor::black);
+    mMoveablePointPen->setWidth(2);
+
     // create the initial curve points
     mCurvePoints.push_back( QVector3D(10,10,0));
     mCurvePoints.push_back( QVector3D(100,50,0));
     mCurvePoints.push_back( QVector3D(50,70,0));
     mCurvePoints.push_back( QVector3D(20,160,0));
     mCurvePoints.push_back( QVector3D(200,200,0));
+
+    // save the original points as these are the moveable points
+    foreach (QVector3D point, mCurvePoints) {
+        mOriginalCurvePoints.append(point);
+    }
 }
 
 void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -31,6 +41,13 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         painter->drawLine(lastPoint.x(), lastPoint.y(), it->x(), it->y());
         lastPoint = *it;
         qDebug() << "Vertex: x=" << it->x() << ", y=" << it->y() << ", z=" << it->z();
+    }
+
+    // draw the moveable points
+    foreach (QVector3D point, mOriginalCurvePoints) {
+        painter->setPen(*mMoveablePointPen);
+        painter->setBrush(*mYellowBrush);
+        painter->drawEllipse(point.toPoint(), 5, 5);
     }
 
     painter->end();

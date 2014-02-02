@@ -22,7 +22,10 @@ public slots:
     void DecreaseLod();
 
 private:
+    QBrush *mYellowBrush;
+    QPen *mMoveablePointPen;
     QVector<QVector3D> mCurvePoints;
+    QVector<QVector3D> mOriginalCurvePoints;
 };
 
 #endif // CHAIKINCURVE_H
