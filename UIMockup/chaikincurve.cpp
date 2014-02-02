@@ -2,13 +2,14 @@
 #include <QPainter>
 #include <QtOpenGL/QGLFunctions>
 #include <QDebug>
+#include <QGraphicsSceneHoverEvent>
 
 ChaikinCurve::ChaikinCurve()
 {
     // create brushes and pens
     mYellowBrush = new QBrush(Qt::GlobalColor::yellow, Qt::SolidPattern);
-    mMoveablePointPen = new QPen(Qt::GlobalColor::black);
-    mMoveablePointPen->setWidth(2);
+    mControlPointPen = new QPen(Qt::GlobalColor::black);
+    mControlPointPen->setWidth(2);
 
     // create the initial curve points
     mCurvePoints.push_back( QVector3D(10,10,0));
@@ -21,6 +22,12 @@ ChaikinCurve::ChaikinCurve()
     foreach (QVector3D point, mCurvePoints) {
         mOriginalCurvePoints.append(point);
     }
+
+    this->setAcceptHoverEvents(true);
+    this->setBoundingRegionGranularity(1);
+    this->setCursor(Qt::PointingHandCursor);
+
+    mControlPointVisible = false;
 }
 
 void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -29,25 +36,17 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->begin(widget);
 
-    // iterate through all curve points and render
-    QVector<QVector3D>::iterator it = mCurvePoints.begin();
-    QVector3D lastPoint = *it;
-    bool first = true;
-    for(; it != mCurvePoints.end(); ++it) {
-        if (first) {
-            first = false;
-            continue;
-        }
-        painter->drawLine(lastPoint.x(), lastPoint.y(), it->x(), it->y());
-        lastPoint = *it;
-        qDebug() << "Vertex: x=" << it->x() << ", y=" << it->y() << ", z=" << it->z();
-    }
+    // draw the lines
+    QPainterPath path = GetPathOfLines();
+    painter->setPen(*mControlPointPen);
+    painter->drawPath(path);
 
     // draw the moveable points
-    foreach (QVector3D point, mOriginalCurvePoints) {
-        painter->setPen(*mMoveablePointPen);
+    if (mControlPointVisible) {
+        painter->setPen(*mControlPointPen);
         painter->setBrush(*mYellowBrush);
-        painter->drawEllipse(point.toPoint(), 5, 5);
+        path = GetPathOfControlPoints();
+        painter->drawPath(path);
     }
 
     painter->end();
@@ -55,7 +54,53 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 QRectF ChaikinCurve::boundingRect() const
 {
-    return QRectF(10, 10, 200, 200);
+    QPainterPath path = GetPathOfLines();
+    path.addPath(GetPathOfControlPoints());
+    return path.boundingRect();
+}
+
+QPainterPath ChaikinCurve::GetPathOfLines() const
+{
+    QPainterPath path;
+    QVector<QVector3D>::const_iterator it = mCurvePoints.constBegin();
+    QVector3D lastPoint = *it;
+    bool first = true;
+    for(; it != mCurvePoints.constEnd(); ++it) {
+        if (!first) {
+            first = false;
+            continue;
+        }
+
+        path.moveTo(QPoint(lastPoint.toPoint()));
+        path.lineTo(QPoint(it->toPoint()));
+        path.closeSubpath();
+
+        lastPoint = *it;
+    }
+
+    return path;
+}
+
+QPainterPath ChaikinCurve::GetPathOfControlPoints() const
+{
+    QPainterPath path;
+    foreach (QVector3D point, mOriginalCurvePoints) {
+        path.addEllipse(point.toPoint(), 5, 5);
+    }
+
+    return path;
+}
+
+QPainterPath ChaikinCurve::shape() const
+{
+    QPainterPath path;
+
+    // add the lines
+    path = GetPathOfLines();
+
+    // add the control points
+    path.addPath(GetPathOfControlPoints());
+    return path;
 }
 
 // When we increase the LOD we will have to re-create the points
@@ -150,4 +195,46 @@ void ChaikinCurve::DecreaseLod()
 
     // copy over points
     mCurvePoints = newPoints;
+}
+
+void ChaikinCurve::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+//    Q_UNUSED(event);
+//    mControlPointVisible = true;
+//    update();
+}
+
+void ChaikinCurve::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void ChaikinCurve::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+//    mControlPointVisible = false;
+//    update();
+}
+
+void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+    QPainterPath path = GetPathOfControlPoints();
+    if (path.contains(event->pos())) {
+        // control point drag
+    }
+    else {
+        mControlPointVisible = !mControlPointVisible;
+        update();
+    }
+}
+
+void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
 }
