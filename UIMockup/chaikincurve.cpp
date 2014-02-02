@@ -3,6 +3,17 @@
 #include <QtOpenGL/QGLFunctions>
 #include <QDebug>
 #include <QGraphicsSceneHoverEvent>
+#include <QDrag>
+#include <QMimeData>
+#include <QGraphicsWidget>
+
+void ChaikinCurve::InitializeCurvePoints()
+{
+    mCurvePoints.clear();
+    foreach (QVector3D point, mOriginalCurvePoints) {
+        mCurvePoints.append(point);
+    }
+}
 
 ChaikinCurve::ChaikinCurve()
 {
@@ -12,22 +23,21 @@ ChaikinCurve::ChaikinCurve()
     mControlPointPen->setWidth(2);
 
     // create the initial curve points
-    mCurvePoints.push_back( QVector3D(10,10,0));
-    mCurvePoints.push_back( QVector3D(100,50,0));
-    mCurvePoints.push_back( QVector3D(50,70,0));
-    mCurvePoints.push_back( QVector3D(20,160,0));
-    mCurvePoints.push_back( QVector3D(200,200,0));
+    mOriginalCurvePoints.push_back( QVector3D(10,10,0));
+    mOriginalCurvePoints.push_back( QVector3D(100,50,0));
+    mOriginalCurvePoints.push_back( QVector3D(50,70,0));
+    mOriginalCurvePoints.push_back( QVector3D(20,160,0));
+    mOriginalCurvePoints.push_back( QVector3D(200,200,0));
 
-    // save the original points as these are the moveable points
-    foreach (QVector3D point, mCurvePoints) {
-        mOriginalCurvePoints.append(point);
-    }
+    // create the starting points
+    InitializeCurvePoints();
 
-    this->setAcceptHoverEvents(true);
     this->setBoundingRegionGranularity(1);
+    this->setAcceptDrops(true);
+    this->setFlag(QGraphicsItem::ItemIsSelectable, true);
     this->setCursor(Qt::PointingHandCursor);
 
-    mControlPointVisible = false;
+    mControlPointVisible = true;    //TODO: change to false after testing
 }
 
 void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -89,6 +99,42 @@ QPainterPath ChaikinCurve::GetPathOfControlPoints() const
     }
 
     return path;
+}
+
+void ChaikinCurve::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+    //event->acceptProposedAction();
+}
+
+void ChaikinCurve::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+    //event->acceptProposedAction();
+}
+
+void ChaikinCurve::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+    // allow drop events outside of the bounding rect
+    //event->accept();
+}
+
+void ChaikinCurve::SetNewPointPosition(QPointF dragStartPoint, QPointF dragDropPoint)
+{
+    Q_UNUSED(dragStartPoint);
+    //TODO: find control point - for now just use first point
+    this->prepareGeometryChange();
+    mOriginalCurvePoints[0].setX(dragDropPoint.x());
+    mOriginalCurvePoints[0].setY(dragDropPoint.y());
+    InitializeCurvePoints();
+    update();
+}
+
+void ChaikinCurve::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+    SetNewPointPosition(mControlDragStartPoint, event->pos());
 }
 
 QPainterPath ChaikinCurve::shape() const
@@ -197,44 +243,33 @@ void ChaikinCurve::DecreaseLod()
     mCurvePoints = newPoints;
 }
 
-void ChaikinCurve::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-//    Q_UNUSED(event);
-//    mControlPointVisible = true;
-//    update();
-}
-
-void ChaikinCurve::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event);
-}
-
-void ChaikinCurve::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event);
-//    mControlPointVisible = false;
-//    update();
-}
-
 void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
     QPainterPath path = GetPathOfControlPoints();
     if (path.contains(event->pos())) {
-        // control point drag
+        // start control point drag
+        mControlDragStartPoint = event->pos();
+        QDrag *drag = new QDrag(event->widget());
+        QMimeData *data = new QMimeData();
+        drag->setMimeData(data);
+        drag->start(Qt::MoveAction);
     }
     else {
         mControlPointVisible = !mControlPointVisible;
         update();
+        event->accept();
     }
 }
 
 void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
+    QGraphicsItem::mouseMoveEvent(event);
 }
 
 void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
+    QGraphicsItem::mouseReleaseEvent(event);
 }

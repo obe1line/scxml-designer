@@ -4,6 +4,7 @@
 #include <QGraphicsItem>
 #include <QVector>
 #include <QVector3D>
+#include <QGraphicsScene>
 
 
 class ChaikinCurve : public QGraphicsItem
@@ -22,12 +23,10 @@ private:
     QVector<QVector3D> mCurvePoints;
     QVector<QVector3D> mOriginalCurvePoints;
     bool mControlPointVisible;
+    QPointF mControlDragStartPoint;
 
     // QGraphicsItem interface
 protected:
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
@@ -39,6 +38,15 @@ public:
     QPainterPath shape() const;
     QPainterPath GetPathOfLines() const;
     QPainterPath GetPathOfControlPoints() const;
+    void SetNewPointPosition(QPointF dragStartPoint, QPointF dragDropPoint);
+
+    // QGraphicsItem interface
+    void InitializeCurvePoints();
+protected:
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent *event);
 };
 
 
