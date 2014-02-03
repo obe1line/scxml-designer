@@ -102,6 +102,10 @@ void MainWindow::CreateActions()
     mActionTransition->setStatusTip(tr("Add a new transition"));
     QObject::connect(mActionTransition, SIGNAL(triggered()), this, SLOT(InsertTransition()));
 
+    mActionAnimate = new QAction(tr("&Animate"), this);
+    mActionAnimate->setStatusTip(tr("Animate"));
+    QObject::connect(mActionAnimate, SIGNAL(triggered()), this, SLOT(TestAnimation()));
+
     //TODO: connect these
     mActionAbout = new QAction(tr("&About"), this);
     mActionShowChildStates = new QAction(tr("&Show"), this);
@@ -127,6 +131,7 @@ void MainWindow::CreateMenus()
     mMenuInsert = menuBar()->addMenu(tr("&Insert"));
     mMenuInsert->addAction(mActionState);
     mMenuInsert->addAction(mActionTransition);
+    mMenuInsert->addAction(mActionAnimate);
 
     mMenuTest = menuBar()->addMenu(tr("&Test"));
     mMenuTest->addAction(mActionShowChildStates);
@@ -145,6 +150,7 @@ void MainWindow::CreateToolbars()
     mInsertToolBar = addToolBar(tr("Insert"));
     mInsertToolBar->addAction(mActionState);
     mInsertToolBar->addAction(mActionTransition);
+    mInsertToolBar->addAction(mActionAnimate);
 
     statusBar()->showMessage(QString("Version: %1").arg(VERSION));
 }
@@ -170,6 +176,22 @@ void MainWindow::InsertState()
     activeWorkflow->addState(newState);
     activeWorkflow->setInitialState(newState);
     activeTab->AddItemToScene(newState);
+}
+
+void MainWindow::TestAnimation()
+{
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
+    if (activeTab == NULL) return;
+    Workflow* activeWorkflow = activeTab->GetWorkflow();
+    QObjectList nodes = activeWorkflow->children();
+    foreach (QObject *obj, nodes) {
+        SCXMLState* state = static_cast<SCXMLState*>(obj);
+        QList<QAbstractTransition*> trans = state->transitions();
+        foreach (QAbstractTransition *tran, trans) {
+            SCXMLTransition* transition = static_cast<SCXMLTransition*>(tran);
+            transition->AnimateEvent();
+        }
+    }
 }
 
 //!

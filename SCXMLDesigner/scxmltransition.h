@@ -14,22 +14,10 @@ class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public 
 public:
     explicit SCXMLTransition(SCXMLState *parent = 0);
 
-//    qreal GetX1() { return mStartPoint.x(); }
-//    qreal GetY1() { return mStartPoint.y(); }
-//    qreal GetX2() { return mEndPoint.x(); }
-//    qreal GetY2() { return mEndPoint.y(); }
     QString GetControlPoints();
     QString GetDescription() { return mDescription; }
     QString GetEvent() { return mEvent; }
 
-//    void SetX1(qreal value) { mStartPoint.setX(value); }
-//    void SetY1(qreal value) { mStartPoint.setY(value); }
-//    void SetX2(qreal value) { mEndPoint.setX(value); }
-//    void SetY2(qreal value) { mEndPoint.setY(value); }
-//    void SetControlPointX1(qreal value) { mControlPoint1.setX(value); }
-//    void SetControlPointY1(qreal value) { mControlPoint1.setY(value); }
-//    void SetControlPointX2(qreal value) { mControlPoint2.setX(value); }
-//    void SetControlPointY2(qreal value) { mControlPoint2.setY(value); }
     void SetControlPoints(QString value);
     void SetDescription(QString value) { mDescription = value; }
     void SetEvent(QString value) { mEvent = value; }
