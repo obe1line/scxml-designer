@@ -23,6 +23,7 @@ private:
     QVector<QVector3D> mCurvePoints;
     QVector<QVector3D> mOriginalCurvePoints;
     bool mControlPointVisible;
+    bool mDragInProgress;
     QPointF mControlDragStartPoint;
 
     // QGraphicsItem interface
@@ -43,10 +44,10 @@ public:
     // QGraphicsItem interface
     void InitializeCurvePoints();
 protected:
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
+//    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+//    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+//    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+//    void dropEvent(QGraphicsSceneDragDropEvent *event);
 };
 
 

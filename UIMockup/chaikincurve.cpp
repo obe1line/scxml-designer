@@ -38,6 +38,7 @@ ChaikinCurve::ChaikinCurve()
     this->setCursor(Qt::PointingHandCursor);
 
     mControlPointVisible = true;    //TODO: change to false after testing
+    mDragInProgress = false;
 }
 
 void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -101,24 +102,24 @@ QPainterPath ChaikinCurve::GetPathOfControlPoints() const
     return path;
 }
 
-void ChaikinCurve::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
-{
-    Q_UNUSED(event);
-    //event->acceptProposedAction();
-}
+//void ChaikinCurve::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+//{
+//    Q_UNUSED(event);
+//    //event->acceptProposedAction();
+//}
 
-void ChaikinCurve::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    Q_UNUSED(event);
-    //event->acceptProposedAction();
-}
+//void ChaikinCurve::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+//{
+//    Q_UNUSED(event);
+//    //event->acceptProposedAction();
+//}
 
-void ChaikinCurve::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    Q_UNUSED(event);
-    // allow drop events outside of the bounding rect
-    //event->accept();
-}
+//void ChaikinCurve::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+//{
+//    Q_UNUSED(event);
+//    // allow drop events outside of the bounding rect
+//    //event->accept();
+//}
 
 void ChaikinCurve::SetNewPointPosition(QPointF dragStartPoint, QPointF dragDropPoint)
 {
@@ -131,11 +132,11 @@ void ChaikinCurve::SetNewPointPosition(QPointF dragStartPoint, QPointF dragDropP
     update();
 }
 
-void ChaikinCurve::dropEvent(QGraphicsSceneDragDropEvent *event)
-{
-    Q_UNUSED(event);
-    SetNewPointPosition(mControlDragStartPoint, event->pos());
-}
+//void ChaikinCurve::dropEvent(QGraphicsSceneDragDropEvent *event)
+//{
+//    Q_UNUSED(event);
+//    SetNewPointPosition(mControlDragStartPoint, event->pos());
+//}
 
 QPainterPath ChaikinCurve::shape() const
 {
@@ -249,11 +250,9 @@ void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
     QPainterPath path = GetPathOfControlPoints();
     if (path.contains(event->pos())) {
         // start control point drag
+        mDragInProgress = true;
         mControlDragStartPoint = event->pos();
-        QDrag *drag = new QDrag(event->widget());
-        QMimeData *data = new QMimeData();
-        drag->setMimeData(data);
-        drag->start(Qt::MoveAction);
+        event->accept();
     }
     else {
         mControlPointVisible = !mControlPointVisible;
@@ -265,11 +264,22 @@ void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
-    QGraphicsItem::mouseMoveEvent(event);
+    if (mDragInProgress) {
+        SetNewPointPosition(mControlDragStartPoint, event->pos());
+    }
+    event->accept();
 }
 
 void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
-    QGraphicsItem::mouseReleaseEvent(event);
+
+    if (mDragInProgress) {
+        mDragInProgress = false;
+        SetNewPointPosition(mControlDragStartPoint, event->pos());
+        event->accept();
+    }
+    else {
+        QGraphicsItem::mouseReleaseEvent(event);
+    }
 }
