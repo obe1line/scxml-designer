@@ -37,6 +37,7 @@ ChaikinCurve::ChaikinCurve()
     this->setFlag(QGraphicsItem::ItemIsSelectable, true);
     this->setCursor(Qt::PointingHandCursor);
 
+    mControlPointDragIndex = 0;
     mControlPointVisible = true;    //TODO: change to false after testing
     mDragInProgress = false;
 }
@@ -102,41 +103,14 @@ QPainterPath ChaikinCurve::GetPathOfControlPoints() const
     return path;
 }
 
-//void ChaikinCurve::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
-//{
-//    Q_UNUSED(event);
-//    //event->acceptProposedAction();
-//}
-
-//void ChaikinCurve::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
-//{
-//    Q_UNUSED(event);
-//    //event->acceptProposedAction();
-//}
-
-//void ChaikinCurve::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-//{
-//    Q_UNUSED(event);
-//    // allow drop events outside of the bounding rect
-//    //event->accept();
-//}
-
-void ChaikinCurve::SetNewPointPosition(QPointF dragStartPoint, QPointF dragDropPoint)
+void ChaikinCurve::SetNewPointPosition(int controlPointIndex, QPointF dragDropPoint)
 {
-    Q_UNUSED(dragStartPoint);
-    //TODO: find control point - for now just use first point
     this->prepareGeometryChange();
-    mOriginalCurvePoints[0].setX(dragDropPoint.x());
-    mOriginalCurvePoints[0].setY(dragDropPoint.y());
+    mOriginalCurvePoints[controlPointIndex].setX(dragDropPoint.x());
+    mOriginalCurvePoints[controlPointIndex].setY(dragDropPoint.y());
     InitializeCurvePoints();
     update();
 }
-
-//void ChaikinCurve::dropEvent(QGraphicsSceneDragDropEvent *event)
-//{
-//    Q_UNUSED(event);
-//    SetNewPointPosition(mControlDragStartPoint, event->pos());
-//}
 
 QPainterPath ChaikinCurve::shape() const
 {
@@ -244,6 +218,21 @@ void ChaikinCurve::DecreaseLod()
     mCurvePoints = newPoints;
 }
 
+int ChaikinCurve::GetIndexOfControlPoint(QPointF pointerPosition)
+{
+    int pos = 0;
+    foreach (QVector3D point, mOriginalCurvePoints) {
+        QPainterPath path;
+        path.addEllipse(point.toPoint(), 5, 5);
+        if (path.contains(pointerPosition)) {
+            return pos;
+        }
+        pos++;
+    }
+
+    return -1;
+}
+
 void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
@@ -251,7 +240,7 @@ void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if (path.contains(event->pos())) {
         // start control point drag
         mDragInProgress = true;
-        mControlDragStartPoint = event->pos();
+        mControlPointDragIndex = GetIndexOfControlPoint(event->pos());
         event->accept();
     }
     else {
@@ -265,7 +254,7 @@ void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
     if (mDragInProgress) {
-        SetNewPointPosition(mControlDragStartPoint, event->pos());
+        SetNewPointPosition(mControlPointDragIndex, event->pos());
     }
     event->accept();
 }
@@ -276,7 +265,7 @@ void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     if (mDragInProgress) {
         mDragInProgress = false;
-        SetNewPointPosition(mControlDragStartPoint, event->pos());
+        SetNewPointPosition(mControlPointDragIndex, event->pos());
         event->accept();
     }
     else {

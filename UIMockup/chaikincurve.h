@@ -24,7 +24,13 @@ private:
     QVector<QVector3D> mOriginalCurvePoints;
     bool mControlPointVisible;
     bool mDragInProgress;
-    QPointF mControlDragStartPoint;
+    int mControlPointDragIndex;
+
+    QPainterPath GetPathOfLines() const;
+    QPainterPath GetPathOfControlPoints() const;
+    void SetNewPointPosition(int controlPointIndex, QPointF dragDropPoint);
+    void InitializeCurvePoints();
+    int GetIndexOfControlPoint(QPointF pointerPosition);
 
     // QGraphicsItem interface
 protected:
@@ -37,17 +43,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     QRectF boundingRect() const;
     QPainterPath shape() const;
-    QPainterPath GetPathOfLines() const;
-    QPainterPath GetPathOfControlPoints() const;
-    void SetNewPointPosition(QPointF dragStartPoint, QPointF dragDropPoint);
-
-    // QGraphicsItem interface
-    void InitializeCurvePoints();
-protected:
-//    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-//    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
-//    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
-//    void dropEvent(QGraphicsSceneDragDropEvent *event);
 };
 
 
