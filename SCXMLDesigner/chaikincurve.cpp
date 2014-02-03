@@ -305,7 +305,7 @@ void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void ChaikinCurve::AnimateEvent()
 {
     QPainterPath path = GetPathOfLines();
-    QPropertyAnimation* animation = new QPropertyAnimation((QObject*)this, "centrePoint", (QObject*)this);
+    QPropertyAnimation* animation = new QPropertyAnimation(mParentObject, "centrePoint", mParentObject);
     animation->setDuration(2000);
     animation->setEasingCurve(QEasingCurve::Linear);
     animation->setLoopCount(1);
@@ -318,7 +318,7 @@ void ChaikinCurve::AnimateEvent()
                    path.pointAtPercent(i).toPoint());
     }
 
-    QObject::connect(animation, SIGNAL(finished()), (QObject*)this, SLOT(AnimationComplete()));
+    QObject::connect(animation, SIGNAL(finished()), mParentObject, SLOT(AnimationComplete()));
     mAnimationActive = true;
     animation->start();
 }

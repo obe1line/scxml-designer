@@ -16,6 +16,9 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     setCursor(Qt::ArrowCursor);
     setAcceptHoverEvents(true);
 
+    // for the curve animation
+    SetParentObject(this);
+
     UpdatePoints();
 }
 

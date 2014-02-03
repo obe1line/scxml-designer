@@ -14,6 +14,8 @@ class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public 
 public:
     explicit SCXMLTransition(SCXMLState *parent = 0);
 
+    Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
+
     QString GetControlPoints();
     QString GetDescription() { return mDescription; }
     QString GetEvent() { return mEvent; }
@@ -45,10 +47,13 @@ public:
                         QPainterPath *startPointPath, QPainterPath *endPointPath) const;
 
     QVector<QVector3D> GetControlPoints(QString value);
+
 signals:
-    
+    void centrePointChanged(QPoint);
+
 public slots:
     void UpdatePoints();
+    void AnimationComplete() { mAnimationActive = false; update(); }
 
 private:
     SCXMLState* mParentState;

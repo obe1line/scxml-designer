@@ -16,13 +16,15 @@ public:
     explicit ChaikinCurve(int iterationCount, QVector<QVector3D> points);
 
     QVector<QVector3D> GetCurveControlPoints() { return mOriginalCurvePoints; }
-    Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
 
     void setCentrePoint(QPoint pt) { mCentrePoint = pt; this->update(); }
     QPoint getCentrePoint() const { return mCentrePoint; }
     bool mAnimationActive;
+    void SetParentObject(QObject* obj) { mParentObject = obj; }
+
 private:
     QPoint mCentrePoint;
+    QObject *mParentObject;
 
 signals:
     void centrePointChanged(QPoint);
@@ -30,7 +32,6 @@ signals:
 public slots:
     void IncreaseLod();
     void DecreaseLod();
-    void AnimationComplete() { mAnimationActive = false; update(); }
 
 private:
     int mIterationCount;
