@@ -275,7 +275,13 @@ void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
     if (mDragInProgress) {
-        SetNewPointPosition(mControlPointDragIndex, event->pos());
+        QPointF point = event->pos();
+        qDebug() << "mControlPointDragIndex=" << mControlPointDragIndex;
+        qDebug() << "mStartNodePath.contains(point)=" << mStartNodePath.contains(point);
+        if ((mControlPointDragIndex == 0) && (!mStartNodePath.contains(point))) {
+           return;
+        }
+        SetNewPointPosition(mControlPointDragIndex, point);
     }
     event->accept();
 }

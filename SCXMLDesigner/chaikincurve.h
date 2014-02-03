@@ -14,6 +14,8 @@ class ChaikinCurve : public QGraphicsItem
     Q_INTERFACES(QGraphicsItem)
 public:
     explicit ChaikinCurve(int iterationCount, QVector<QVector3D> points);
+
+    QVector<QVector3D> GetCurveControlPoints() { return mOriginalCurvePoints; }
 //    Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
 
 //    void setCentrePoint(QPoint pt) { mCentrePoint = pt; this->update(); }
@@ -40,6 +42,8 @@ private:
     bool mControlPointVisible;
     bool mDragInProgress;
     int mControlPointDragIndex;
+    QPainterPath mStartNodePath;
+    QPainterPath mEndNodePath;
 
     QPainterPath GetPathOfLines() const;
     QPainterPath GetPathOfControlPoints() const;
@@ -59,5 +63,7 @@ public:
 
     void AnimateEvent();
     void SetStartingPoints(QVector<QVector3D> newCurvePoints);
+    void SetStartNodePath(QPainterPath path) { mStartNodePath = path; }
+    void SetEndNodePath(QPainterPath path) { mEndNodePath = path; }
 };
 #endif // CHAIKINCURVE_H

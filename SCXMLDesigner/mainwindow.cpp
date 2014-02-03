@@ -190,10 +190,6 @@ void MainWindow::InsertTransition()
 
     if (nodesSelected.count() == 2) {
         SCXMLTransition* transition = new SCXMLTransition();
-        transition->SetX1(50);
-        transition->SetY1(50);
-        transition->SetX2(150);
-        transition->SetY2(150);
         SCXMLState* stateFrom = nodesSelected.at(0);
         SCXMLState* stateTo = nodesSelected.at(1);
         transition->Connect(stateFrom, stateTo);

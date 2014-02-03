@@ -24,6 +24,14 @@ SCXMLState::SCXMLState(QString id) :
     setAcceptHoverEvents(true);
 }
 
+QPainterPath SCXMLState::GetNodeOutlinePath()
+{
+    QPainterPath path;
+    // use x and y as the starting point since we need absolute positions outside of this class
+    path.addRoundedRect(this->x(), this->y(), mWidth, mHeight, 10.0, 10.0);
+    return path;
+}
+
 void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (mResizing) {

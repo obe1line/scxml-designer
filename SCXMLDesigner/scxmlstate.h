@@ -26,6 +26,7 @@ public:
     qreal GetShapeHeight() { return mHeight; }
     QString GetDescription() { return mDescription; }
     bool GetFinal() { return mFinal; }
+    QPainterPath GetNodeOutlinePath();
 
     void SetShapeX(qreal value) { setX(value); sizeChanged(); }
     void SetShapeY(qreal value) { setY(value); sizeChanged(); }

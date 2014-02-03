@@ -5,16 +5,10 @@
 #include "scxmltransition.h"
 
 SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
-    QAbstractTransition(), ChaikinCurve(4, QVector<QVector3D>()), mParentState(parent), mStartPoint(0,0), mEndPoint(0,0), mDescription(""),
-    //mMovingControlPoint1(false), mNewControlPoint1StartX(0), mNewControlPoint1StartY(0),
-    //mMovingControlPoint2(false), mNewControlPoint2StartX(0), mNewControlPoint2StartY(0),
-    //mMovingStartPoint(false),
-    mEvent("")
+    QAbstractTransition(), ChaikinCurve(4, QVector<QVector3D>()), mParentState(parent),
+    mDescription(""), mEvent("")
 {
-    //mControlPoint1 = QPoint(100, 100);
-    //mControlPoint2 = QPoint(50, 50);
-
-    // only the start, end and control points can be moved - not the full line
+    // only the mid-control points can be moved - not the curve
     setFlag(QGraphicsItem::ItemIsMovable, false);
     // can select to show property dialogs
     setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -25,141 +19,89 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     UpdatePoints();
 }
 
-//TODO: add an onSizeChange dependency to the shape so when resized, sets the start point
+//!
+//! \brief SCXMLTransition::GetControlPoints
+//! Converts the control points of the curve into a string to be used for export
+//! \return String representation of the control points
+//!
+QString SCXMLTransition::GetControlPoints()
+{
+    QString resultString = "";
+    QVector<QVector3D> points = GetCurveControlPoints();
+    foreach (QVector3D point, points) {
+        QString curvePosString = QString("%1,%2").arg(point.x()).arg(point.y());
+        if (resultString.length() > 0) {
+            resultString.append(":");
+        }
+        resultString.append(curvePosString);
+    }
+    return resultString;
+}
+
+//!
+//! \brief SCXMLTransition::GetControlPoints
+//! \param value String containing the point coordinates E.g. "1,2:5,6"
+//! \return A vector of points
+//!
+QVector<QVector3D> SCXMLTransition::GetControlPoints(QString value)
+{
+    QVector<QVector3D> points;
+    QStringList pointStrings = value.split(":");
+    foreach (QString pointPair, pointStrings) {
+        QStringList coord = pointPair.split(",");
+        points.append(QVector3D(coord[0].toInt(), coord[1].toInt(), 0));
+    }
+    return points;
+}
+
+void SCXMLTransition::SetControlPoints(QString value)
+{
+    QVector<QVector3D> points = GetControlPoints(value);
+    SetStartingPoints(points);
+}
 
 void SCXMLTransition::UpdatePoints()
 {
     SCXMLState* startState = dynamic_cast<SCXMLState*>(mParentState);
     SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
     if (endState != nullptr) {
-        mStartPoint = QPoint(startState->GetShapeX(), startState->GetShapeY());
-        mEndPoint = QPoint(endState->GetShapeX(), endState->GetShapeY());
-        QVector<QVector3D> curvePoints;
-        curvePoints.append(QVector3D(mStartPoint));
-        curvePoints.append(QVector3D(mEndPoint));
+        QPoint startPoint = QPoint(startState->GetShapeX(), startState->GetShapeY());
+        QPoint endPoint = QPoint(endState->GetShapeX(), endState->GetShapeY());
+        QVector<QVector3D> curvePoints = GetCurveControlPoints();
+        if (curvePoints.length() < 2) {
+            // no points set - use the start and end points with two points between
+            curvePoints.append(QVector3D(startPoint));
+            QPainterPath path;
+            path.moveTo(startPoint.x(), startPoint.y());
+            path.lineTo(endPoint.x(), endPoint.y());
+            curvePoints.append(QVector3D(path.pointAtPercent(0.33)));
+            curvePoints.append(QVector3D(path.pointAtPercent(0.66)));
+            curvePoints.append(QVector3D(endPoint));
+        }
+        else {
+            // update start and end points
+            curvePoints[0] = QVector3D(startPoint);
+            curvePoints[curvePoints.length()-1] = QVector3D(endPoint);
+        }
+        SetStartNodePath(startState->GetNodeOutlinePath());
+        SetEndNodePath(endState->GetNodeOutlinePath());
         SetStartingPoints(curvePoints);
     }
 }
 
 void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-//    QPointF mousePos = event->pos();
-
-//    if (mMovingControlPoint1) {
-//        prepareGeometryChange();
-//        mNewControlPoint1StartX = mousePos.x();
-//        mNewControlPoint1StartY = mousePos.y();
-//        mControlPoint1.setX(mNewControlPoint1StartX);
-//        mControlPoint1.setY(mNewControlPoint1StartY);
-
-//        update();
-//        event->accept();
-//        return;
-//    }
-
-//    if (mMovingControlPoint2) {
-//        prepareGeometryChange();
-
-//        mNewControlPoint2StartX = mousePos.x();
-//        mNewControlPoint2StartY = mousePos.y();
-//        mControlPoint2.setX(mNewControlPoint2StartX);
-//        mControlPoint2.setY(mNewControlPoint2StartY);
-
-//        update();
-//        event->accept();
-//        return;
-//    }
-
-//    if (mMovingStartPoint) {
-//        prepareGeometryChange();
-
-//        SetX1(mousePos.x());
-//        SetY1(mousePos.y());
-
-//        update();
-//        event->accept();
-//        return;
-//    }
-
-    //QGraphicsItem::mouseMoveEvent(event);
     ChaikinCurve::mouseMoveEvent(event);
-    //update();
 }
 
 void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-//    QPointF mousePos = event->pos();
-
-//    // if mouse is over a control point, move it
-//    QPainterPath controlPointPath1;
-//    controlPointPath1.addEllipse(mControlPoint1, 5, 5);
-//    if (controlPointPath1.contains(mousePos)) {
-//        mMovingControlPoint1 = true;
-//        mNewControlPoint1StartX = mousePos.x();
-//        mNewControlPoint1StartY = mousePos.y();
-//        mControlPoint1.setX(mNewControlPoint1StartX);
-//        mControlPoint1.setY(mNewControlPoint1StartY);
-//        event->accept();
-//        update();
-//        return;
-//    }
-
-//    QPainterPath controlPointPath2;
-//    controlPointPath2.addEllipse(mControlPoint2, 5, 5);
-//    if (controlPointPath2.contains(mousePos)) {
-//        mMovingControlPoint2 = true;
-//        mNewControlPoint2StartX = mousePos.x();
-//        mNewControlPoint2StartY = mousePos.y();
-//        mControlPoint2.setX(mNewControlPoint2StartX);
-//        mControlPoint2.setY(mNewControlPoint2StartY);
-//        event->accept();
-//        return;
-//    }
-
-//    QPainterPath startPointPath;
-//    startPointPath.addEllipse(mStartPoint, 5, 5);
-//    if (startPointPath.contains(mousePos)) {
-//        mMovingStartPoint = true;
-//        SetX1(mousePos.x());
-//        SetY1(mousePos.y());
-//        event->accept();
-//        return;
-//    }
-
-//    QGraphicsItem::mousePressEvent(event);
-//    update();
-
-    ChaikinCurve::mousePressEvent(event);
-//    update();
+    ChaikinCurve::mousePressEvent(event);;
 }
 
 void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-//    QPointF mousePos = event->pos();
-
-//    if (mMovingControlPoint1) {
-//        mNewControlPoint1StartX = mousePos.x();
-//        mNewControlPoint1StartY = mousePos.y();
-//        mControlPoint1.setX(mNewControlPoint1StartX);
-//        mControlPoint1.setY(mNewControlPoint1StartY);
-//        mMovingControlPoint1 = false;
-//        QGraphicsItem::mouseReleaseEvent(event);
-//        return;
-//    }
-
-//    if (mMovingControlPoint2) {
-//        mNewControlPoint2StartX = mousePos.x();
-//        mNewControlPoint2StartY = mousePos.y();
-//        mControlPoint2.setX(mNewControlPoint2StartX);
-//        mControlPoint2.setY(mNewControlPoint2StartY);
-//        mMovingControlPoint2 = false;
-//        QGraphicsItem::mouseReleaseEvent(event);
-//        return;
-//    }
-
-    //TODO:mMovingStartPoint
     ChaikinCurve::mouseReleaseEvent(event);
-    //update();
 }
 
 void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
@@ -170,36 +112,8 @@ void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
             SetDescription(value);
             continue;
         }
-        if (key == "x1") {
-            SetX1(value.toDouble());
-            continue;
-        }
-        if (key == "y1") {
-            SetY1(value.toDouble());
-            continue;
-        }
-        if (key == "x2") {
-            SetX2(value.toDouble());
-            continue;
-        }
-        if (key == "y2") {
-            SetY2(value.toDouble());
-            continue;
-        }
-        if (key == "cx1") {
-            //SetControlPointX1(value.toDouble());
-            continue;
-        }
-        if (key == "cy1") {
-            //SetControlPointY1(value.toDouble());
-            continue;
-        }
-        if (key == "cx2") {
-            //SetControlPointX2(value.toDouble());
-            continue;
-        }
-        if (key == "cy2") {
-            //SetControlPointY2(value.toDouble());
+        if (key == "cp") {
+            SetControlPoints(value);
             continue;
         }
     }
@@ -207,15 +121,8 @@ void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
 
 QString SCXMLTransition::GetMetaDataString()
 {
-    QString metadata = QString(" META-DATA [x1=%1] [y1=%2] [x2=%3] [y2=%4] [cx1=%5] [cy1=%6] [cx2=%7] [cy2=%8] [description=%9]")
-            .arg(GetX1())
-            .arg(GetY1())
-            .arg(GetX2())
-            .arg(GetY2())
-            .arg(0) //GetControlPointX1())
-            .arg(0) //GetControlPointY1())
-            .arg(0) //GetControlPointX2())
-            .arg(0) //GetControlPointY2())
+    QString metadata = QString(" META-DATA [cp=%1] [description=%2]")
+            .arg(GetControlPoints())
             .arg(GetDescription());
     return metadata;
 }
@@ -283,66 +190,6 @@ QString SCXMLTransition::GetMetaDataString()
 //    return true;
 //}
 
-//QPainterPath SCXMLTransition::shape() const
-//{
-//    QPainterPath bezierPath, arrowHeadPath, controlLine1Path, controlLine2Path, startPointPath, endPointPath, combinedPath;
-//    CalculatePaths(&bezierPath, &arrowHeadPath, &controlLine1Path, &controlLine2Path, &startPointPath, &endPointPath);
-//    combinedPath.addPath(bezierPath);
-//    combinedPath.addPath(arrowHeadPath);
-//    combinedPath.addPath(controlLine1Path);
-//    combinedPath.addPath(controlLine2Path);
-//    combinedPath.addPath(startPointPath);
-//    combinedPath.addPath(endPointPath);
-
-//    return combinedPath;
-//}
-
-//QRectF SCXMLTransition::boundingRect() const
-//{
-//    return shape().boundingRect();
-//}
-
-//void SCXMLTransition::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-//{
-//    ChaikinCurve::paint(painter, option, widget);
-//    Q_UNUSED(option)
-//    Q_UNUSED(widget)
-
-//    //SCXMLState* startState = dynamic_cast<SCXMLState*>(parent());
-//    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
-//    if (endState == nullptr) return;
-
-//    QBrush blackBrush = QBrush(isSelected() ? Qt::blue : Qt::black);
-//    QBrush controlLineBrush = QBrush(isSelected() ? Qt::blue : Qt::darkYellow);
-//    QPen controlPointPen = QPen(controlLineBrush, 3, Qt::SolidLine);
-//    QBrush endPointBrush = QBrush(isSelected() ? Qt::darkYellow : Qt::yellow);
-//    QPen endPointPen = QPen(endPointBrush, 3, Qt::SolidLine);
-//    QPen transitionPen = QPen(blackBrush, 3, Qt::SolidLine);
-
-//    painter->setBrush(blackBrush);
-//    painter->setPen(transitionPen);
-//    painter->setRenderHint(QPainter::HighQualityAntialiasing, true);
-//    painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-//    //TODO: only calculate when changes made - not on every paint
-//    QPainterPath bezierPath, arrowHeadPath, controlLine1Path, controlLine2Path, startPointPath, endPointPath;
-//    CalculatePaths(&bezierPath, &arrowHeadPath, &controlLine1Path, &controlLine2Path, &startPointPath, &endPointPath);
-//    painter->setBrush(Qt::NoBrush);
-//    painter->drawPath(bezierPath);
-//    painter->setBrush(blackBrush);
-//    painter->drawPath(arrowHeadPath);
-
-//    // only show anchor points if selected
-//    if (isSelected()) {
-//        // anchor points
-//        painter->setPen(controlPointPen);
-//        painter->drawPath(controlLine1Path);
-//        painter->drawPath(controlLine2Path);
-//        painter->setPen(endPointPen);
-//        painter->drawPath(startPointPath);
-//        painter->drawPath(endPointPath);
-//    }
-//}
 
 void SCXMLTransition::Update()
 {
