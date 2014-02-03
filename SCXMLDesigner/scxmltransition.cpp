@@ -69,7 +69,7 @@ void SCXMLTransition::UpdatePoints()
         QPoint endPoint = QPoint(endState->GetShapeX(), endState->GetShapeY());
         QVector<QVector3D> curvePoints = GetCurveControlPoints();
         if (curvePoints.length() < 2) {
-            // no points set - use the start and end points with two points between
+            // No points set - use the start and end points with two points between
             curvePoints.append(QVector3D(startPoint));
             QPainterPath path;
             path.moveTo(startPoint.x(), startPoint.y());
@@ -79,10 +79,13 @@ void SCXMLTransition::UpdatePoints()
             curvePoints.append(QVector3D(endPoint));
         }
         else {
-            // update start and end points
+            // Update start and end points
             curvePoints[0] = QVector3D(startPoint);
             curvePoints[curvePoints.length()-1] = QVector3D(endPoint);
         }
+
+        // Set the outlines to restrict where the start and end curve control points
+        // can be placed. This is so the transitions always connect states
         SetStartNodePath(startState->GetNodeOutlinePath());
         SetEndNodePath(endState->GetNodeOutlinePath());
         SetStartingPoints(curvePoints);

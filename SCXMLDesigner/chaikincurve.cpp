@@ -257,14 +257,16 @@ int ChaikinCurve::GetIndexOfControlPoint(QPointF pointerPosition)
 void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
-    QPainterPath path = GetPathOfControlPoints();
-    if (path.contains(event->pos())) {
+    QPainterPath pathPoints = GetPathOfControlPoints();
+    if (mControlPointVisible && (pathPoints.contains(event->pos()))) {
         // start control point drag
         mDragInProgress = true;
         mControlPointDragIndex = GetIndexOfControlPoint(event->pos());
         event->accept();
+        return;
     }
-    else {
+    QPainterPath pathLines = GetPathOfLines();
+    if (pathLines.intersects(QRect(event->pos().x(), event->pos().y(), 2, 2))) {
         mControlPointVisible = !mControlPointVisible;
         update();
         event->accept();
@@ -276,9 +278,10 @@ void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     Q_UNUSED(event);
     if (mDragInProgress) {
         QPointF point = event->pos();
-        qDebug() << "mControlPointDragIndex=" << mControlPointDragIndex;
-        qDebug() << "mStartNodePath.contains(point)=" << mStartNodePath.contains(point);
         if ((mControlPointDragIndex == 0) && (!mStartNodePath.contains(point))) {
+           return;
+        }
+        if ((mControlPointDragIndex == mOriginalCurvePoints.length()-1) && (!mEndNodePath.contains(point))) {
            return;
         }
         SetNewPointPosition(mControlPointDragIndex, point);
@@ -292,7 +295,6 @@ void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     if (mDragInProgress) {
         mDragInProgress = false;
-        SetNewPointPosition(mControlPointDragIndex, event->pos());
         event->accept();
     }
     else {
