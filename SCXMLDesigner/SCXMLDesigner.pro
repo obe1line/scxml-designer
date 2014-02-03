@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     scxmltransition.cpp \
     workflowgraphicsview.cpp \
     metadatasupport.cpp \
-    scxmldatamodel.cpp
+    scxmldatamodel.cpp \
+    chaikincurve.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -35,7 +36,8 @@ HEADERS  += mainwindow.h \
     workflowgraphicsview.h \
     metadatasupport.h \
     version.h \
-    scxmldatamodel.h
+    scxmldatamodel.h \
+    chaikincurve.h
 
 FORMS    +=
 

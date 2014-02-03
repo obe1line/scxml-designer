@@ -4,9 +4,9 @@
 #include <QAbstractTransition>
 #include "scxmlstate.h"
 #include "metadatasupport.h"
+#include "chaikincurve.h"
 
-
-class SCXMLTransition : public QAbstractTransition, public QGraphicsItem, public MetaDataSupport
+class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public MetaDataSupport
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -18,10 +18,10 @@ public:
     qreal GetY1() { return mStartPoint.y(); }
     qreal GetX2() { return mEndPoint.x(); }
     qreal GetY2() { return mEndPoint.y(); }
-    qreal GetControlPointX1() { return mControlPoint1.x(); }
-    qreal GetControlPointY1() { return mControlPoint1.y(); }
-    qreal GetControlPointX2() { return mControlPoint2.x(); }
-    qreal GetControlPointY2() { return mControlPoint2.y(); }
+//    qreal GetControlPointX1() { return mControlPoint1.x(); }
+//    qreal GetControlPointY1() { return mControlPoint1.y(); }
+//    qreal GetControlPointX2() { return mControlPoint2.x(); }
+//    qreal GetControlPointY2() { return mControlPoint2.y(); }
     QString GetDescription() { return mDescription; }
     QString GetEvent() { return mEvent; }
 
@@ -29,10 +29,10 @@ public:
     void SetY1(qreal value) { mStartPoint.setY(value); }
     void SetX2(qreal value) { mEndPoint.setX(value); }
     void SetY2(qreal value) { mEndPoint.setY(value); }
-    void SetControlPointX1(qreal value) { mControlPoint1.setX(value); }
-    void SetControlPointY1(qreal value) { mControlPoint1.setY(value); }
-    void SetControlPointX2(qreal value) { mControlPoint2.setX(value); }
-    void SetControlPointY2(qreal value) { mControlPoint2.setY(value); }
+//    void SetControlPointX1(qreal value) { mControlPoint1.setX(value); }
+//    void SetControlPointY1(qreal value) { mControlPoint1.setY(value); }
+//    void SetControlPointX2(qreal value) { mControlPoint2.setX(value); }
+//    void SetControlPointY2(qreal value) { mControlPoint2.setY(value); }
     void SetDescription(QString value) { mDescription = value; }
     void SetEvent(QString value) { mEvent = value; }
 
@@ -52,9 +52,9 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     // QGraphicsItem overrides
-    QRectF boundingRect() const;
-    QPainterPath shape() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+//    QRectF boundingRect() const;
+//    QPainterPath shape() const;
+//    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     void Update();
     void Connect(SCXMLState* parentState, SCXMLState* targetState);
@@ -74,15 +74,15 @@ private:
     QPoint mStartPoint;
     QPoint mEndPoint;
     QString mDescription;
-    QPoint mControlPoint1;
-    QPoint mControlPoint2;
-    bool mMovingControlPoint1;
-    bool mMovingControlPoint2;
-    bool mMovingStartPoint;
-    qreal mNewControlPoint1StartX;
-    qreal mNewControlPoint1StartY;
-    qreal mNewControlPoint2StartX;
-    qreal mNewControlPoint2StartY;
+//    QPoint mControlPoint1;
+//    QPoint mControlPoint2;
+//    bool mMovingControlPoint1;
+//    bool mMovingControlPoint2;
+//    bool mMovingStartPoint;
+//    qreal mNewControlPoint1StartX;
+//    qreal mNewControlPoint1StartY;
+//    qreal mNewControlPoint2StartX;
+//    qreal mNewControlPoint2StartY;
     QString mEvent;
 };
 
