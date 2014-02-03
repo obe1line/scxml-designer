@@ -10,7 +10,7 @@
 
 SCXMLState::SCXMLState(QString id) :
     QState(), mId(id), mDescription(""),
-    mWidth(0), mHeight(0),
+    mWidth(100), mHeight(50),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
     mResizeStartX(0), mResizeStartY(0),
