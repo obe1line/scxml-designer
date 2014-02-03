@@ -32,7 +32,7 @@ void MainWindow::CreateWidgets()
     mMainView->setScene(mScene);
     setCentralWidget(mMainView);
 
-    mChaikinCurve = new ChaikinCurve();
+    mChaikinCurve = new ChaikinCurve(4);
     mMainView->scene()->addItem(mChaikinCurve);
 }
 

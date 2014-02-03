@@ -13,9 +13,14 @@ void ChaikinCurve::InitializeCurvePoints()
     foreach (QVector3D point, mOriginalCurvePoints) {
         mCurvePoints.append(point);
     }
+
+    for (int count=0; count<mIterationCount; ++count) {
+        IncreaseLod();
+    }
 }
 
-ChaikinCurve::ChaikinCurve()
+ChaikinCurve::ChaikinCurve(int iterationCount) :
+    mIterationCount(iterationCount)
 {
     // create brushes and pens
     mYellowBrush = new QBrush(Qt::GlobalColor::yellow, Qt::SolidPattern);

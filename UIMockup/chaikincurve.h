@@ -11,13 +11,14 @@ class ChaikinCurve : public QGraphicsItem
 {
     Q_INTERFACES(QGraphicsItem)
 public:
-    explicit ChaikinCurve();
+    explicit ChaikinCurve(int iterationCount);
 
 public slots:
     void IncreaseLod();
     void DecreaseLod();
 
 private:
+    int mIterationCount;
     QBrush *mYellowBrush;
     QPen *mControlPointPen;
     QVector<QVector3D> mCurvePoints;
