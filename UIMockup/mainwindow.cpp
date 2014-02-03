@@ -52,6 +52,10 @@ void MainWindow::CreateActions()
     mActionDecrease = new QAction(tr("Decrease"), this);
     mActionDecrease->setStatusTip(tr("Decrease curve points"));
     QObject::connect(mActionDecrease, SIGNAL(triggered()), this, SLOT(decrease()));
+
+    mActionAnimate = new QAction(tr("Animate"), this);
+    mActionAnimate->setStatusTip(tr("Animate events"));
+    QObject::connect(mActionAnimate, SIGNAL(triggered()), this, SLOT(animate()));
 }
 
 //!
@@ -62,6 +66,7 @@ void MainWindow::CreateMenus()
     mMenuFile = menuBar()->addMenu(tr("&File"));
     mMenuFile->addAction(mActionIncrease);
     mMenuFile->addAction(mActionDecrease);
+    mMenuFile->addAction(mActionAnimate);
     mMenuFile->addAction(mActionExit);
 }
 

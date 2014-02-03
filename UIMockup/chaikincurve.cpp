@@ -6,6 +6,7 @@
 #include <QDrag>
 #include <QMimeData>
 #include <QGraphicsWidget>
+#include <QPropertyAnimation>
 
 void ChaikinCurve::InitializeCurvePoints()
 {
@@ -24,6 +25,7 @@ ChaikinCurve::ChaikinCurve(int iterationCount) :
 {
     // create brushes and pens
     mYellowBrush = new QBrush(Qt::GlobalColor::yellow, Qt::SolidPattern);
+    mGreenBrush = new QBrush(Qt::GlobalColor::green, Qt::SolidPattern);
     mControlPointPen = new QPen(Qt::GlobalColor::black);
     mControlPointPen->setWidth(2);
 
@@ -45,13 +47,13 @@ ChaikinCurve::ChaikinCurve(int iterationCount) :
     mControlPointDragIndex = 0;
     mControlPointVisible = true;    //TODO: change to false after testing
     mDragInProgress = false;
+    mAnimationActive = false;
 }
 
 void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option)
-
-    painter->begin(widget);
+    Q_UNUSED(widget)
 
     // draw the lines
     QPainterPath path = GetPathOfLines();
@@ -66,7 +68,11 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         painter->drawPath(path);
     }
 
-    painter->end();
+    // draw the animation indicator
+    if (mAnimationActive) {
+        painter->setBrush(*mGreenBrush);
+        painter->drawEllipse(mCentrePoint, 5, 5);
+    }
 }
 
 QRectF ChaikinCurve::boundingRect() const
@@ -276,4 +282,25 @@ void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     else {
         QGraphicsItem::mouseReleaseEvent(event);
     }
+}
+
+void ChaikinCurve::AnimateEvent()
+{
+    QPainterPath path = GetPathOfLines();
+    QPropertyAnimation* animation = new QPropertyAnimation(this, "centrePoint", this);
+    animation->setDuration(2000);
+    animation->setEasingCurve(QEasingCurve::Linear);
+    animation->setLoopCount(1);
+    animation->setStartValue(path.pointAtPercent(0).toPoint());
+    animation->setEndValue(path.pointAtPercent(1).toPoint());
+
+    // ensure a smooth animation that follows the path
+    for( double i = 0 ; i < 1; i = i+0.01) {
+        animation->setKeyValueAt(i,
+                   path.pointAtPercent(i).toPoint());
+    }
+
+    QObject::connect(animation, SIGNAL(finished()), this, SLOT(AnimationComplete()));
+    mAnimationActive = true;
+    animation->start();
 }

@@ -42,6 +42,7 @@ public:
 public slots:
     void increase() { mChaikinCurve->IncreaseLod(); mChaikinCurve->update(); }
     void decrease() { mChaikinCurve->DecreaseLod(); mChaikinCurve->update(); }
+    void animate() { mChaikinCurve->AnimateEvent(); }
 
 private:
     QMenu *mMenuFile;
@@ -49,6 +50,7 @@ private:
     QAction *mActionExit;
     QAction *mActionIncrease;
     QAction *mActionDecrease;
+    QAction *mActionAnimate;
 
     QToolBar *mFileToolBar;
 
