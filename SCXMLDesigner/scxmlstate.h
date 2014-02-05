@@ -28,6 +28,10 @@ public:
     bool GetFinal() { return mFinal; }
     QPainterPath GetNodeOutlinePath();
 
+    //! gets the connection point for the given index (1=end point of perimeter of state, 0=start point)
+    QPoint GetConnectionPoint(qreal connectionPointIndex);
+    qreal GetConnectionPointIndex(QPoint point);
+
     void SetShapeX(qreal value) { setX(value); sizeChanged(); }
     void SetShapeY(qreal value) { setY(value); sizeChanged(); }
     void SetShapeWidth(qreal value) { mWidth = value; sizeChanged(); }

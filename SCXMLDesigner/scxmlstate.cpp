@@ -32,6 +32,28 @@ QPainterPath SCXMLState::GetNodeOutlinePath()
     return path;
 }
 
+QPoint SCXMLState::GetConnectionPoint(qreal connectionPointIndex)
+{
+    QPainterPath outline = GetNodeOutlinePath();
+    return outline.pointAtPercent(connectionPointIndex).toPoint();
+}
+
+qreal SCXMLState::GetConnectionPointIndex(QPoint point)
+{
+    qreal minIndex = 0;
+    int minLength = 99999;
+    QPainterPath outline = GetNodeOutlinePath();
+    for (qreal r=0; r<1; r += 0.01) {
+        QPoint testPoint = outline.pointAtPercent(r).toPoint() - point;
+        int mlen = testPoint.manhattanLength();
+        if (mlen < minLength) {
+            minLength = mlen;
+            minIndex = r;
+        }
+    }
+    return minIndex;
+}
+
 void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (mResizing) {

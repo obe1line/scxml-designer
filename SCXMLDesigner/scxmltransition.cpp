@@ -6,7 +6,7 @@
 
 SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     QAbstractTransition(), ChaikinCurve(4, QVector<QVector3D>()), mParentState(parent),
-    mDescription(""), mEvent("")
+    mDescription(""), mEvent(""), mStartConnectionPointIndex(0), mEndConnectionPointIndex(0)
 {
     // only the mid-control points can be moved - not the curve
     setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -20,6 +20,21 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     SetParentObject(this);
 
     UpdatePoints();
+}
+
+//!
+//! \brief SCXMLTransition::SetConnectorPoints
+//!
+//! Sets the percentage index of where the connection point is located on the
+//! start and end states.
+//!
+//! \param start  = start state connection point index (0..1)
+//! \param end    = end state connection point index (0..1)
+//!
+void SCXMLTransition::SetConnectorPoints(qreal start, qreal end)
+{
+    mStartConnectionPointIndex = start;
+    mEndConnectionPointIndex = end;
 }
 
 //!
@@ -68,8 +83,8 @@ void SCXMLTransition::UpdatePoints()
     SCXMLState* startState = dynamic_cast<SCXMLState*>(mParentState);
     SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
     if (endState != nullptr) {
-        QPoint startPoint = QPoint(startState->GetShapeX(), startState->GetShapeY());
-        QPoint endPoint = QPoint(endState->GetShapeX(), endState->GetShapeY());
+        QPoint startPoint = startState->GetConnectionPoint(mStartConnectionPointIndex);
+        QPoint endPoint = endState->GetConnectionPoint(mEndConnectionPointIndex);
         QVector<QVector3D> curvePoints = GetCurveControlPoints();
         if (curvePoints.length() < 2) {
             // No points set - use the start and end points with two points between
@@ -105,10 +120,23 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
     ChaikinCurve::mousePressEvent(event);;
 }
 
+void SCXMLTransition::UpdateConnectionPointIndexes()
+{
+    SCXMLState* startState = dynamic_cast<SCXMLState*>(mParentState);
+    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
+    if (endState != nullptr) {
+        QVector<QVector3D> curvePoints = GetCurveControlPoints();
+        mStartConnectionPointIndex = startState->GetConnectionPointIndex(curvePoints[0].toPoint());
+        mEndConnectionPointIndex = endState->GetConnectionPointIndex(curvePoints[curvePoints.length()-1].toPoint());
+    }
+}
+
 void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     ChaikinCurve::mouseReleaseEvent(event);
+    UpdateConnectionPointIndexes();
 }
+
 
 void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
 {
@@ -133,69 +161,6 @@ QString SCXMLTransition::GetMetaDataString()
     return metadata;
 }
 
-////!
-////! \brief SCXMLTransition::CalculatePaths
-////! Calculates the paths of the Bezier and arrow head
-////! \param bezierPath
-////! \param arrowHeadPath
-////! \return
-////!
-//bool SCXMLTransition::CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
-//                                     QPainterPath *controlLine1Path, QPainterPath *controlLine2Path,
-//                                     QPainterPath *startPointPath, QPainterPath *endPointPath) const
-//{
-//    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
-//    if (endState == nullptr) return false;
-
-//    QLineF lineToDraw = QLine(mStartPoint, mEndPoint);
-
-//    // draw the Bezier curve
-//    QPainterPath tempBezierPath;
-//    tempBezierPath.moveTo(mStartPoint);
-//    tempBezierPath.cubicTo(mControlPoint1, mControlPoint2, mEndPoint);
-
-//    QPainterPathStroker stroker;
-//    stroker.setWidth(1);
-//    stroker.setCurveThreshold(0.1);
-//    *bezierPath = stroker.createStroke(tempBezierPath);
-
-//    // calculate the arrowhead points
-//    QVector2D vectorLength(lineToDraw.dx(), lineToDraw.dy());
-//    vectorLength.normalize();
-//    QVector2D vectorWidth(-vectorLength.y(), vectorLength.x());
-//    // scale the vectors to resize the arrow head
-//    vectorLength *= 20;
-//    vectorWidth *= 4;
-//    // draw the arrow head using the vectors for identifying the points
-//    QPointF arrowP1 = lineToDraw.p1() + vectorLength.toPointF() + vectorWidth.toPointF();
-//    QPointF arrowP2 = lineToDraw.p1() + vectorLength.toPointF() - vectorWidth.toPointF();
-//    QPolygonF poly;
-//    poly.append(lineToDraw.p1());
-//    poly.append(arrowP1);
-//    poly.append(arrowP2);
-//    arrowHeadPath->addPolygon(poly);
-
-//    controlLine1Path->addEllipse(mStartPoint, 5, 5);
-//    controlLine1Path->addEllipse(mControlPoint1, 5, 5);
-//    QPolygonF controlLine1;
-//    controlLine1.append(mStartPoint);
-//    controlLine1.append(mControlPoint1);
-//    controlLine1Path->addPolygon(controlLine1);
-
-//    controlLine2Path->addEllipse(mEndPoint, 5, 5);
-//    controlLine2Path->addEllipse(mControlPoint2, 5, 5);
-//    QPolygonF controlLine2;
-//    controlLine2.append(mEndPoint);
-//    controlLine2.append(mControlPoint2);
-//    controlLine2Path->addPolygon(controlLine2);
-
-//    startPointPath->addEllipse(mStartPoint, 10, 10);
-
-//    endPointPath->addEllipse(mEndPoint, 5, 5);
-
-//    return true;
-//}
-
 
 void SCXMLTransition::Update()
 {
@@ -208,6 +173,8 @@ void SCXMLTransition::Connect(SCXMLState *parentState, SCXMLState *targetState)
     setTargetState(targetState);
     parentState->addTransition(this);
     targetState->AddIncomingTransition(this);
+
+    //UpdateConnectionPointIndexes();
 
     // ensure size changes of the parent state are reflected in the transition start and end connectors
     connect(parentState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);

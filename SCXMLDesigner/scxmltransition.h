@@ -47,7 +47,8 @@ public:
                         QPainterPath *startPointPath, QPainterPath *endPointPath) const;
 
     QVector<QVector3D> GetControlPoints(QString value);
-
+    void SetConnectorPoints(qreal start, qreal end);
+    void UpdateConnectionPointIndexes();
 signals:
     void centrePointChanged(QPoint);
 
@@ -60,6 +61,8 @@ private:
     QString mTransitionType;
     QString mDescription;
     QString mEvent;
+    qreal mStartConnectionPointIndex;
+    qreal mEndConnectionPointIndex;
 };
 
 #endif // SCXMLTRANSITION_H
