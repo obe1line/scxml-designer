@@ -12,7 +12,7 @@ class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public 
     Q_INTERFACES(QGraphicsItem)
 
 public:
-    explicit SCXMLTransition(SCXMLState *parent = 0);
+    explicit SCXMLTransition(SCXMLState *source, SCXMLState *target, QMap<QString,QString> *metaData);
 
     Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
 
@@ -40,7 +40,7 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     void Update();
-    void Connect(SCXMLState* parentState, SCXMLState* targetState);
+    void Connect();
 
     bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
                         QPainterPath *controlLine1Path, QPainterPath *controlLine2Path,
@@ -63,6 +63,9 @@ private:
     QString mEvent;
     qreal mStartConnectionPointIndex;
     qreal mEndConnectionPointIndex;
+    SCXMLState* mSourceState;
+    SCXMLState* mTargetState;
+    bool mConnected;
 };
 
 #endif // SCXMLTRANSITION_H

@@ -4,8 +4,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include "scxmltransition.h"
 
-SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
-    QAbstractTransition(), ChaikinCurve(4, QVector<QVector3D>()), mParentState(parent),
+SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QMap<QString,QString> *metaData) :
+    QAbstractTransition(), ChaikinCurve(4, QVector<QVector3D>()), mSourceState(source), mTargetState(target),
     mDescription(""), mEvent(""), mStartConnectionPointIndex(0), mEndConnectionPointIndex(0)
 {
     // only the mid-control points can be moved - not the curve
@@ -19,7 +19,11 @@ SCXMLTransition::SCXMLTransition(SCXMLState *parent) :
     // for the curve animation
     SetParentObject(this);
 
+    ApplyMetaData(metaData);
+
     UpdatePoints();
+
+    Connect();
 }
 
 //!
@@ -80,34 +84,32 @@ void SCXMLTransition::SetControlPoints(QString value)
 
 void SCXMLTransition::UpdatePoints()
 {
-    SCXMLState* startState = dynamic_cast<SCXMLState*>(mParentState);
-    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
-    if (endState != nullptr) {
-        QPoint startPoint = startState->GetConnectionPoint(mStartConnectionPointIndex);
-        QPoint endPoint = endState->GetConnectionPoint(mEndConnectionPointIndex);
-        QVector<QVector3D> curvePoints = GetCurveControlPoints();
-        if (curvePoints.length() < 2) {
-            // No points set - use the start and end points with two points between
-            curvePoints.append(QVector3D(startPoint));
-            QPainterPath path;
-            path.moveTo(startPoint.x(), startPoint.y());
-            path.lineTo(endPoint.x(), endPoint.y());
-            curvePoints.append(QVector3D(path.pointAtPercent(0.33)));
-            curvePoints.append(QVector3D(path.pointAtPercent(0.66)));
-            curvePoints.append(QVector3D(endPoint));
-        }
-        else {
-            // Update start and end points
-            curvePoints[0] = QVector3D(startPoint);
-            curvePoints[curvePoints.length()-1] = QVector3D(endPoint);
-        }
-
-        // Set the outlines to restrict where the start and end curve control points
-        // can be placed. This is so the transitions always connect states
-        SetStartNodePath(startState->GetNodeOutlinePath());
-        SetEndNodePath(endState->GetNodeOutlinePath());
-        SetStartingPoints(curvePoints);
+    QVector<QVector3D> curvePoints = GetCurveControlPoints();
+    if (curvePoints.length() < 2) {
+        // No points set - use the start and end points with two points between
+        QPoint startPoint = mSourceState->GetConnectionPoint(0);
+        QPoint endPoint = mTargetState->GetConnectionPoint(0);
+        curvePoints.append(QVector3D(startPoint));
+        QPainterPath path;
+        path.moveTo(startPoint.x(), startPoint.y());
+        path.lineTo(endPoint.x(), endPoint.y());
+        curvePoints.append(QVector3D(path.pointAtPercent(0.33)));
+        curvePoints.append(QVector3D(path.pointAtPercent(0.66)));
+        curvePoints.append(QVector3D(endPoint));
     }
+    else {
+        // Update start and end points
+        QPoint startPoint = mSourceState->GetConnectionPoint(mStartConnectionPointIndex);
+        QPoint endPoint = mTargetState->GetConnectionPoint(mEndConnectionPointIndex);
+        curvePoints[0] = QVector3D(startPoint);
+        curvePoints[curvePoints.length()-1] = QVector3D(endPoint);
+    }
+
+    // Set the outlines to restrict where the start and end curve control points
+    // can be placed. This is so the transitions always connect states
+    SetStartNodePath(mSourceState->GetNodeOutlinePath());
+    SetEndNodePath(mTargetState->GetNodeOutlinePath());
+    SetStartingPoints(curvePoints);
 }
 
 void SCXMLTransition::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -122,13 +124,9 @@ void SCXMLTransition::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void SCXMLTransition::UpdateConnectionPointIndexes()
 {
-    SCXMLState* startState = dynamic_cast<SCXMLState*>(mParentState);
-    SCXMLState* endState = dynamic_cast<SCXMLState*>(targetState());
-    if (endState != nullptr) {
-        QVector<QVector3D> curvePoints = GetCurveControlPoints();
-        mStartConnectionPointIndex = startState->GetConnectionPointIndex(curvePoints[0].toPoint());
-        mEndConnectionPointIndex = endState->GetConnectionPointIndex(curvePoints[curvePoints.length()-1].toPoint());
-    }
+    QVector<QVector3D> curvePoints = GetCurveControlPoints();
+    mStartConnectionPointIndex = mSourceState->GetConnectionPointIndex(curvePoints[0].toPoint());
+    mEndConnectionPointIndex = mTargetState->GetConnectionPointIndex(curvePoints[curvePoints.length()-1].toPoint());
 }
 
 void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -140,6 +138,9 @@ void SCXMLTransition::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void SCXMLTransition::ApplyMetaData(QMap<QString, QString> *mapMetaData)
 {
+    // no meta data
+    if (mapMetaData == nullptr) return;
+
     foreach(QString key, mapMetaData->keys()) {
         QString value = mapMetaData->value(key);
         if (key == "description") {
@@ -168,19 +169,21 @@ void SCXMLTransition::Update()
     update();
 }
 
-void SCXMLTransition::Connect(SCXMLState *parentState, SCXMLState *targetState)
+void SCXMLTransition::Connect()
 {
-    setTargetState(targetState);
-    parentState->addTransition(this);
-    targetState->AddIncomingTransition(this);
+    mConnected = true;
+
+    setTargetState(mTargetState);
+    mSourceState->addTransition(this);
+    mTargetState->AddIncomingTransition(this);
 
     //UpdateConnectionPointIndexes();
 
     // ensure size changes of the parent state are reflected in the transition start and end connectors
-    connect(parentState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
-    connect(targetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
+    connect(mSourceState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
+    connect(mTargetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
 
     // adjust start and end points with initial forced update
-    parentState->UpdateTransitions();
-    targetState->UpdateTransitions();
+    mSourceState->UpdateTransitions();
+    mTargetState->UpdateTransitions();
 }

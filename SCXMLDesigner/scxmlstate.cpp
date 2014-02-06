@@ -8,7 +8,7 @@
 #define MIN_STATE_HEIGHT 30
 #define MIN_STATE_WIDTH 60
 
-SCXMLState::SCXMLState(QString id) :
+SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
     QState(), mId(id), mDescription(""),
     mWidth(100), mHeight(50),
     mResizing(false),
@@ -22,6 +22,8 @@ SCXMLState::SCXMLState(QString id) :
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setCursor(Qt::OpenHandCursor);
     setAcceptHoverEvents(true);
+
+    ApplyMetaData(metaData);
 }
 
 QPainterPath SCXMLState::GetNodeOutlinePath()

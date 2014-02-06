@@ -115,8 +115,8 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
 
-        SCXMLState *newState = new SCXMLState(id);
-        ExtractMetaDataFromElementComments(&element, newState);
+        QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&element);
+        SCXMLState *newState = new SCXMLState(id, &metaData);
         ExtractDataModelFromElement(&element, newState);
         addState(newState);
     }
@@ -128,7 +128,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
-        SCXMLState *parentState = GetStateById(id);
+        SCXMLState *sourceState = GetStateById(id);
         QDomNodeList stateTransitions = element.elementsByTagName("transition");
         for (int transitionPos=0; transitionPos<stateTransitions.length(); transitionPos++) {
             QDomElement stateTransition = stateTransitions.at(transitionPos).toElement();
@@ -136,22 +136,19 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             QString transitionType = stateTransition.attribute("type", "");
             QString transitionEvent = stateTransition.attribute("event", "");
 
-            SCXMLTransition* newTransition = new SCXMLTransition(parentState);
             SCXMLState* targetState = GetStateById(transitionTarget);
             if (targetState == nullptr) {
                 qDebug() << "No such state: " << transitionTarget;
                 continue;
             }
-
+            QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&stateTransition);
+            SCXMLTransition* newTransition = new SCXMLTransition(sourceState, targetState, &metaData);
             newTransition->setTransitionType(transitionType);
             newTransition->SetEvent(transitionEvent);
-            ExtractMetaDataFromElementComments(&stateTransition, newTransition);
-
-            newTransition->Connect(parentState, targetState);
         }
 
         // need to adjust start and end points with update
-        parentState->UpdateTransitions();
+        sourceState->UpdateTransitions();
 
         //FIXME: implement this
         //setInitialState(newState);
@@ -186,7 +183,7 @@ void Workflow::ExtractDataModelFromElement(QDomElement* element, SCXMLState* sta
     }
 }
 
-void Workflow::ExtractMetaDataFromElementComments(QDomElement* element, MetaDataSupport* metaDataObject)
+QMap<QString, QString> Workflow::ExtractMetaDataFromElementComments(QDomElement* element)
 {
     QMap<QString, QString> mapMetaData;
     QDomNodeList allSubNodes = element->childNodes();
@@ -202,7 +199,7 @@ void Workflow::ExtractMetaDataFromElementComments(QDomElement* element, MetaData
         }
     }
 
-    metaDataObject->ApplyMetaData(&mapMetaData);
+    return mapMetaData;
 }
 
 SCXMLState* Workflow::GetStateById(QString id)

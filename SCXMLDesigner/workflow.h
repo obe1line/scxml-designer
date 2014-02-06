@@ -38,7 +38,7 @@ public:
     void ParseMetaData(QString text, QMap<QString, QString>& map);
 
     //! Extract the meta data from an element comment child nodes
-    void ExtractMetaDataFromElementComments(QDomElement *element, MetaDataSupport *metaDataObject);
+    QMap<QString, QString> ExtractMetaDataFromElementComments(QDomElement *element);
 
     //! Extracts all DOM elements with a name in tags
     QList<QDomNode> GetElementsWithTagName(QDomDocument *doc, QStringList tags);

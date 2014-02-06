@@ -16,7 +16,7 @@ class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport
     Q_INTERFACES(QGraphicsItem)
 
 public:
-    explicit SCXMLState(QString id);
+    explicit SCXMLState(QString id, QMap<QString,QString> *metaData);
 
     //! Retrieves the identifier of the state as defined in the SCXML file
     QString GetId() { return mId; }

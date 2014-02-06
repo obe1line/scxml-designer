@@ -165,14 +165,13 @@ void MainWindow::InsertState()
     if (activeTab == NULL) return;
     Workflow* activeWorkflow = activeTab->GetWorkflow();
     int nodeCount = activeWorkflow->children().length();
-    SCXMLState *newState = new SCXMLState(QString("state_%1").arg(nodeCount));
     QMap<QString,QString> metaData;
     metaData["x"] = "10";
     metaData["y"] = "10";
     metaData["height"] = "50";
     metaData["width"] = "100";
     metaData["description"] = "new state";
-    newState->ApplyMetaData(&metaData);
+    SCXMLState *newState = new SCXMLState(QString("state_%1").arg(nodeCount), &metaData);
     activeWorkflow->addState(newState);
     activeWorkflow->setInitialState(newState);
     activeTab->AddItemToScene(newState);
@@ -211,10 +210,10 @@ void MainWindow::InsertTransition()
     }
 
     if (nodesSelected.count() == 2) {
-        SCXMLTransition* transition = new SCXMLTransition();
         SCXMLState* stateFrom = nodesSelected.at(0);
         SCXMLState* stateTo = nodesSelected.at(1);
-        transition->Connect(stateFrom, stateTo);
+        SCXMLTransition* transition = new SCXMLTransition(stateFrom, stateTo, nullptr);
+
         // add the new transition to the scene
         QGraphicsItem* itemTran = dynamic_cast<QGraphicsItem*>(transition);
         activeTab->AddItemToScene(itemTran);
