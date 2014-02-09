@@ -37,6 +37,7 @@ private:
     int mIterationCount;
     QBrush *mYellowBrush;
     QBrush *mGreenBrush;
+    QBrush *mBlackBrush;
     QPen *mControlPointPen;
     QVector<QVector3D> mCurvePoints;
     QVector<QVector3D> mOriginalCurvePoints;
@@ -45,12 +46,14 @@ private:
     int mControlPointDragIndex;
     QPainterPath mStartNodePath;
     QPainterPath mEndNodePath;
+    QPixmap mArrowImage;
 
     QPainterPath GetPathOfLines() const;
     QPainterPath GetPathOfControlPoints() const;
     void SetNewPointPosition(int controlPointIndex, QPointF dragDropPoint);
     void InitializeCurvePoints();
     int GetIndexOfControlPoint(QPointF pointerPosition);
+    void DrawArrow(QPainter *painter);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

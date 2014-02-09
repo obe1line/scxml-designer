@@ -4,8 +4,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include "scxmltransition.h"
 
-#define CURVE_ITERATIONS 0
-//#define CURVE_ITERATIONS 4
+#define CURVE_ITERATIONS 4
 
 SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QMap<QString,QString> *metaData) :
     QAbstractTransition(), ChaikinCurve(CURVE_ITERATIONS, QVector<QVector3D>()), mSourceState(source), mTargetState(target),

@@ -33,9 +33,14 @@ void ChaikinCurve::SetStartingPoints(QVector<QVector3D> newCurvePoints)
 ChaikinCurve::ChaikinCurve(int iterationCount, QVector<QVector3D> points) :
     mIterationCount(iterationCount)
 {
+    setZValue(5);
+
+    mArrowImage.load(":/images/arrow.png");
+
     // create brushes and pens
     mYellowBrush = new QBrush(Qt::GlobalColor::yellow, Qt::SolidPattern);
     mGreenBrush = new QBrush(Qt::GlobalColor::green, Qt::SolidPattern);
+    mBlackBrush = new QBrush(Qt::GlobalColor::black, Qt::SolidPattern);
     mControlPointPen = new QPen(Qt::GlobalColor::black);
     mControlPointPen->setWidth(2);
 
@@ -63,6 +68,8 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setPen(*mControlPointPen);
     painter->drawPath(path);
 
+    DrawArrow(painter);
+
     // draw the moveable points
     if (mControlPointVisible) {
         painter->setPen(*mControlPointPen);
@@ -83,6 +90,38 @@ QRectF ChaikinCurve::boundingRect() const
     QPainterPath path = GetPathOfLines();
     path.addPath(GetPathOfControlPoints());
     return path.boundingRect();
+}
+
+void ChaikinCurve::DrawArrow(QPainter *painter)
+{
+    QPainterPath path;
+    QPainterPath linePath = GetPathOfLines();
+    QPoint lastPoint = linePath.pointAtPercent(1).toPoint();
+    QPoint lastButOnePoint = linePath.pointAtPercent(0.80).toPoint();
+    QLineF line = QLine(lastPoint, lastButOnePoint);
+    path.moveTo(lastPoint);
+
+    int Pi = 22/7;
+    int arrowSize = 15;
+    int arrowSizeOffset = 0;
+    double angle = ::acos(line.dx() / line.length());
+    if (line.dy() >= 0)
+        angle = (Pi * 2) - angle;
+
+    QPointF arrowP1 = line.p1() + QPointF((sin(angle + Pi / 3) * arrowSize) - arrowSizeOffset,
+                                    cos(angle + Pi / 3) * arrowSize);
+    QPointF arrowP2 = line.p1() + QPointF((sin(angle + Pi - Pi / 3) * arrowSize) - arrowSizeOffset,
+                                    cos(angle + Pi - Pi / 3) * arrowSize);
+
+    painter->setBrush(*mBlackBrush);
+    painter->setPen(*mControlPointPen);
+
+    path.lineTo(arrowP1);
+    path.lineTo(arrowP2);
+    path.lineTo(lastPoint);
+    path.closeSubpath();
+
+    painter->drawPath(path);
 }
 
 QPainterPath ChaikinCurve::GetPathOfLines() const
@@ -185,11 +224,6 @@ void ChaikinCurve::IncreaseLod()
 
         newPoints.push_back(Q);
         newPoints.push_back(R);
-
-        qDebug() << "p0=" << p0;
-        qDebug() << "p1=" << p1;
-        qDebug() << "Q=" << Q;
-        qDebug() << "R=" << R;
     }
     // keep the last point
     newPoints.push_back(mCurvePoints[mCurvePoints.size()-1]);
