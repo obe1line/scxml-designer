@@ -4,8 +4,11 @@
 #include <QGraphicsSceneMouseEvent>
 #include "scxmltransition.h"
 
+#define CURVE_ITERATIONS 0
+//#define CURVE_ITERATIONS 4
+
 SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QMap<QString,QString> *metaData) :
-    QAbstractTransition(), ChaikinCurve(4, QVector<QVector3D>()), mSourceState(source), mTargetState(target),
+    QAbstractTransition(), ChaikinCurve(CURVE_ITERATIONS, QVector<QVector3D>()), mSourceState(source), mTargetState(target),
     mDescription(""), mEvent(""), mStartConnectionPointIndex(0), mEndConnectionPointIndex(0)
 {
     // only the mid-control points can be moved - not the curve
@@ -71,7 +74,7 @@ QVector<QVector3D> SCXMLTransition::GetControlPoints(QString value)
     QStringList pointStrings = value.split(":");
     foreach (QString pointPair, pointStrings) {
         QStringList coord = pointPair.split(",");
-        points.append(QVector3D(coord[0].toInt(), coord[1].toInt(), 0));
+        points.append(QVector3D(coord[0].toFloat(), coord[1].toFloat(), 0));
     }
     return points;
 }

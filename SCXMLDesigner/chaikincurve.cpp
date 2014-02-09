@@ -42,9 +42,6 @@ ChaikinCurve::ChaikinCurve(int iterationCount, QVector<QVector3D> points) :
     // create the initial curve points
     SetStartingPoints(points);
 
-    // create the starting points
-    InitializeCurvePoints();
-
     this->setBoundingRegionGranularity(1);
     this->setAcceptDrops(true);
     this->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -188,6 +185,11 @@ void ChaikinCurve::IncreaseLod()
 
         newPoints.push_back(Q);
         newPoints.push_back(R);
+
+        qDebug() << "p0=" << p0;
+        qDebug() << "p1=" << p1;
+        qDebug() << "Q=" << Q;
+        qDebug() << "R=" << R;
     }
     // keep the last point
     newPoints.push_back(mCurvePoints[mCurvePoints.size()-1]);
