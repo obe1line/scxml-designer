@@ -12,7 +12,7 @@ class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public 
     Q_INTERFACES(QGraphicsItem)
 
 public:
-    explicit SCXMLTransition(SCXMLState *source, SCXMLState *target, QMap<QString,QString> *metaData);
+    explicit SCXMLTransition(SCXMLState *source, SCXMLState *target, QString event, QString transitionType, QMap<QString,QString> *metaData);
 
     Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
 
@@ -22,13 +22,12 @@ public:
 
     void SetControlPoints(QString value);
     void SetDescription(QString value) { mDescription = value; }
-    void SetEvent(QString value) { mEvent = value; }
 
-    void setTransitionType(QString transitionType) { mTransitionType = transitionType; }
+    //void setTransitionType(QString transitionType) { mTransitionType = transitionType; }
     QString getTransitionType() { return mTransitionType; }
 
-    //FIXME: these two virtuals need to be implemented fully at some point
-    bool eventTest(QEvent * event) { Q_UNUSED(event); return true; }
+    bool eventTest(QEvent * event);
+    //FIXME: need to be implemented fully at some point
     void onTransition(QEvent * event) { Q_UNUSED(event) }
 
     // MetaDataSupport overrides

@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     workflowgraphicsview.cpp \
     metadatasupport.cpp \
     scxmldatamodel.cpp \
-    chaikincurve.cpp
+    chaikincurve.cpp \
+    booleansignaltransition.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     metadatasupport.h \
     version.h \
     scxmldatamodel.h \
-    chaikincurve.h
+    chaikincurve.h \
+    booleansignaltransition.h
 
 FORMS    +=
 
@@ -47,7 +49,8 @@ OTHER_FILES += \
     Examples/TestLog-2.scxml \
     Examples/MultiplyAdder.scxml \
     Examples/Adder.scxml \
-    Examples/DataModelTest.scxml
+    Examples/DataModelTest.scxml \
+    Examples/HelloWorld.scxml
 
 RESOURCES += \
     resources.qrc

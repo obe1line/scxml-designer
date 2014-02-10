@@ -7,6 +7,7 @@
 #include <QMimeData>
 #include <QGraphicsWidget>
 #include <QPropertyAnimation>
+#include <QtMath>
 
 void ChaikinCurve::InitializeCurvePoints()
 {
@@ -72,9 +73,9 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // draw the moveable points
     if (mControlPointVisible) {
+        path = GetPathOfControlPoints();
         painter->setPen(*mControlPointPen);
         painter->setBrush(*mYellowBrush);
-        path = GetPathOfControlPoints();
         painter->drawPath(path);
     }
 
@@ -87,9 +88,7 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 QRectF ChaikinCurve::boundingRect() const
 {
-    QPainterPath path = GetPathOfLines();
-    path.addPath(GetPathOfControlPoints());
-    return path.boundingRect();
+    return shape().boundingRect();
 }
 
 void ChaikinCurve::DrawArrow(QPainter *painter)
@@ -101,27 +100,18 @@ void ChaikinCurve::DrawArrow(QPainter *painter)
     QLineF line = QLine(lastPoint, lastButOnePoint);
     path.moveTo(lastPoint);
 
-    int Pi = 22/7;
-    int arrowSize = 15;
-    int arrowSizeOffset = 0;
-    double angle = ::acos(line.dx() / line.length());
+    double angle = ::qAcos(line.dx() / line.length());
     if (line.dy() >= 0)
-        angle = (Pi * 2) - angle;
-
-    QPointF arrowP1 = line.p1() + QPointF((sin(angle + Pi / 3) * arrowSize) - arrowSizeOffset,
-                                    cos(angle + Pi / 3) * arrowSize);
-    QPointF arrowP2 = line.p1() + QPointF((sin(angle + Pi - Pi / 3) * arrowSize) - arrowSizeOffset,
-                                    cos(angle + Pi - Pi / 3) * arrowSize);
+        angle = (M_PI * 2) - angle;
 
     painter->setBrush(*mBlackBrush);
     painter->setPen(*mControlPointPen);
 
-    path.lineTo(arrowP1);
-    path.lineTo(arrowP2);
-    path.lineTo(lastPoint);
-    path.closeSubpath();
-
-    painter->drawPath(path);
+    painter->save();
+    painter->translate(lastPoint);
+    painter->rotate(-line.angle()-45);
+    painter->drawPixmap(0, 0, 20, 20, mArrowImage);
+    painter->restore();
 }
 
 QPainterPath ChaikinCurve::GetPathOfLines() const
@@ -292,7 +282,6 @@ int ChaikinCurve::GetIndexOfControlPoint(QPointF pointerPosition)
 
 void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
     QPainterPath pathPoints = GetPathOfControlPoints();
     if (mControlPointVisible && (pathPoints.contains(event->pos()))) {
         // start control point drag
@@ -311,7 +300,6 @@ void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
     if (mDragInProgress) {
         QPointF point = event->pos();
         if ((mControlPointDragIndex == 0) && (!mStartNodePath.contains(point))) {
@@ -327,8 +315,6 @@ void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
-
     if (mDragInProgress) {
         mDragInProgress = false;
         event->accept();

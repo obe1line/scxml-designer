@@ -19,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
     CreateToolbars();
 
     // while testing
-    LoadWorkflowFromFile("../SCXMLDesigner/Examples/TestLog.scxml");
+    //LoadWorkflowFromFile("../SCXMLDesigner/Examples/TestLog.scxml");
+    LoadWorkflowFromFile("../SCXMLDesigner/Examples/HelloWorld.scxml");
 }
 
 MainWindow::~MainWindow()
@@ -212,7 +213,7 @@ void MainWindow::InsertTransition()
     if (nodesSelected.count() == 2) {
         SCXMLState* stateFrom = nodesSelected.at(0);
         SCXMLState* stateTo = nodesSelected.at(1);
-        SCXMLTransition* transition = new SCXMLTransition(stateFrom, stateTo, nullptr);
+        SCXMLTransition* transition = new SCXMLTransition(stateFrom, stateTo, "", "", nullptr);
 
         // add the new transition to the scene
         QGraphicsItem* itemTran = dynamic_cast<QGraphicsItem*>(transition);

@@ -2,13 +2,15 @@
 #include <QVector2D>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include <QStateMachine>
+#include <QSignalTransition>
 #include "scxmltransition.h"
 
 #define CURVE_ITERATIONS 4
 
-SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QMap<QString,QString> *metaData) :
+SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QString event, QString transitionType, QMap<QString,QString> *metaData) :
     QAbstractTransition(), ChaikinCurve(CURVE_ITERATIONS, QVector<QVector3D>()), mSourceState(source), mTargetState(target),
-    mDescription(""), mEvent(""), mStartConnectionPointIndex(0), mEndConnectionPointIndex(0)
+    mDescription(""), mEvent(event), mTransitionType(transitionType), mStartConnectionPointIndex(0), mEndConnectionPointIndex(0)
 {
     // only the mid-control points can be moved - not the curve
     setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -84,6 +86,14 @@ void SCXMLTransition::SetControlPoints(QString value)
     SetStartingPoints(points);
 }
 
+bool SCXMLTransition::eventTest(QEvent *event)
+{
+    // correct value?
+    QStateMachine::SignalEvent* se = static_cast<QStateMachine::SignalEvent*>(event);
+    bool value = se->arguments().at(0).value<bool>();
+    return (value == true);
+}
+
 void SCXMLTransition::UpdatePoints()
 {
     QVector<QVector3D> curvePoints = GetCurveControlPoints();
@@ -95,8 +105,10 @@ void SCXMLTransition::UpdatePoints()
         QPainterPath path;
         path.moveTo(startPoint.x(), startPoint.y());
         path.lineTo(endPoint.x(), endPoint.y());
-        curvePoints.append(QVector3D(path.pointAtPercent(0.33)));
-        curvePoints.append(QVector3D(path.pointAtPercent(0.66)));
+        QPointF point1 = path.pointAtPercent(0.33);
+        QPointF point2 = path.pointAtPercent(0.66);
+        curvePoints.append(QVector3D(point1));
+        curvePoints.append(QVector3D(point2));
         curvePoints.append(QVector3D(endPoint));
     }
     else {
@@ -179,11 +191,11 @@ void SCXMLTransition::Connect()
     mSourceState->addTransition(this);
     mTargetState->AddIncomingTransition(this);
 
-    //UpdateConnectionPointIndexes();
-
     // ensure size changes of the parent state are reflected in the transition start and end connectors
     connect(mSourceState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
     connect(mTargetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
+
+    //this->event();
 
     // adjust start and end points with initial forced update
     mSourceState->UpdateTransitions();

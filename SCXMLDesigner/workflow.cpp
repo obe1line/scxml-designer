@@ -142,9 +142,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
                 continue;
             }
             QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&stateTransition);
-            SCXMLTransition* newTransition = new SCXMLTransition(sourceState, targetState, &metaData);
-            newTransition->setTransitionType(transitionType);
-            newTransition->SetEvent(transitionEvent);
+            SCXMLTransition* newTransition = new SCXMLTransition(sourceState, targetState, transitionEvent, transitionType, &metaData);
         }
 
         // need to adjust start and end points with update
