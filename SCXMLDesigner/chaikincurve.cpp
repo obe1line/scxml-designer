@@ -44,6 +44,8 @@ ChaikinCurve::ChaikinCurve(int iterationCount, QVector<QVector3D> points) :
     mBlackBrush = new QBrush(Qt::GlobalColor::black, Qt::SolidPattern);
     mControlPointPen = new QPen(Qt::GlobalColor::black);
     mControlPointPen->setWidth(2);
+    mLinePen = new QPen(Qt::GlobalColor::black);
+    mLinePen->setWidth(3);
 
     // create the initial curve points
     SetStartingPoints(points);
@@ -66,7 +68,7 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // draw the lines
     QPainterPath path = GetPathOfLines();
-    painter->setPen(*mControlPointPen);
+    painter->setPen(*mLinePen);
     painter->drawPath(path);
 
     DrawArrow(painter);
@@ -81,6 +83,7 @@ void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // draw the animation indicator
     if (mAnimationActive) {
+        painter->setPen(*mLinePen);
         painter->setBrush(*mGreenBrush);
         painter->drawEllipse(mCentrePoint, 5, 5);
     }
@@ -139,8 +142,14 @@ QPainterPath ChaikinCurve::GetPathOfLines() const
 QPainterPath ChaikinCurve::GetPathOfControlPoints() const
 {
     QPainterPath path;
+    QVector<QPoint> usedPoints;
     foreach (QVector3D point, mOriginalCurvePoints) {
-        path.addEllipse(point.toPoint(), 5, 5);
+        // ignore any points already in the path - this removes the problem of
+        // overlaying the control points, which stops mouse click on the point!
+        QPoint newPoint = point.toPoint();
+        if (usedPoints.contains(newPoint)) continue;
+        path.addEllipse(newPoint, 5, 5);
+        usedPoints.append(newPoint);
     }
 
     return path;

@@ -39,6 +39,7 @@ private:
     QBrush *mGreenBrush;
     QBrush *mBlackBrush;
     QPen *mControlPointPen;
+    QPen *mLinePen;
     QVector<QVector3D> mCurvePoints;
     QVector<QVector3D> mOriginalCurvePoints;
     bool mControlPointVisible;
