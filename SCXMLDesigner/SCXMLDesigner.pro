@@ -6,11 +6,12 @@
 
 QT       += core gui xml
 
+CONFIG += c++11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = SCXMLDesigner
 TEMPLATE = app
-
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -21,7 +22,10 @@ SOURCES += main.cpp\
     workflowsurface.cpp \
     scxmltransition.cpp \
     workflowgraphicsview.cpp \
-    metadatasupport.cpp
+    metadatasupport.cpp \
+    scxmldatamodel.cpp \
+    chaikincurve.cpp \
+    booleansignaltransition.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -31,7 +35,11 @@ HEADERS  += mainwindow.h \
     workflowsurface.h \
     scxmltransition.h \
     workflowgraphicsview.h \
-    metadatasupport.h
+    metadatasupport.h \
+    version.h \
+    scxmldatamodel.h \
+    chaikincurve.h \
+    booleansignaltransition.h
 
 FORMS    +=
 
@@ -40,7 +48,10 @@ OTHER_FILES += \
     Examples/TestLog.scxml \
     Examples/TestLog-2.scxml \
     Examples/MultiplyAdder.scxml \
-    Examples/Adder.scxml
+    Examples/Adder.scxml \
+    Examples/DataModelTest.scxml \
+    Examples/HelloWorld.scxml
 
 RESOURCES += \
     resources.qrc
+

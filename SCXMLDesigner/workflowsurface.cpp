@@ -1,5 +1,4 @@
 #include "workflowsurface.h"
-#include "ui_workflowsurface.h"
 
 WorkflowSurface::WorkflowSurface(QWidget *parent) :
     QWidget(parent)

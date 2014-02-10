@@ -1,3 +1,4 @@
+#include <QModelIndex>
 #include "workflowtab.h"
 
 WorkflowTab::WorkflowTab(QWidget *parent, QString filename) :
@@ -35,8 +36,20 @@ void WorkflowTab::Update()
     GetWorkflow()->CreateSceneObjects(mScene);
 }
 
-void WorkflowTab::AddStateToScene(SCXMLState *state)
+// test only
+void WorkflowTab::TestDataModel(QTableWidget *dataView)
 {
-    QGraphicsItem* item = dynamic_cast<QGraphicsItem*>(state);
+    SCXMLDataModel* dataModel = GetWorkflow()->GetDataModel();
+
+    foreach (SCXMLDataItem* dataItem, dataModel->GetDataItemList()) {
+        dataView->insertRow(0);
+        dataView->setItem(0, 0, new QTableWidgetItem(dataItem->GetId()));
+        dataView->setItem(0, 1, new QTableWidgetItem(dataItem->GetExpr()));
+        dataView->setItem(0, 2, new QTableWidgetItem(dataItem->GetSrc()));
+    }
+}
+
+void WorkflowTab::AddItemToScene(QGraphicsItem *item)
+{
     mScene->addItem(item);
 }

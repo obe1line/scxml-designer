@@ -16,7 +16,7 @@ class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport
     Q_INTERFACES(QGraphicsItem)
 
 public:
-    explicit SCXMLState(QString id);
+    explicit SCXMLState(QString id, QMap<QString,QString> *metaData);
 
     //! Retrieves the identifier of the state as defined in the SCXML file
     QString GetId() { return mId; }
@@ -26,11 +26,16 @@ public:
     qreal GetShapeHeight() { return mHeight; }
     QString GetDescription() { return mDescription; }
     bool GetFinal() { return mFinal; }
+    QPainterPath GetNodeOutlinePath();
 
-    void SetShapeX(qreal value) { setX(value); }
-    void SetShapeY(qreal value) { setY(value); }
-    void SetShapeWidth(qreal value) { mWidth = value; }
-    void SetShapeHeight(qreal value) { mHeight = value; }
+    //! gets the connection point for the given index (1=end point of perimeter of state, 0=start point)
+    QPoint GetConnectionPoint(qreal connectionPointIndex);
+    qreal GetConnectionPointIndex(QPoint point);
+
+    void SetShapeX(qreal value) { setX(value); sizeChanged(); }
+    void SetShapeY(qreal value) { setY(value); sizeChanged(); }
+    void SetShapeWidth(qreal value) { mWidth = value; sizeChanged(); }
+    void SetShapeHeight(qreal value) { mHeight = value; sizeChanged(); }
     void SetDescription(QString value) { mDescription = value; }
     void SetFinal(bool value) { mFinal = value; }
 
@@ -48,7 +53,9 @@ public:
     void UpdateTransitions();
 
     void AddIncomingTransition(QAbstractTransition* transitionRef) { mIncomingTransitions.append(transitionRef); }
+
 signals:
+    void sizeChanged();
 
 public slots:
 

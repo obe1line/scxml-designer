@@ -8,9 +8,9 @@
 #define MIN_STATE_HEIGHT 30
 #define MIN_STATE_WIDTH 60
 
-SCXMLState::SCXMLState(QString id) :
+SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
     QState(), mId(id), mDescription(""),
-    mWidth(0), mHeight(0),
+    mWidth(100), mHeight(50),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
     mResizeStartX(0), mResizeStartY(0),
@@ -22,6 +22,38 @@ SCXMLState::SCXMLState(QString id) :
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setCursor(Qt::OpenHandCursor);
     setAcceptHoverEvents(true);
+
+    ApplyMetaData(metaData);
+}
+
+QPainterPath SCXMLState::GetNodeOutlinePath()
+{
+    QPainterPath path;
+    // use x and y as the starting point since we need absolute positions outside of this class
+    path.addRoundedRect(this->x(), this->y(), mWidth, mHeight, 10.0, 10.0);
+    return path;
+}
+
+QPoint SCXMLState::GetConnectionPoint(qreal connectionPointIndex)
+{
+    QPainterPath outline = GetNodeOutlinePath();
+    return outline.pointAtPercent(connectionPointIndex).toPoint();
+}
+
+qreal SCXMLState::GetConnectionPointIndex(QPoint point)
+{
+    qreal minIndex = 0;
+    int minLength = 99999;
+    QPainterPath outline = GetNodeOutlinePath();
+    for (qreal r=0; r<1; r += 0.01) {
+        QPoint testPoint = outline.pointAtPercent(r).toPoint() - point;
+        int mlen = testPoint.manhattanLength();
+        if (mlen < minLength) {
+            minLength = mlen;
+            minIndex = r;
+        }
+    }
+    return minIndex;
 }
 
 void SCXMLState::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -125,6 +157,11 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setPen(statePen);
 
     painter->drawRoundedRect(rect, 10.0, 10.0);
+
+    // show the id on the state node
+    QFont labelFont = QFont("Helvetica", 8);
+    painter->setFont(labelFont);
+    painter->drawText(rect, Qt::AlignCenter, GetId());
 }
 
 
@@ -135,6 +172,8 @@ void SCXMLState::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 //!
 void SCXMLState::UpdateTransitions()
 {
+    sizeChanged();
+
     // update outgoing transitions
     foreach(QAbstractTransition* abtran, this->transitions()) {
         SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);

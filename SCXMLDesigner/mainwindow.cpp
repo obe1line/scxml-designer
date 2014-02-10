@@ -1,13 +1,10 @@
-#include <QLCDNumber>
 #include <QDebug>
 #include <QDockWidget>
 #include <QFileDialog>
-#include <QMessageBox>
-#include <QAbstractTransition>
-#include <QHBoxLayout>
+
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "workflowtab.h"
+#include "scxmltransition.h"
 
 //!
 //! \brief MainWindow::MainWindow
@@ -20,6 +17,10 @@ MainWindow::MainWindow(QWidget *parent) :
     CreateActions();
     CreateMenus();
     CreateToolbars();
+
+    // while testing
+    //LoadWorkflowFromFile("../SCXMLDesigner/Examples/TestLog.scxml");
+    LoadWorkflowFromFile("../SCXMLDesigner/Examples/HelloWorld.scxml");
 }
 
 MainWindow::~MainWindow()
@@ -37,24 +38,34 @@ void MainWindow::CreateWidgets()
     mCentralWidget = new QWidget(this);
     setCentralWidget(mCentralWidget);
 
-    // create a dockable area for the properies
-    QDockWidget *dock = new QDockWidget(mCentralWidget);
-    dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-    QDockWidget::DockWidgetFeatures dockFeatures = QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetVerticalTitleBar;
-    dock->setFeatures(dockFeatures);
-    dock->setWindowTitle("Worfklow properties and settings");
+    QDockWidget *propertyDock = new QDockWidget(this);
+    propertyDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    QDockWidget::DockWidgetFeatures dockPropertyFeatures = QDockWidget::DockWidgetMovable;
+    propertyDock->setFeatures(dockPropertyFeatures);
+    propertyDock->setWindowTitle("DataModel");
+
+    // data model properties
+    mDataModelTable = new QTableWidget(0, 3);
+    mDataModelTable->setStyleSheet("QTableView {selection-background-color: green;}");
+    mDataModelTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mDataModelTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    mDataModelTable->setColumnWidth(1, 50);
+    QStringList tableHeader;
+    tableHeader << "Id" << "Expr" << "Src";
+    mDataModelTable->setHorizontalHeaderLabels(tableHeader);
+    propertyDock->setWidget(mDataModelTable);
 
     mHorizontalLayout = new QHBoxLayout(mCentralWidget);
     mHorizontalLayout->setSpacing(6);
     mHorizontalLayout->setContentsMargins(11, 11, 11, 11);
 
-    mTabWidget = new QTabWidget(dock);
+    mTabWidget = new QTabWidget();
     mTabWidget->setTabsClosable(true);
     mTabWidget->setCurrentIndex(-1);
 
     mHorizontalLayout->addWidget(mTabWidget);
 
-    addDockWidget(Qt::RightDockWidgetArea, dock);
+    addDockWidget(Qt::RightDockWidgetArea, propertyDock);
 }
 
 //!
@@ -70,24 +81,31 @@ void MainWindow::CreateActions()
     mActionNew = new QAction(tr("&New"), this);
     mActionNew->setIcon(QIcon("://images/new.png"));
     mActionNew->setStatusTip(tr("New layout"));
-    QObject::connect(mActionNew, SIGNAL(triggered()), this, SLOT(createWorkflow()));
+    QObject::connect(mActionNew, SIGNAL(triggered()), this, SLOT(CreateWorkflow()));
 
     mActionOpen = new QAction(tr("&Open"), this);
     mActionOpen->setIcon(QIcon("://images/open.png"));
     mActionOpen->setStatusTip(tr("Open a layout"));
-    QObject::connect(mActionOpen, SIGNAL(triggered()), this, SLOT(loadWorkflow()));
+    QObject::connect(mActionOpen, SIGNAL(triggered()), this, SLOT(LoadWorkflowFromDialog()));
 
     mActionSave = new QAction(tr("&Save"), this);
     mActionSave->setIcon(QIcon("://images/save.png"));
     mActionSave->setStatusTip(tr("Save the current layout"));
-    QObject::connect(mActionSave, SIGNAL(triggered()), this, SLOT(saveCurrentWorkflow()));
+    QObject::connect(mActionSave, SIGNAL(triggered()), this, SLOT(SaveCurrentWorkflow()));
 
     mActionState = new QAction(tr("&State"), this);
     mActionState->setIcon(QIcon("://images/new.png"));
     mActionState->setStatusTip(tr("Add a new state"));
-    QObject::connect(mActionState, SIGNAL(triggered()), this, SLOT(insertState()));
+    QObject::connect(mActionState, SIGNAL(triggered()), this, SLOT(InsertState()));
 
     mActionTransition = new QAction(tr("&Transition"), this);
+    //mActionTransition->setIcon(QIcon("://images/link.png"));
+    mActionTransition->setStatusTip(tr("Add a new transition"));
+    QObject::connect(mActionTransition, SIGNAL(triggered()), this, SLOT(InsertTransition()));
+
+    mActionAnimate = new QAction(tr("&Animate"), this);
+    mActionAnimate->setStatusTip(tr("Animate"));
+    QObject::connect(mActionAnimate, SIGNAL(triggered()), this, SLOT(TestAnimation()));
 
     //TODO: connect these
     mActionAbout = new QAction(tr("&About"), this);
@@ -114,6 +132,7 @@ void MainWindow::CreateMenus()
     mMenuInsert = menuBar()->addMenu(tr("&Insert"));
     mMenuInsert->addAction(mActionState);
     mMenuInsert->addAction(mActionTransition);
+    mMenuInsert->addAction(mActionAnimate);
 
     mMenuTest = menuBar()->addMenu(tr("&Test"));
     mMenuTest->addAction(mActionShowChildStates);
@@ -132,37 +151,80 @@ void MainWindow::CreateToolbars()
     mInsertToolBar = addToolBar(tr("Insert"));
     mInsertToolBar->addAction(mActionState);
     mInsertToolBar->addAction(mActionTransition);
+    mInsertToolBar->addAction(mActionAnimate);
 
-    statusBar()->showMessage("Status here");
+    statusBar()->showMessage(QString("Version: %1").arg(VERSION));
 }
 
 //!
 //! \brief MainWindow::insertState
 //! Add a new state to the workflow with a default metadata describing the dimensions
 //!
-void MainWindow::insertState()
+void MainWindow::InsertState()
 {
-    WorkflowTab* activeTab = getActiveWorkflowTab();
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
     if (activeTab == NULL) return;
     Workflow* activeWorkflow = activeTab->GetWorkflow();
     int nodeCount = activeWorkflow->children().length();
-    SCXMLState *newState = new SCXMLState(QString("state_%1").arg(nodeCount));
     QMap<QString,QString> metaData;
     metaData["x"] = "10";
     metaData["y"] = "10";
     metaData["height"] = "50";
     metaData["width"] = "100";
     metaData["description"] = "new state";
-    newState->ApplyMetaData(&metaData);
+    SCXMLState *newState = new SCXMLState(QString("state_%1").arg(nodeCount), &metaData);
     activeWorkflow->addState(newState);
     activeWorkflow->setInitialState(newState);
-    activeTab->AddStateToScene(newState);
+    activeTab->AddItemToScene(newState);
+}
+
+void MainWindow::TestAnimation()
+{
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
+    if (activeTab == NULL) return;
+    Workflow* activeWorkflow = activeTab->GetWorkflow();
+    QObjectList nodes = activeWorkflow->children();
+    foreach (QObject *obj, nodes) {
+        SCXMLState* state = static_cast<SCXMLState*>(obj);
+        QList<QAbstractTransition*> trans = state->transitions();
+        foreach (QAbstractTransition *tran, trans) {
+            SCXMLTransition* transition = static_cast<SCXMLTransition*>(tran);
+            transition->AnimateEvent();
+        }
+    }
+}
+
+//!
+//! \brief MainWindow::insertTransition
+//! Add a new transition to the workflow between two selected states
+//!
+void MainWindow::InsertTransition()
+{
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
+    if (activeTab == NULL) return;
+    Workflow* activeWorkflow = activeTab->GetWorkflow();
+    QObjectList nodes = activeWorkflow->children();
+    QList<SCXMLState*> nodesSelected;
+    foreach (QObject *obj, nodes) {
+        SCXMLState* state = static_cast<SCXMLState*>(obj);
+        if (state->isSelected()) nodesSelected.append(state);
+    }
+
+    if (nodesSelected.count() == 2) {
+        SCXMLState* stateFrom = nodesSelected.at(0);
+        SCXMLState* stateTo = nodesSelected.at(1);
+        SCXMLTransition* transition = new SCXMLTransition(stateFrom, stateTo, "", "", nullptr);
+
+        // add the new transition to the scene
+        QGraphicsItem* itemTran = dynamic_cast<QGraphicsItem*>(transition);
+        activeTab->AddItemToScene(itemTran);
+    }
 }
 
 //!
 //! \brief Saves the current workflow to a file in SCXML format
 //!
-void MainWindow::saveCurrentWorkflow()
+void MainWindow::SaveCurrentWorkflow()
 {
     QFileDialog fileSelector(this);
     fileSelector.setWindowTitle(tr("Save SCXML workflow"));
@@ -173,10 +235,8 @@ void MainWindow::saveCurrentWorkflow()
     fileSelector.setDefaultSuffix(tr("scxml"));
     if (fileSelector.exec() && !fileSelector.selectedFiles().isEmpty()) {
         QString workflowFilename = fileSelector.selectedFiles().first();
-        //FIXME: get active tab and call save funtion on it
-        // for now, just write a test file
         QDomDocument doc;
-        WorkflowTab* activeTab = getActiveWorkflowTab();
+        WorkflowTab* activeTab = GetActiveWorkflowTab();
         activeTab->GetWorkflow()->ConstructSCXMLFromStateMachine(doc);
 
         QFile scxmlFile(workflowFilename);
@@ -193,7 +253,37 @@ void MainWindow::saveCurrentWorkflow()
 //!
 //! \brief Loads an SCXML file as a new workflow
 //!
-void MainWindow::loadWorkflow()
+bool MainWindow::LoadWorkflowFromFile(QString workflowFilename) {
+    QDomDocument doc;
+    QFile scxmlFile(workflowFilename);
+    if (!scxmlFile.open(QIODevice::ReadOnly)) {
+        Utilities::ShowWarning("SCXML file cannot be read");
+        return false;
+    }
+    if (!doc.setContent(&scxmlFile)) {
+        qDebug() << doc.lineNumber();
+        qDebug() << doc.columnNumber();
+        Utilities::ShowWarning("SCXML file cannot be parsed");
+        scxmlFile.close();
+        return false;
+    }
+    scxmlFile.close();
+
+    // create a new tab and add the workflow to it
+    WorkflowTab* newTab = CreateWorkflow();
+    newTab->SetFilename(workflowFilename);
+    newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
+    newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
+    newTab->Update();
+    newTab->TestDataModel(mDataModelTable);
+
+    return true;
+}
+
+//!
+//! \brief Loads an SCXML file via the file selection dialog
+//!
+bool MainWindow::LoadWorkflowFromDialog()
 {
     QFileDialog fileSelector(this);
     fileSelector.setWindowTitle(tr("Open SCXML workflow"));
@@ -203,32 +293,13 @@ void MainWindow::loadWorkflow()
     fileSelector.setAcceptMode(QFileDialog::AcceptOpen);
     fileSelector.setDefaultSuffix(tr("scxml"));
     if (fileSelector.exec()) {
-        QString workflowFilename = fileSelector.selectedFiles().first();
-        QDomDocument doc;
-        QFile scxmlFile(workflowFilename);
-        if (!scxmlFile.open(QIODevice::ReadOnly)) {
-            Utilities::ShowWarning("SCXML file cannot be read");
-            return;
-        }
-        if (!doc.setContent(&scxmlFile)) {
-            qDebug() << doc.lineNumber();
-            qDebug() << doc.columnNumber();
-            Utilities::ShowWarning("SCXML file cannot be parsed");
-            scxmlFile.close();
-            return;
-        }
-        scxmlFile.close();
-
-        // create a new tab and add the workflow to it
-        WorkflowTab* newTab = createWorkflow();
-        newTab->SetFilename(workflowFilename);
-        newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
-        newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
-        newTab->Update();
+        return LoadWorkflowFromFile(fileSelector.selectedFiles().first());
     }
+
+    return false;
 }
 
-void MainWindow::on_tabWidget_tabCloseRequested(int index)
+void MainWindow::CloseTabRequested(int index)
 {
     Q_UNUSED(index)
     //TODO: close the tab after save check
@@ -238,15 +309,16 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 //!
 //! \brief Create a new blank workflow
 //!
-WorkflowTab* MainWindow::createWorkflow()
+WorkflowTab* MainWindow::CreateWorkflow()
 {
     WorkflowTab* tab = new WorkflowTab(mTabWidget, "");
     int index = mTabWidget->addTab(tab, "Unnamed");
     mTabWidget->setCurrentIndex(index);
+    connect(mTabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(CloseTabRequested(int)));
     return tab;
 }
 
-WorkflowTab *MainWindow::getActiveWorkflowTab()
+WorkflowTab *MainWindow::GetActiveWorkflowTab()
 {
     QWidget* activeWidget = mTabWidget->currentWidget();
     if (activeWidget == NULL) return NULL;

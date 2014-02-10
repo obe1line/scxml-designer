@@ -4,61 +4,67 @@
 #include <QAbstractTransition>
 #include "scxmlstate.h"
 #include "metadatasupport.h"
+#include "chaikincurve.h"
 
-
-class SCXMLTransition : public QAbstractTransition, public QGraphicsItem, public MetaDataSupport
+class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public MetaDataSupport
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
 
 public:
-    explicit SCXMLTransition(SCXMLState *parent = 0);
+    explicit SCXMLTransition(SCXMLState *source, SCXMLState *target, QString event, QString transitionType, QMap<QString,QString> *metaData);
 
-    qreal GetX1() { return mX1; }
-    qreal GetY1() { return mY1; }
-    qreal GetX2() { return mX2; }
-    qreal GetY2() { return mY2; }
+    Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
+
+    QString GetControlPoints();
     QString GetDescription() { return mDescription; }
+    QString GetEvent() { return mEvent; }
 
-    void SetX1(qreal value) { mX1 = value; }
-    void SetY1(qreal value) { mY1 = value; }
-    void SetX2(qreal value) { mX2 = value; }
-    void SetY2(qreal value) { mY2 = value; }
+    void SetControlPoints(QString value);
     void SetDescription(QString value) { mDescription = value; }
 
-    void setTransitionType(QString transitionType) { mTransitionType = transitionType; }
+    //void setTransitionType(QString transitionType) { mTransitionType = transitionType; }
     QString getTransitionType() { return mTransitionType; }
 
-    //FIXME: these two virtuals need to be implemented fully at some point
-    bool eventTest(QEvent * event) { Q_UNUSED(event); return true; }
+    bool eventTest(QEvent * event);
+    //FIXME: need to be implemented fully at some point
     void onTransition(QEvent * event) { Q_UNUSED(event) }
 
     // MetaDataSupport overrides
     void ApplyMetaData(QMap<QString, QString>* mapMetaData);
     QString GetMetaDataString();
 
-    // QGraphicsItem overrides
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     void Update();
-    void Connect(SCXMLState* parentState, SCXMLState* targetState)
-    {
-        parentState->addTransition(this);
-        targetState->AddIncomingTransition(this);
-    }
+    void Connect();
+
+    bool CalculatePaths(QPainterPath *bezierPath, QPainterPath *arrowHeadPath,
+                        QPainterPath *controlLine1Path, QPainterPath *controlLine2Path,
+                        QPainterPath *startPointPath, QPainterPath *endPointPath) const;
+
+    QVector<QVector3D> GetControlPoints(QString value);
+    void SetConnectorPoints(qreal start, qreal end);
+    void UpdateConnectionPointIndexes();
 signals:
-    
+    void centrePointChanged(QPoint);
+
 public slots:
-    
+    void UpdatePoints();
+    void AnimationComplete() { mAnimationActive = false; update(); }
+
 private:
     SCXMLState* mParentState;
     QString mTransitionType;
-    qreal mX1;
-    qreal mX2;
-    qreal mY1;
-    qreal mY2;
     QString mDescription;
+    QString mEvent;
+    qreal mStartConnectionPointIndex;
+    qreal mEndConnectionPointIndex;
+    SCXMLState* mSourceState;
+    SCXMLState* mTargetState;
+    bool mConnected;
 };
 
 #endif // SCXMLTRANSITION_H

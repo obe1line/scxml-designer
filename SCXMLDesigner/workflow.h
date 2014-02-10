@@ -5,6 +5,7 @@
 #include <QDomDocument>
 #include <QGraphicsScene>
 #include "scxmlstate.h"
+#include "scxmldatamodel.h"
 
 //! Represents an SCXML workflow
 //!
@@ -37,10 +38,16 @@ public:
     void ParseMetaData(QString text, QMap<QString, QString>& map);
 
     //! Extract the meta data from an element comment child nodes
-    void ExtractMetaDataFromElementComments(QDomElement *element, MetaDataSupport *metaDataObject);
+    QMap<QString, QString> ExtractMetaDataFromElementComments(QDomElement *element);
 
     //! Extracts all DOM elements with a name in tags
     QList<QDomNode> GetElementsWithTagName(QDomDocument *doc, QStringList tags);
+
+    //! Extracts the data model from a given element (looks in the child nodes)
+    void ExtractDataModelFromElement(QDomElement* element, SCXMLState* state);
+
+    //! Gets the underlying data model
+    SCXMLDataModel *GetDataModel() { return &mDataModel; }
 signals:
     
 public slots:
@@ -48,6 +55,7 @@ public slots:
 private:
     QString mName;
     QString mRawSCXMLText;
+    SCXMLDataModel mDataModel;
 };
 
 #endif // WORKFLOW_H

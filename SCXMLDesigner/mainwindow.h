@@ -1,22 +1,23 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtCore/QVariant>
-#include <QtWidgets/QAction>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
-#include <QtWidgets/QLCDNumber>
-#include <QtWidgets/QListWidget>
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMenuBar>
-#include <QtWidgets/QStatusBar>
-#include <QtWidgets/QTabWidget>
-#include <QtWidgets/QToolBar>
-#include <QtWidgets/QToolBox>
-#include <QtWidgets/QWidget>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLCDNumber>
+#include <QListWidget>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QTabWidget>
+#include <QToolBar>
+#include <QToolBox>
+#include <QWidget>
+#include <QTableWidget>
 #include <QMainWindow>
 #include <QStateMachine>
 #include <QDomDocument>
@@ -25,6 +26,7 @@
 #include "workflow.h"
 #include "workflowtab.h"
 #include "utilities.h"
+#include "version.h"
 
 
 class MainWindow : public QMainWindow
@@ -42,12 +44,15 @@ public:
     void CreateToolbars();
 
 private slots:
-    void on_tabWidget_tabCloseRequested(int index);
-    void insertState();
-    void saveCurrentWorkflow();
-    void loadWorkflow();
-    WorkflowTab* createWorkflow();
-    WorkflowTab* getActiveWorkflowTab();
+    void CloseTabRequested(int index);
+    void InsertTransition();
+    void TestAnimation();
+    void InsertState();
+    void SaveCurrentWorkflow();
+    bool LoadWorkflowFromFile(QString workflowFilename);
+    bool LoadWorkflowFromDialog();
+    WorkflowTab* CreateWorkflow();
+    WorkflowTab* GetActiveWorkflowTab();
 
 private:
     QMenu *mMenuFile;
@@ -64,6 +69,7 @@ private:
     QAction *mActionState;
     QAction *mActionTransition;
     QAction *mActionShowChildStates;
+    QAction *mActionAnimate;
 
     QToolBar *mFileToolBar;
     QToolBar *mInsertToolBar;
@@ -79,6 +85,8 @@ private:
     QLCDNumber *lcdNumber;
     QWidget *page_1;
     QWidget *page_2;
+
+    QTableWidget *mDataModelTable;
 };
 
 #endif // MAINWINDOW_H
