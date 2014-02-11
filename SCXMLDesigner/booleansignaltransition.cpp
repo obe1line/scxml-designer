@@ -1,5 +1,8 @@
 #include "booleansignaltransition.h"
 
-BooleanSignalTransition::BooleanSignalTransition()
+
+
+void BooleanSignalTransition::onTransition(QEvent *event)
 {
+    Q_UNUSED(event);
 }

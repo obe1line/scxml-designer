@@ -4,6 +4,7 @@
 #include "scxmlstate.h"
 #include "scxmltransition.h"
 #include "utilities.h"
+#include "scxmlexecutablecontent.h"
 
 Workflow::Workflow() :
     QStateMachine()
@@ -48,6 +49,10 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
         // add the state meta-data comment
         QDomComment metaDataComment = doc.createComment(state->GetMetaDataString());
         element.appendChild(metaDataComment);
+
+        // add the onentry
+        QDomComment testComment = doc.createComment(state->GetOnEntry());
+        element.appendChild(testComment);
 
         // add the transitions
         foreach(QAbstractTransition* trans, state->transitions()) {
@@ -114,10 +119,21 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
+        QDomNodeList onEntryElements = element.elementsByTagName("onentry");
+        if (onEntryElements.count() > 0) {
+            SCXMLExecutableContent::FromXmlElement(onEntryElements.at(0).childNodes());
+        }
 
         QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&element);
         SCXMLState *newState = new SCXMLState(id, &metaData);
         ExtractDataModelFromElement(&element, newState);
+        if (onEntryElements.count() > 0) {
+            QString str;
+            QTextStream stream(&str);
+            QDomElement onEntryElement = onEntryElements.at(0).toElement();
+            onEntryElement.save(stream, QDomNode::EncodingFromDocument);
+            newState->SetOnEntry(str);
+        }
         addState(newState);
     }
 

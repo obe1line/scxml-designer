@@ -27,6 +27,8 @@ public:
     QString GetDescription() { return mDescription; }
     bool GetFinal() { return mFinal; }
     QPainterPath GetNodeOutlinePath();
+    QString GetOnEntry() { return mOnEntry; }
+    QString GetOnExit() { return mOnExit; }
 
     //! gets the connection point for the given index (1=end point of perimeter of state, 0=start point)
     QPoint GetConnectionPoint(qreal connectionPointIndex);
@@ -38,6 +40,8 @@ public:
     void SetShapeHeight(qreal value) { mHeight = value; sizeChanged(); }
     void SetDescription(QString value) { mDescription = value; }
     void SetFinal(bool value) { mFinal = value; }
+    void SetOnEntry(QString value) { mOnEntry = value; }
+    void SetOnExit(QString value) { mOnExit = value; }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -71,6 +75,8 @@ private:
   qreal mResizeStartY;
   bool mFinal;
   QList<QAbstractTransition*> mIncomingTransitions;
+  QString mOnEntry;
+  QString mOnExit;
 };
 
 #endif // SCXMLSTATE_H
