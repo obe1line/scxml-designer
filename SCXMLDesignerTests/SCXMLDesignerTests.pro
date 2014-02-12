@@ -14,12 +14,15 @@ TEMPLATE = app
 
 INCLUDEPATH += $$PWD/../../../../gtest/gtest-1.7.0/
 INCLUDEPATH += $$PWD/../../../../gtest/gtest-1.7.0/include
+INCLUDEPATH += $$PWD/../SCXMLDesigner/
 
 DEFINES += "_VARIADIC_MAX=10"
 
-SOURCES += main.cpp \
-    testSCXMLState.h
-SOURCES += $$PWD/../../../../gtest/gtest-1.7.0/src/gtest-all.cc
-HEADERS +=
+SOURCES += main.cpp
 
+SOURCES += $$PWD/../../../../gtest/gtest-1.7.0/src/gtest-all.cc \
+    "../SCXMLDesigner/scxmlparser.cpp" \
+    "../SCXMLDesigner/xmlutilities.cpp" \
 
+HEADERS += testSCXMLParser.h \
+    "../SCXMLDesigner/scxmlparser.h"

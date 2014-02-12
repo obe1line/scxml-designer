@@ -1,9 +1,10 @@
-#include "scxmlexecutablecontent.h"
+//#include "scxmlexecutablecontent.h"
 
-SCXMLExecutableActionBase::SCXMLExecutableActionBase()
-{
-}
+//SCXMLExecutableActionBase::SCXMLExecutableActionBase(QString elementName) :
+//    mElementName(elementName)
+//{
+//}
 
-SCXMLExecutableContent::SCXMLExecutableContent()
-{
-}
+//SCXMLExecutableContent::SCXMLExecutableContent()
+//{
+//}

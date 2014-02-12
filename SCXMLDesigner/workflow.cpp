@@ -4,6 +4,7 @@
 #include "scxmlstate.h"
 #include "scxmltransition.h"
 #include "utilities.h"
+#include "xmlutilities.h"
 #include "scxmlexecutablecontent.h"
 
 Workflow::Workflow() :
@@ -51,8 +52,8 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
         element.appendChild(metaDataComment);
 
         // add the onentry
-        QDomComment testComment = doc.createComment(state->GetOnEntry());
-        element.appendChild(testComment);
+//        QDomElement onEntryElement = state->GetOnEntry()->ToXMLElement(doc);
+//        element.appendChild(onEntryElement);
 
         // add the transitions
         foreach(QAbstractTransition* trans, state->transitions()) {
@@ -75,20 +76,6 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
         }
         rootElement.appendChild(element);
     }
-}
-
-QList<QDomNode> Workflow::GetElementsWithTagName(QDomDocument* doc, QStringList tags)
-{
-    QList<QDomNode> elems;
-
-    foreach (QString tag, tags) {
-        QDomNodeList elements = doc->elementsByTagName(tag);
-        for (int pos=0; pos < elements.length(); pos++) {
-            elems.append(elements.at(pos));
-        }
-    }
-
-    return elems;
 }
 
 void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
@@ -115,25 +102,28 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     // add all the states before we add transitions (they need to exist!)
     QStringList stateTags;
     stateTags << "state" << "final";
-    QList<QDomNode> allElements = GetElementsWithTagName(&doc, stateTags);
+    QList<QDomNode> allElements;
+    XMLUtilities::GetElementsWithTagNames(allElements, doc, stateTags, true);
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute("id", "unnamed");
-        QDomNodeList onEntryElements = element.elementsByTagName("onentry");
-        if (onEntryElements.count() > 0) {
-            SCXMLExecutableContent::FromXmlElement(onEntryElements.at(0).childNodes());
-        }
+//        SCXMLExecutableContent *onEntryContent = nullptr;
+//        QDomNodeList onEntryElements = element.elementsByTagName("onentry");
+//        if (onEntryElements.count() > 0) {
+//            onEntryContent = SCXMLOnEntry::FromXmlElement(onEntryElements.at(0));
+//        }
 
         QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&element);
         SCXMLState *newState = new SCXMLState(id, &metaData);
         ExtractDataModelFromElement(&element, newState);
-        if (onEntryElements.count() > 0) {
-            QString str;
-            QTextStream stream(&str);
-            QDomElement onEntryElement = onEntryElements.at(0).toElement();
-            onEntryElement.save(stream, QDomNode::EncodingFromDocument);
-            newState->SetOnEntry(str);
-        }
+//        if (onEntryElements.count() > 0) {
+//            QString str;
+//            QTextStream stream(&str);
+//            QDomElement onEntryElement = onEntryElements.at(0).toElement();
+//            onEntryElement.save(stream, QDomNode::EncodingFromDocument);
+//            newState->SetOnEntry(str);
+//        }
+        //newState->SetOnEntry(onEntryContent);
         addState(newState);
     }
 
