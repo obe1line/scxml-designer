@@ -54,6 +54,7 @@ public slots:
     
 private:
     QString mName;
+    QString mInitialStateName;
     QString mRawSCXMLText;
     SCXMLDataModel mDataModel;
 };

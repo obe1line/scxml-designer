@@ -273,7 +273,11 @@ bool MainWindow::LoadWorkflowFromFile(QString workflowFilename) {
     WorkflowTab* newTab = CreateWorkflow();
     newTab->SetFilename(workflowFilename);
     newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
-    newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
+    QString name = newTab->GetWorkflow()->GetWorkflowName();
+    if (name == "") {
+        name = "unnamed";
+    }
+    newTab->SetWorkflowName(name);
     newTab->Update();
     newTab->TestDataModel(mDataModelTable);
 
