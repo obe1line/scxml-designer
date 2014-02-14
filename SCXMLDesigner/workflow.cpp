@@ -82,20 +82,6 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     }
 }
 
-QList<QDomNode> Workflow::GetElementsWithTagName(QDomDocument* doc, QStringList tags)
-{
-    QList<QDomNode> elems;
-
-    foreach (QString tag, tags) {
-        QDomNodeList elements = doc->elementsByTagName(tag);
-        for (int pos=0; pos < elements.length(); pos++) {
-            elems.append(elements.at(pos));
-        }
-    }
-
-    return elems;
-}
-
 void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 {
     SCXMLState* initialState = nullptr;
@@ -123,7 +109,8 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     // add all the states before we add transitions (they need to exist!)
     QStringList stateTags;
     stateTags << XMLUtilities::SCXML_TAG_STATE << XMLUtilities::SCXML_TAG_FINAL;
-    QList<QDomNode> allElements = GetElementsWithTagName(&doc, stateTags);
+    QList<QDomNode> allElements;
+    XMLUtilities::GetElementsWithTagNames(allElements, doc, stateTags);
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
         QString id = element.attribute(XMLUtilities::SCXML_TAG_ID, "unnamed");

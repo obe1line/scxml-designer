@@ -124,7 +124,7 @@ QPainterPath ChaikinCurve::GetPathOfLines() const
     QVector3D lastPoint = *it;
     bool first = true;
     for(; it != mCurvePoints.constEnd(); ++it) {
-        if (!first) {
+        if (first) {
             first = false;
             continue;
         }
