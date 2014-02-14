@@ -54,7 +54,8 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
         // add the onentry
         SCXMLExecutableContent* onEntry = state->GetOnEntry();
         if (onEntry != nullptr) {
-            QDomElement onEntryElement =  doc.createElement(XMLUtilities::SCXML_TAG_ONENTRY);
+            QDomElement onEntryElement = doc.createElement(XMLUtilities::SCXML_TAG_ONENTRY);
+            onEntry->ToXmlElement(doc, onEntryElement);
             element.appendChild(onEntryElement);
         }
         // add the transitions

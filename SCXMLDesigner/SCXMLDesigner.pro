@@ -27,8 +27,7 @@ SOURCES += main.cpp\
     chaikincurve.cpp \
     booleansignaltransition.cpp \
     scxmlexecutablecontent.cpp \
-    xmlutilities.cpp \
-    scxmlparser.cpp
+    xmlutilities.cpp
 
 HEADERS  += mainwindow.h \
     scxmlstate.h \
@@ -44,8 +43,7 @@ HEADERS  += mainwindow.h \
     chaikincurve.h \
     booleansignaltransition.h \
     scxmlexecutablecontent.h \
-    xmlutilities.h \
-    scxmlparser.h
+    xmlutilities.h
 
 FORMS    +=
 

@@ -21,8 +21,6 @@ DEFINES += "_VARIADIC_MAX=10"
 SOURCES += main.cpp
 
 SOURCES += $$PWD/../../../../gtest/gtest-1.7.0/src/gtest-all.cc \
-    "../SCXMLDesigner/scxmlparser.cpp" \
     "../SCXMLDesigner/xmlutilities.cpp" \
 
-HEADERS += testSCXMLParser.h \
-    "../SCXMLDesigner/scxmlparser.h"
+HEADERS += testSCXMLParser.h
