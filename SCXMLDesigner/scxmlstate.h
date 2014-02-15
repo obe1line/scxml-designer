@@ -7,12 +7,13 @@
 #include <QDomElement>
 #include "metadatasupport.h"
 #include "scxmlexecutablecontent.h"
+#include "connectionpointsupport.h"
 
 //! Represents an SCXML state
 //!
 //! Implemented with QState as the underlying class. Additional attributes and meta data are
 //! added to this for import and export to external SCXML files.
-class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport
+class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport, public ConnectionPointSupport
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -31,10 +32,6 @@ public:
     QPainterPath GetNodeOutlinePath();
     SCXMLExecutableContent* GetOnEntry() { return mOnEntry; }
     SCXMLExecutableContent* GetOnExit() { return mOnExit; }
-
-    //! gets the connection point for the given index (1=end point of perimeter of state, 0=start point)
-    QPoint GetConnectionPoint(qreal connectionPointIndex);
-    qreal GetConnectionPointIndex(QPoint point);
 
     void SetShapeX(qreal value) { setX(value); sizeChanged(); }
     void SetShapeY(qreal value) { setY(value); sizeChanged(); }
@@ -60,6 +57,8 @@ public:
 
     void AddIncomingTransition(QAbstractTransition* transitionRef) { mIncomingTransitions.append(transitionRef); }
 
+    QPoint GetConnectionPoint(qreal connectionPointIndex);
+    qreal GetConnectionPointIndex(QPoint point);
 signals:
     void sizeChanged();
 

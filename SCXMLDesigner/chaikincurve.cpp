@@ -307,15 +307,31 @@ void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+QPoint ChaikinCurve::constrainPointToBoundary(QPoint point, ConnectionPointSupport *support)
+{
+    qreal index = support->GetConnectionPointIndex(point);
+    return support->GetConnectionPoint(index);
+}
+
 void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (mDragInProgress) {
         QPointF point = event->pos();
-        if ((mControlPointDragIndex == 0) && (!mStartNodePath.contains(point))) {
-           return;
+        if (mControlPointDragIndex == 0) {
+            if (!mStartNodePath.contains(point)) {
+                return;
+            }
+            else {
+                point = constrainPointToBoundary(point.toPoint(), mStartNodePathConnectionPointSupport);
+            }
         }
-        if ((mControlPointDragIndex == mOriginalCurvePoints.length()-1) && (!mEndNodePath.contains(point))) {
-           return;
+        else if (mControlPointDragIndex == mOriginalCurvePoints.length()-1) {
+            if (!mEndNodePath.contains(point)) {
+                return;
+            }
+            else {
+                point = constrainPointToBoundary(point.toPoint(), mEndNodePathConnectionPointSupport);
+            }
         }
         SetNewPointPosition(mControlPointDragIndex, point);
     }

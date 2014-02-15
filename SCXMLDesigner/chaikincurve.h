@@ -7,7 +7,7 @@
 #include <QGraphicsScene>
 #include <QWidget>
 #include <QPainter>
-
+#include "connectionpointsupport.h"
 
 class ChaikinCurve : public QGraphicsItem
 {
@@ -48,6 +48,8 @@ private:
     QPainterPath mStartNodePath;
     QPainterPath mEndNodePath;
     QPixmap mArrowImage;
+    ConnectionPointSupport *mStartNodePathConnectionPointSupport;
+    ConnectionPointSupport *mEndNodePathConnectionPointSupport;
 
     QPainterPath GetPathOfLines() const;
     QPainterPath GetPathOfControlPoints() const;
@@ -68,7 +70,16 @@ public:
 
     void AnimateEvent();
     void SetStartingPoints(QVector<QVector3D> newCurvePoints);
-    void SetStartNodePath(QPainterPath path) { mStartNodePath = path; }
-    void SetEndNodePath(QPainterPath path) { mEndNodePath = path; }
+    //void SetStartNodePath(QPainterPath path) { mStartNodePath = path; }
+    void SetStartNodeConnectionPointSupport(ConnectionPointSupport *support) {
+        mStartNodePathConnectionPointSupport = support;
+        mStartNodePath = support->GetNodeOutlinePath();
+    }
+    //void SetEndNodePath(QPainterPath path) { mEndNodePath = path; }
+    void SetEndNodeConnectionPointSupport(ConnectionPointSupport *support) {
+        mEndNodePathConnectionPointSupport = support;
+        mEndNodePath = support->GetNodeOutlinePath();
+    }
+    QPoint constrainPointToBoundary(QPoint point, ConnectionPointSupport *support);
 };
 #endif // CHAIKINCURVE_H

@@ -121,8 +121,10 @@ void SCXMLTransition::UpdatePoints()
 
     // Set the outlines to restrict where the start and end curve control points
     // can be placed. This is so the transitions always connect states
-    SetStartNodePath(mSourceState->GetNodeOutlinePath());
-    SetEndNodePath(mTargetState->GetNodeOutlinePath());
+    SetStartNodeConnectionPointSupport(mSourceState);
+    SetEndNodeConnectionPointSupport(mTargetState);
+//    SetStartNodePath(mSourceState->GetNodeOutlinePath());
+//    SetEndNodePath(mTargetState->GetNodeOutlinePath());
     SetStartingPoints(curvePoints);
 }
 

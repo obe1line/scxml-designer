@@ -9,7 +9,7 @@
 #define MIN_STATE_WIDTH 60
 
 SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
-    QState(), mId(id), mDescription(""),
+    QState(), ConnectionPointSupport(), mId(id), mDescription(""),
     mWidth(100), mHeight(50),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
