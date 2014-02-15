@@ -78,6 +78,13 @@ private:
   QList<QAbstractTransition*> mIncomingTransitions;
   SCXMLExecutableContent* mOnEntry;
   SCXMLExecutableContent* mOnExit;
+
+  // QGraphicsItem interface
+
+  // QAbstractState interface
+protected:
+  void onEntry(QEvent *event);
+  void onExit(QEvent *event);
 };
 
 #endif // SCXMLSTATE_H

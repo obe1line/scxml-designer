@@ -89,9 +89,10 @@ void SCXMLTransition::SetControlPoints(QString value)
 bool SCXMLTransition::eventTest(QEvent *event)
 {
     // correct value?
-    QStateMachine::SignalEvent* se = static_cast<QStateMachine::SignalEvent*>(event);
-    bool value = se->arguments().at(0).value<bool>();
-    return (value == true);
+    //QStateMachine::SignalEvent* se = static_cast<QStateMachine::SignalEvent*>(event);
+    //bool value = se->arguments().at(0).value<bool>();
+    //return (value == true);
+    return true;        //testing
 }
 
 void SCXMLTransition::UpdatePoints()
@@ -123,8 +124,6 @@ void SCXMLTransition::UpdatePoints()
     // can be placed. This is so the transitions always connect states
     SetStartNodeConnectionPointSupport(mSourceState);
     SetEndNodeConnectionPointSupport(mTargetState);
-//    SetStartNodePath(mSourceState->GetNodeOutlinePath());
-//    SetEndNodePath(mTargetState->GetNodeOutlinePath());
     SetStartingPoints(curvePoints);
 }
 

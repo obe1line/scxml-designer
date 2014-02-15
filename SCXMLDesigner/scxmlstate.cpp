@@ -186,3 +186,17 @@ void SCXMLState::UpdateTransitions()
         tran->Update();
     }
 }
+
+void SCXMLState::onEntry(QEvent *event)
+{
+    Q_UNUSED(event);
+    qDebug() << "onEntry";
+    event->accept();
+}
+
+void SCXMLState::onExit(QEvent *event)
+{
+    Q_UNUSED(event);
+    qDebug() << "onExit";
+    event->accept();
+}
