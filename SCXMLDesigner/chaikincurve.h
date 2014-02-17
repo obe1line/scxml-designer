@@ -7,6 +7,7 @@
 #include <QGraphicsScene>
 #include <QWidget>
 #include <QPainter>
+#include <QPropertyAnimation>
 #include "connectionpointsupport.h"
 
 class ChaikinCurve : public QGraphicsItem
@@ -81,5 +82,6 @@ public:
         mEndNodePath = support->GetNodeOutlinePath();
     }
     QPoint constrainPointToBoundary(QPoint point, ConnectionPointSupport *support);
+    QPropertyAnimation* GetTestAnimation();
 };
 #endif // CHAIKINCURVE_H

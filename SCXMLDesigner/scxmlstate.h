@@ -59,10 +59,9 @@ public:
 
     QPoint GetConnectionPoint(qreal connectionPointIndex);
     qreal GetConnectionPointIndex(QPoint point);
+
 signals:
     void sizeChanged();
-
-public slots:
 
 private:
   QString mId;
@@ -82,6 +81,8 @@ private:
   // QGraphicsItem interface
 
   // QAbstractState interface
+  bool m_test123;
+
 protected:
   void onEntry(QEvent *event);
   void onExit(QEvent *event);

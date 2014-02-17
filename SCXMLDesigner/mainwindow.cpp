@@ -183,7 +183,7 @@ void MainWindow::TestAnimation()
     WorkflowTab* activeTab = GetActiveWorkflowTab();
     if (activeTab == NULL) return;
     Workflow* activeWorkflow = activeTab->GetWorkflow();
-    QObjectList nodes = activeWorkflow->children();
+//    QObjectList nodes = activeWorkflow->children();
 //    foreach (QObject *obj, nodes) {
 //        SCXMLState* state = static_cast<SCXMLState*>(obj);
 //        QList<QAbstractTransition*> trans = state->transitions();
@@ -194,7 +194,9 @@ void MainWindow::TestAnimation()
 //    }
 
     // call the onEntry and wait for events
-    activeWorkflow->stop();
+    if (activeWorkflow->isRunning()) {
+        activeWorkflow->stop();
+    }
     activeWorkflow->start();
     //QEvent *ev = QEvent();
     //activeWorkflow->postEvent(ev);

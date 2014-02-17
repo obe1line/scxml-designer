@@ -53,7 +53,7 @@ signals:
 
 public slots:
     void UpdatePoints();
-    void AnimationComplete() { mAnimationActive = false; update(); }
+    //void AnimationComplete() { mAnimationActive = false; update(); }
 
 private:
     SCXMLState* mParentState;

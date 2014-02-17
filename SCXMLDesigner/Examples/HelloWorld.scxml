@@ -1,9 +1,23 @@
-<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="hello">
-  <state id="hello">
-    <onentry>
-      <log expr="Hello World" />
-    </onentry>
-    <transition target="done" />
-  </state>
-  <final id ="done" />
+<scxml xmlns="http://www.w3.org/2005/07/scxml" initial="hello" version="1.0">
+ <state id="hello">
+  <!-- META-DATA [x=-227] [y=-48] [width=100] [height=50] [description=]-->
+  <onentry>
+   <log expr="Hello"/>
+  </onentry>
+  <transition target="world">
+   <!-- META-DATA [cp=-181,2:-120,75:77,74:138,-20] [description=]-->
+  </transition>
+ </state>
+ <state id="world">
+  <!-- META-DATA [x=92] [y=-70] [width=100] [height=50] [description=]-->
+  <onentry>
+   <log expr="World"/>
+  </onentry>
+  <transition target="done">
+   <!-- META-DATA [cp=92,-40:11,-87:18,-138:120,-208] [description=]-->
+  </transition>
+ </state>
+ <final id="done">
+  <!-- META-DATA [x=120] [y=-218] [width=100] [height=50] [description=]-->
+ </final>
 </scxml>

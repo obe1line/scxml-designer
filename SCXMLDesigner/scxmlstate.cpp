@@ -24,6 +24,8 @@ SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
     setAcceptHoverEvents(true);
 
     ApplyMetaData(metaData);
+
+    assignProperty(this, "test123", false);
 }
 
 QPainterPath SCXMLState::GetNodeOutlinePath()
@@ -177,13 +179,17 @@ void SCXMLState::UpdateTransitions()
     // update outgoing transitions
     foreach(QAbstractTransition* abtran, this->transitions()) {
         SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
-        tran->Update();
+        if (tran != nullptr) {
+            tran->Update();
+        }
     }
 
     // update incoming transitions
     foreach(QAbstractTransition* abtran, this->mIncomingTransitions) {
         SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
-        tran->Update();
+        if (tran != nullptr) {
+            tran->Update();
+        }
     }
 }
 

@@ -30,6 +30,9 @@ SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QString
     Connect();
 }
 
+//TODO:  addAnimation();
+
+
 //!
 //! \brief SCXMLTransition::SetConnectorPoints
 //!
@@ -88,10 +91,15 @@ void SCXMLTransition::SetControlPoints(QString value)
 
 bool SCXMLTransition::eventTest(QEvent *event)
 {
+    Q_UNUSED(event);
+
     // correct value?
     //QStateMachine::SignalEvent* se = static_cast<QStateMachine::SignalEvent*>(event);
     //bool value = se->arguments().at(0).value<bool>();
     //return (value == true);
+
+    qDebug() << "eventTest called";
+
     return true;        //testing
 }
 
@@ -190,13 +198,14 @@ void SCXMLTransition::Connect()
 
     setTargetState(mTargetState);
     mSourceState->addTransition(this);
+    //fails//mSourceState->addTransition(mSourceState, SIGNAL(propertiesAssigned()), mTargetState);
     mTargetState->AddIncomingTransition(this);
 
     // ensure size changes of the parent state are reflected in the transition start and end connectors
     connect(mSourceState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
     connect(mTargetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
 
-    //this->event();
+    this->addAnimation(GetTestAnimation());
 
     // adjust start and end points with initial forced update
     mSourceState->UpdateTransitions();
