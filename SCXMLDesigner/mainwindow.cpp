@@ -183,15 +183,25 @@ void MainWindow::TestAnimation()
     WorkflowTab* activeTab = GetActiveWorkflowTab();
     if (activeTab == NULL) return;
     Workflow* activeWorkflow = activeTab->GetWorkflow();
-    QObjectList nodes = activeWorkflow->children();
-    foreach (QObject *obj, nodes) {
-        SCXMLState* state = static_cast<SCXMLState*>(obj);
-        QList<QAbstractTransition*> trans = state->transitions();
-        foreach (QAbstractTransition *tran, trans) {
-            SCXMLTransition* transition = static_cast<SCXMLTransition*>(tran);
-            transition->AnimateEvent();
-        }
+//    QObjectList nodes = activeWorkflow->children();
+//    foreach (QObject *obj, nodes) {
+//        SCXMLState* state = static_cast<SCXMLState*>(obj);
+//        QList<QAbstractTransition*> trans = state->transitions();
+//        foreach (QAbstractTransition *tran, trans) {
+//            SCXMLTransition* transition = static_cast<SCXMLTransition*>(tran);
+//            transition->AnimateEvent();
+//        }
+//    }
+
+    // call the onEntry and wait for events
+    if (activeWorkflow->isRunning()) {
+        activeWorkflow->stop();
     }
+    activeWorkflow->start();
+    //QEvent *ev = QEvent();
+    //activeWorkflow->postEvent(ev);
+    //->initialState()->EnterState();
+
 }
 
 //!
@@ -273,7 +283,11 @@ bool MainWindow::LoadWorkflowFromFile(QString workflowFilename) {
     WorkflowTab* newTab = CreateWorkflow();
     newTab->SetFilename(workflowFilename);
     newTab->GetWorkflow()->ConstructStateMachineFromSCXML(doc);
-    newTab->SetWorkflowName(newTab->GetWorkflow()->GetWorkflowName());
+    QString name = newTab->GetWorkflow()->GetWorkflowName();
+    if (name == "") {
+        name = "unnamed";
+    }
+    newTab->SetWorkflowName(name);
     newTab->Update();
     newTab->TestDataModel(mDataModelTable);
 

@@ -124,7 +124,7 @@ QPainterPath ChaikinCurve::GetPathOfLines() const
     QVector3D lastPoint = *it;
     bool first = true;
     for(; it != mCurvePoints.constEnd(); ++it) {
-        if (!first) {
+        if (first) {
             first = false;
             continue;
         }
@@ -307,15 +307,31 @@ void ChaikinCurve::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+QPoint ChaikinCurve::constrainPointToBoundary(QPoint point, ConnectionPointSupport *support)
+{
+    qreal index = support->GetConnectionPointIndex(point);
+    return support->GetConnectionPoint(index);
+}
+
 void ChaikinCurve::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (mDragInProgress) {
         QPointF point = event->pos();
-        if ((mControlPointDragIndex == 0) && (!mStartNodePath.contains(point))) {
-           return;
+        if (mControlPointDragIndex == 0) {
+            if (!mStartNodePath.contains(point)) {
+                return;
+            }
+            else {
+                point = constrainPointToBoundary(point.toPoint(), mStartNodePathConnectionPointSupport);
+            }
         }
-        if ((mControlPointDragIndex == mOriginalCurvePoints.length()-1) && (!mEndNodePath.contains(point))) {
-           return;
+        else if (mControlPointDragIndex == mOriginalCurvePoints.length()-1) {
+            if (!mEndNodePath.contains(point)) {
+                return;
+            }
+            else {
+                point = constrainPointToBoundary(point.toPoint(), mEndNodePathConnectionPointSupport);
+            }
         }
         SetNewPointPosition(mControlPointDragIndex, point);
     }
@@ -333,7 +349,7 @@ void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void ChaikinCurve::AnimateEvent()
+QPropertyAnimation* ChaikinCurve::GetTestAnimation(QState *startState, QState *endState)
 {
     QPainterPath path = GetPathOfLines();
     QPropertyAnimation* animation = new QPropertyAnimation(mParentObject, "centrePoint", mParentObject);
@@ -349,7 +365,11 @@ void ChaikinCurve::AnimateEvent()
                    path.pointAtPercent(i).toPoint());
     }
 
-    QObject::connect(animation, SIGNAL(finished()), mParentObject, SLOT(AnimationComplete()));
-    mAnimationActive = true;
-    animation->start();
+    startState->assignProperty(mParentObject, "centrePoint", path.pointAtPercent(0).toPoint());
+    endState->assignProperty(mParentObject, "centrePoint", path.pointAtPercent(1).toPoint());
+
+    QObject::connect(animation, SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
+                     mParentObject, SLOT(AnimationStateChanged(QAbstractAnimation::State, QAbstractAnimation::State)));
+
+    return animation;
 }

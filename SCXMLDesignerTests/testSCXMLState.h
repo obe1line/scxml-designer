@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../SCXMLDesigner/scxmlstate.h"
+//#include "../SCXMLDesigner/scxmlstate.h"
 
 /*
 TEST(SCXMLStateTests, SetShapeXChangesValueCorrectly) {

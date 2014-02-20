@@ -40,9 +40,6 @@ public:
     //! Extract the meta data from an element comment child nodes
     QMap<QString, QString> ExtractMetaDataFromElementComments(QDomElement *element);
 
-    //! Extracts all DOM elements with a name in tags
-    QList<QDomNode> GetElementsWithTagName(QDomDocument *doc, QStringList tags);
-
     //! Extracts the data model from a given element (looks in the child nodes)
     void ExtractDataModelFromElement(QDomElement* element, SCXMLState* state);
 
@@ -54,6 +51,7 @@ public slots:
     
 private:
     QString mName;
+    QString mInitialStateName;
     QString mRawSCXMLText;
     SCXMLDataModel mDataModel;
 };

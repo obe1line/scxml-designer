@@ -9,7 +9,7 @@
 #define MIN_STATE_WIDTH 60
 
 SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
-    QState(), mId(id), mDescription(""),
+    QState(), ConnectionPointSupport(), mId(id), mDescription(""),
     mWidth(100), mHeight(50),
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
@@ -24,6 +24,8 @@ SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
     setAcceptHoverEvents(true);
 
     ApplyMetaData(metaData);
+
+    assignProperty(this, "test123", false);
 }
 
 QPainterPath SCXMLState::GetNodeOutlinePath()
@@ -177,12 +179,30 @@ void SCXMLState::UpdateTransitions()
     // update outgoing transitions
     foreach(QAbstractTransition* abtran, this->transitions()) {
         SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
-        tran->Update();
+        if (tran != nullptr) {
+            tran->Update();
+        }
     }
 
     // update incoming transitions
     foreach(QAbstractTransition* abtran, this->mIncomingTransitions) {
         SCXMLTransition* tran = dynamic_cast<SCXMLTransition*>(abtran);
-        tran->Update();
+        if (tran != nullptr) {
+            tran->Update();
+        }
     }
+}
+
+void SCXMLState::onEntry(QEvent *event)
+{
+    Q_UNUSED(event);
+    qDebug() << "onEntry";
+    event->accept();
+}
+
+void SCXMLState::onExit(QEvent *event)
+{
+    Q_UNUSED(event);
+    qDebug() << "onExit";
+    event->accept();
 }

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "testSCXMLState.h"
+#include "testSCXMLParser.h"
+//#include "testSCXMLState.h"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

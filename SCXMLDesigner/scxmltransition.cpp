@@ -9,7 +9,7 @@
 #define CURVE_ITERATIONS 4
 
 SCXMLTransition::SCXMLTransition(SCXMLState *source, SCXMLState *target, QString event, QString transitionType, QMap<QString,QString> *metaData) :
-    QAbstractTransition(), ChaikinCurve(CURVE_ITERATIONS, QVector<QVector3D>()), mSourceState(source), mTargetState(target),
+    QSignalTransition(), ChaikinCurve(CURVE_ITERATIONS, QVector<QVector3D>()), mSourceState(source), mTargetState(target),
     mDescription(""), mEvent(event), mTransitionType(transitionType), mStartConnectionPointIndex(0), mEndConnectionPointIndex(0)
 {
     // only the mid-control points can be moved - not the curve
@@ -88,10 +88,17 @@ void SCXMLTransition::SetControlPoints(QString value)
 
 bool SCXMLTransition::eventTest(QEvent *event)
 {
-    // correct value?
-    QStateMachine::SignalEvent* se = static_cast<QStateMachine::SignalEvent*>(event);
-    bool value = se->arguments().at(0).value<bool>();
-    return (value == true);
+    qDebug() << "eventTest called";
+
+    if (!QSignalTransition::eventTest(event))
+        return false;
+
+    //TODO: fix this
+//    QStateMachine::SignalEvent *se = static_cast<QStateMachine::SignalEvent*>(event);
+//    if (se->arguments().count() > 0)
+//        return (se->arguments().at(0).toBool() == true);
+
+    return true;
 }
 
 void SCXMLTransition::UpdatePoints()
@@ -121,8 +128,8 @@ void SCXMLTransition::UpdatePoints()
 
     // Set the outlines to restrict where the start and end curve control points
     // can be placed. This is so the transitions always connect states
-    SetStartNodePath(mSourceState->GetNodeOutlinePath());
-    SetEndNodePath(mTargetState->GetNodeOutlinePath());
+    SetStartNodeConnectionPointSupport(mSourceState);
+    SetEndNodeConnectionPointSupport(mTargetState);
     SetStartingPoints(curvePoints);
 }
 
@@ -181,6 +188,7 @@ void SCXMLTransition::Update()
 {
     prepareGeometryChange();
     update();
+    SetAnimation();
 }
 
 void SCXMLTransition::Connect()
@@ -188,6 +196,8 @@ void SCXMLTransition::Connect()
     mConnected = true;
 
     setTargetState(mTargetState);
+    setSenderObject(mSourceState);
+    setSignal(SIGNAL(propertiesAssigned()));
     mSourceState->addTransition(this);
     mTargetState->AddIncomingTransition(this);
 
@@ -195,9 +205,18 @@ void SCXMLTransition::Connect()
     connect(mSourceState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
     connect(mTargetState, &SCXMLState::sizeChanged, this, &SCXMLTransition::UpdatePoints);
 
-    //this->event();
+    // add the transition animation
+    SetAnimation();
 
     // adjust start and end points with initial forced update
     mSourceState->UpdateTransitions();
     mTargetState->UpdateTransitions();
+}
+
+void SCXMLTransition::SetAnimation()
+{
+    foreach (QAbstractAnimation* animation, this->animations()) {
+        this->removeAnimation(animation);
+    }
+    this->addAnimation(GetTestAnimation(mSourceState,mTargetState));
 }

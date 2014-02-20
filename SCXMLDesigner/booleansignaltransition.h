@@ -2,11 +2,11 @@
 #define BOOLEANSIGNALTRANSITION_H
 
 #include <QSignalTransition>
+#include <QStateMachine>
 
 class BooleanSignalTransition : public QSignalTransition
 {
-    Q_OBJECT
-    BooleanSignalTransition( QState* sourceState, const char* signal, QAbstractState* targetState )
+    BooleanSignalTransition(QState* sourceState, const char* signal, QState* targetState )
         : QSignalTransition( sourceState, signal, targetState ),
           m_test( true )
     {}
@@ -28,6 +28,10 @@ class BooleanSignalTransition : public QSignalTransition
 
 private:
     bool m_test;
+
+    // QAbstractTransition interface
+protected:
+    void onTransition(QEvent *event);
 };
 
 #endif // BOOLEANSIGNALTRANSITION_H

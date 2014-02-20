@@ -4,6 +4,7 @@
 #include "scxmlstate.h"
 #include "scxmltransition.h"
 #include "utilities.h"
+#include "scxmlexecutablecontent.h"
 
 Workflow::Workflow() :
     QStateMachine()
@@ -16,23 +17,24 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     doc.clear();
 
     // create the root element with name attribute
-    QDomElement rootElement = doc.createElementNS("http://www.w3.org/2005/07/scxml", "scxml");
-    rootElement.setAttribute("name", mName);
-    rootElement.setAttribute("version", "1.0");
+    QDomElement rootElement = doc.createElementNS("http://www.w3.org/2005/07/scxml", XMLUtilities::SCXML_TAG_SCXML);
+    if (mName != "") rootElement.setAttribute(XMLUtilities::SCXML_TAG_NAME, mName);
+    if (mInitialStateName != "") rootElement.setAttribute(XMLUtilities::SCXML_TAG_INITIAL, mInitialStateName);
+    rootElement.setAttribute(XMLUtilities::SCXML_TAG_VERSION, "1.0");
     doc.appendChild(rootElement);
 
     // data model
     if (mDataModel.HasItems()) {
-        QDomElement dataModelElement = doc.createElement("datamodel");
+        QDomElement dataModelElement = doc.createElement(XMLUtilities::SCXML_TAG_DATAMODEL);
         rootElement.appendChild(dataModelElement);
         foreach (SCXMLDataItem* dataItem, mDataModel.GetDataItemList()) {
-            QDomElement dataElement = doc.createElement("data");
-            dataElement.setAttribute("id", dataItem->GetId());
+            QDomElement dataElement = doc.createElement(XMLUtilities::SCXML_TAG_DATA);
+            dataElement.setAttribute(XMLUtilities::SCXML_TAG_ID, dataItem->GetId());
             if (dataItem->GetSrc() != "") {
-                dataElement.setAttribute("src", dataItem->GetSrc());
+                dataElement.setAttribute(XMLUtilities::SCXML_TAG_SRC, dataItem->GetSrc());
             }
             if (dataItem->GetExpr() != "") {
-                dataElement.setAttribute("expr", dataItem->GetExpr());
+                dataElement.setAttribute(XMLUtilities::SCXML_TAG_EXPR, dataItem->GetExpr());
             }
             dataModelElement.appendChild(dataElement);
         }
@@ -41,26 +43,38 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     // traverse the states to build up the SCXML document
     foreach(QObject* child, this->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
+        if (state == nullptr) continue;
 
-        QDomElement element = doc.createElement(state->GetFinal() ? "final" : "state");
-        element.setAttribute("id", state->GetId());
+        QDomElement element = doc.createElement(state->GetFinal() ? XMLUtilities::SCXML_TAG_FINAL : XMLUtilities::SCXML_TAG_STATE);
+        element.setAttribute(XMLUtilities::SCXML_TAG_ID, state->GetId());
 
         // add the state meta-data comment
         QDomComment metaDataComment = doc.createComment(state->GetMetaDataString());
         element.appendChild(metaDataComment);
 
+        // add the onentry
+        SCXMLExecutableContent* onEntry = state->GetOnEntry();
+        if (onEntry != nullptr) {
+            QDomElement onEntryElement = doc.createElement(XMLUtilities::SCXML_TAG_ONENTRY);
+            onEntry->ToXmlElement(doc, onEntryElement);
+            element.appendChild(onEntryElement);
+        }
         // add the transitions
         foreach(QAbstractTransition* trans, state->transitions()) {
             SCXMLTransition* transition = dynamic_cast<SCXMLTransition*>(trans);
-            QDomElement transitionElement = doc.createElement("transition");
-            transitionElement.setAttribute("type", transition->getTransitionType());
+            if (transition == nullptr) continue;
+            QDomElement transitionElement = doc.createElement(XMLUtilities::SCXML_TAG_TRANSITION);
+            if (transition->getTransitionType() != "") {
+                transitionElement.setAttribute(XMLUtilities::SCXML_TAG_TYPE, transition->getTransitionType());
+            }
             SCXMLState* targetState = dynamic_cast<SCXMLState*>(transition->targetState());
-            transitionElement.setAttribute("target", targetState->GetId());
+            if (targetState == nullptr) continue;
+            transitionElement.setAttribute(XMLUtilities::SCXML_TAG_TARGET, targetState->GetId());
             QString event = transition->GetEvent();
             if (!event.isEmpty()) {
-                transitionElement.setAttribute("event", event);
+                transitionElement.setAttribute(XMLUtilities::SCXML_TAG_EVENT, event);
             }
-            transitionElement.setAttribute("target", targetState->GetId());
+            transitionElement.setAttribute(XMLUtilities::SCXML_TAG_TARGET, targetState->GetId());
 
             // add the transition meta-data comment
             QDomComment metaDataComment = doc.createComment(transition->GetMetaDataString());
@@ -72,22 +86,10 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     }
 }
 
-QList<QDomNode> Workflow::GetElementsWithTagName(QDomDocument* doc, QStringList tags)
-{
-    QList<QDomNode> elems;
-
-    foreach (QString tag, tags) {
-        QDomNodeList elements = doc->elementsByTagName(tag);
-        for (int pos=0; pos < elements.length(); pos++) {
-            elems.append(elements.at(pos));
-        }
-    }
-
-    return elems;
-}
-
 void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 {
+    SCXMLState* initialState = nullptr;
+
     mRawSCXMLText = doc.toString();
 
     // ensure we have no existing state machine
@@ -97,7 +99,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     }
 
     // traverse the SCXML to build up the state machine
-    QDomNodeList scxmlElements = doc.elementsByTagName("scxml");
+    QDomNodeList scxmlElements = doc.elementsByTagName(XMLUtilities::SCXML_TAG_SCXML);
     if (scxmlElements.length() != 1) {
         Utilities::ShowWarning("SCXML file does not have a single scxml tag");
         return;
@@ -105,20 +107,33 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
 
     // get the name of the workflow
     QDomElement scxmlRoot = scxmlElements.at(0).toElement();
-    mName = scxmlRoot.attribute("name", "Unnamed");
+    mName = scxmlRoot.attribute(XMLUtilities::SCXML_TAG_NAME, "");
+    mInitialStateName = scxmlRoot.attribute(XMLUtilities::SCXML_TAG_INITIAL, "");
 
     // add all the states before we add transitions (they need to exist!)
     QStringList stateTags;
-    stateTags << "state" << "final";
-    QList<QDomNode> allElements = GetElementsWithTagName(&doc, stateTags);
+    stateTags << XMLUtilities::SCXML_TAG_STATE << XMLUtilities::SCXML_TAG_FINAL;
+    QList<QDomNode> allElements;
+    XMLUtilities::GetElementsWithTagNames(allElements, doc, stateTags);
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
-        QString id = element.attribute("id", "unnamed");
+        QString id = element.attribute(XMLUtilities::SCXML_TAG_ID, "unnamed");
+        QDomNodeList onEntryElements = element.elementsByTagName(XMLUtilities::SCXML_TAG_ONENTRY);
+        SCXMLExecutableContent* onEntryContent = nullptr;
+        if (onEntryElements.count() > 0) {
+            onEntryContent = SCXMLExecutableContent::FromXmlElement(onEntryElements.at(0).childNodes());
+        }
 
         QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&element);
         SCXMLState *newState = new SCXMLState(id, &metaData);
         ExtractDataModelFromElement(&element, newState);
+        newState->SetFinal(element.tagName() == XMLUtilities::SCXML_TAG_FINAL);
+        newState->SetOnEntry(onEntryContent);
+
         addState(newState);
+        if (id == mInitialStateName) {
+            initialState = newState;
+        }
     }
 
     // add top level data model if exists
@@ -127,14 +142,14 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
     // add transitions
     for (int elementPos=0; elementPos<allElements.length(); elementPos++) {
         QDomElement element = allElements.at(elementPos).toElement();
-        QString id = element.attribute("id", "unnamed");
+        QString id = element.attribute(XMLUtilities::SCXML_TAG_ID, "unnamed");
         SCXMLState *sourceState = GetStateById(id);
-        QDomNodeList stateTransitions = element.elementsByTagName("transition");
+        QDomNodeList stateTransitions = element.elementsByTagName(XMLUtilities::SCXML_TAG_TRANSITION);
         for (int transitionPos=0; transitionPos<stateTransitions.length(); transitionPos++) {
             QDomElement stateTransition = stateTransitions.at(transitionPos).toElement();
-            QString transitionTarget = stateTransition.attribute("target", "");
-            QString transitionType = stateTransition.attribute("type", "");
-            QString transitionEvent = stateTransition.attribute("event", "");
+            QString transitionTarget = stateTransition.attribute(XMLUtilities::SCXML_TAG_TARGET, "");
+            QString transitionType = stateTransition.attribute(XMLUtilities::SCXML_TAG_TYPE, "");
+            QString transitionEvent = stateTransition.attribute(XMLUtilities::SCXML_TAG_EVENT, "");
 
             SCXMLState* targetState = GetStateById(transitionTarget);
             if (targetState == nullptr) {
@@ -148,8 +163,10 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         // need to adjust start and end points with update
         sourceState->UpdateTransitions();
 
-        //FIXME: implement this
-        //setInitialState(newState);
+        // set the initial state of the state machine
+        if (initialState != nullptr) {
+            setInitialState(initialState);
+        }
     }
 }
 

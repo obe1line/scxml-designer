@@ -4,13 +4,16 @@
 #include <QState>
 #include <QGraphicsItem>
 #include <QPainter>
+#include <QDomElement>
 #include "metadatasupport.h"
+#include "scxmlexecutablecontent.h"
+#include "connectionpointsupport.h"
 
 //! Represents an SCXML state
 //!
 //! Implemented with QState as the underlying class. Additional attributes and meta data are
 //! added to this for import and export to external SCXML files.
-class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport
+class SCXMLState : public QState, public QGraphicsItem, public MetaDataSupport, public ConnectionPointSupport
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -27,10 +30,8 @@ public:
     QString GetDescription() { return mDescription; }
     bool GetFinal() { return mFinal; }
     QPainterPath GetNodeOutlinePath();
-
-    //! gets the connection point for the given index (1=end point of perimeter of state, 0=start point)
-    QPoint GetConnectionPoint(qreal connectionPointIndex);
-    qreal GetConnectionPointIndex(QPoint point);
+    SCXMLExecutableContent* GetOnEntry() { return mOnEntry; }
+    SCXMLExecutableContent* GetOnExit() { return mOnExit; }
 
     void SetShapeX(qreal value) { setX(value); sizeChanged(); }
     void SetShapeY(qreal value) { setY(value); sizeChanged(); }
@@ -38,6 +39,8 @@ public:
     void SetShapeHeight(qreal value) { mHeight = value; sizeChanged(); }
     void SetDescription(QString value) { mDescription = value; }
     void SetFinal(bool value) { mFinal = value; }
+    void SetOnEntry(SCXMLExecutableContent* value) { mOnEntry = value; }
+    void SetOnExit(SCXMLExecutableContent* value) { mOnExit = value; }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -54,10 +57,11 @@ public:
 
     void AddIncomingTransition(QAbstractTransition* transitionRef) { mIncomingTransitions.append(transitionRef); }
 
+    QPoint GetConnectionPoint(qreal connectionPointIndex);
+    qreal GetConnectionPointIndex(QPoint point);
+
 signals:
     void sizeChanged();
-
-public slots:
 
 private:
   QString mId;
@@ -71,6 +75,17 @@ private:
   qreal mResizeStartY;
   bool mFinal;
   QList<QAbstractTransition*> mIncomingTransitions;
+  SCXMLExecutableContent* mOnEntry;
+  SCXMLExecutableContent* mOnExit;
+
+  // QGraphicsItem interface
+
+  // QAbstractState interface
+  bool m_test123;
+
+protected:
+  void onEntry(QEvent *event);
+  void onExit(QEvent *event);
 };
 
 #endif // SCXMLSTATE_H
