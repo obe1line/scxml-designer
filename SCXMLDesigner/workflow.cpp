@@ -43,6 +43,7 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
     // traverse the states to build up the SCXML document
     foreach(QObject* child, this->children()) {
         SCXMLState* state = dynamic_cast<SCXMLState*>(child);
+        if (state == nullptr) continue;
 
         QDomElement element = doc.createElement(state->GetFinal() ? XMLUtilities::SCXML_TAG_FINAL : XMLUtilities::SCXML_TAG_STATE);
         element.setAttribute(XMLUtilities::SCXML_TAG_ID, state->GetId());
@@ -61,11 +62,13 @@ void Workflow::ConstructSCXMLFromStateMachine(QDomDocument &doc)
         // add the transitions
         foreach(QAbstractTransition* trans, state->transitions()) {
             SCXMLTransition* transition = dynamic_cast<SCXMLTransition*>(trans);
+            if (transition == nullptr) continue;
             QDomElement transitionElement = doc.createElement(XMLUtilities::SCXML_TAG_TRANSITION);
             if (transition->getTransitionType() != "") {
                 transitionElement.setAttribute(XMLUtilities::SCXML_TAG_TYPE, transition->getTransitionType());
             }
             SCXMLState* targetState = dynamic_cast<SCXMLState*>(transition->targetState());
+            if (targetState == nullptr) continue;
             transitionElement.setAttribute(XMLUtilities::SCXML_TAG_TARGET, targetState->GetId());
             QString event = transition->GetEvent();
             if (!event.isEmpty()) {

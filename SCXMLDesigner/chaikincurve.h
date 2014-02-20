@@ -8,6 +8,8 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPropertyAnimation>
+#include <QState>
+#include <QDebug>
 #include "connectionpointsupport.h"
 
 class ChaikinCurve : public QGraphicsItem
@@ -69,19 +71,16 @@ public:
     QRectF boundingRect() const;
     QPainterPath shape() const;
 
-    void AnimateEvent();
     void SetStartingPoints(QVector<QVector3D> newCurvePoints);
-    //void SetStartNodePath(QPainterPath path) { mStartNodePath = path; }
     void SetStartNodeConnectionPointSupport(ConnectionPointSupport *support) {
         mStartNodePathConnectionPointSupport = support;
         mStartNodePath = support->GetNodeOutlinePath();
     }
-    //void SetEndNodePath(QPainterPath path) { mEndNodePath = path; }
     void SetEndNodeConnectionPointSupport(ConnectionPointSupport *support) {
         mEndNodePathConnectionPointSupport = support;
         mEndNodePath = support->GetNodeOutlinePath();
     }
     QPoint constrainPointToBoundary(QPoint point, ConnectionPointSupport *support);
-    QPropertyAnimation* GetTestAnimation();
+    QPropertyAnimation* GetTestAnimation(QState *startState, QState *endState);
 };
 #endif // CHAIKINCURVE_H

@@ -58,9 +58,7 @@ ChaikinCurve::ChaikinCurve(int iterationCount, QVector<QVector3D> points) :
     mControlPointDragIndex = 0;
     mControlPointVisible = true;    //TODO: change to false after testing
     mDragInProgress = false;
-    //mAnimationActive = false;
-
-    mAnimationActive = true;    //TEST
+    mAnimationActive = false;
 }
 
 void ChaikinCurve::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -351,7 +349,7 @@ void ChaikinCurve::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-QPropertyAnimation* ChaikinCurve::GetTestAnimation()
+QPropertyAnimation* ChaikinCurve::GetTestAnimation(QState *startState, QState *endState)
 {
     QPainterPath path = GetPathOfLines();
     QPropertyAnimation* animation = new QPropertyAnimation(mParentObject, "centrePoint", mParentObject);
@@ -367,28 +365,11 @@ QPropertyAnimation* ChaikinCurve::GetTestAnimation()
                    path.pointAtPercent(i).toPoint());
     }
 
-    //QObject::connect(animation, SIGNAL(finished()), mParentObject, SLOT(AnimationComplete()));
+    startState->assignProperty(mParentObject, "centrePoint", path.pointAtPercent(0).toPoint());
+    endState->assignProperty(mParentObject, "centrePoint", path.pointAtPercent(1).toPoint());
+
+    QObject::connect(animation, SIGNAL(stateChanged(QAbstractAnimation::State, QAbstractAnimation::State)),
+                     mParentObject, SLOT(AnimationStateChanged(QAbstractAnimation::State, QAbstractAnimation::State)));
+
     return animation;
-}
-
-void ChaikinCurve::AnimateEvent()
-{
-    qDebug() << "AnimateEvent - chaikincurve.";
-    QPainterPath path = GetPathOfLines();
-    QPropertyAnimation* animation = new QPropertyAnimation(mParentObject, "centrePoint", mParentObject);
-    animation->setDuration(2000);
-    animation->setEasingCurve(QEasingCurve::Linear);
-    animation->setLoopCount(1);
-    animation->setStartValue(path.pointAtPercent(0).toPoint());
-    animation->setEndValue(path.pointAtPercent(1).toPoint());
-
-    // ensure a smooth animation that follows the path
-    for( double i = 0 ; i < 1; i = i+0.01) {
-        animation->setKeyValueAt(i,
-                   path.pointAtPercent(i).toPoint());
-    }
-
-    //QObject::connect(animation, SIGNAL(finished()), mParentObject, SLOT(AnimationComplete()));
-    mAnimationActive = true;
-    //animation->start();
 }

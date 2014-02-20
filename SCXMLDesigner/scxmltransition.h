@@ -1,12 +1,12 @@
 #ifndef SCXMLTRANSITION_H
 #define SCXMLTRANSITION_H
 
-#include <QAbstractTransition>
+#include <QSignalTransition>
 #include "scxmlstate.h"
 #include "metadatasupport.h"
 #include "chaikincurve.h"
 
-class SCXMLTransition : public QAbstractTransition, public ChaikinCurve, public MetaDataSupport
+class SCXMLTransition : public QSignalTransition, public ChaikinCurve, public MetaDataSupport
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -15,6 +15,7 @@ public:
     explicit SCXMLTransition(SCXMLState *source, SCXMLState *target, QString event, QString transitionType, QMap<QString,QString> *metaData);
 
     Q_PROPERTY(QPoint centrePoint READ getCentrePoint WRITE setCentrePoint NOTIFY centrePointChanged)
+    Q_PROPERTY(qreal curveAnimationProgress READ getCurveAnimationProgress WRITE setCurveAnimationProgress NOTIFY curveAnimationProgressChanged)
 
     QString GetControlPoints();
     QString GetDescription() { return mDescription; }
@@ -48,12 +49,33 @@ public:
     QVector<QVector3D> GetControlPoints(QString value);
     void SetConnectorPoints(qreal start, qreal end);
     void UpdateConnectionPointIndexes();
+    qreal getCurveAnimationProgress() const
+    {
+        return m_curveAnimationProgress;
+    }
+    void SetAnimation();
+
 signals:
     void centrePointChanged(QPoint);
+    void curveAnimationProgressChanged(qreal arg);
 
 public slots:
     void UpdatePoints();
-    //void AnimationComplete() { mAnimationActive = false; update(); }
+
+    void setCurveAnimationProgress(qreal arg)
+    {
+        if (m_curveAnimationProgress != arg) {
+            m_curveAnimationProgress = arg;
+            emit curveAnimationProgressChanged(arg);
+        }
+    }
+
+    void AnimationStateChanged(QAbstractAnimation::State newState, QAbstractAnimation::State oldState)
+    {
+        Q_UNUSED(oldState);
+        qDebug() << newState;
+        mAnimationActive = (newState == QAbstractAnimation::State::Running);
+    }
 
 private:
     SCXMLState* mParentState;
@@ -65,6 +87,7 @@ private:
     SCXMLState* mSourceState;
     SCXMLState* mTargetState;
     bool mConnected;
+    qreal m_curveAnimationProgress;
 };
 
 #endif // SCXMLTRANSITION_H

@@ -13,9 +13,11 @@
   <onentry>
    <log expr="World"/>
   </onentry>
-  <transition target="done">
-   <!-- META-DATA [cp=92,-40:11,-87:18,-138:120,-208] [description=]-->
+  <transition target="hello">
   </transition>
+<!--  <transition target="done"> -->
+   <!-- META-DATA [cp=92,-40:11,-87:18,-138:120,-208] [description=]-->
+<!--  </transition> -->
  </state>
  <final id="done">
   <!-- META-DATA [x=120] [y=-218] [width=100] [height=50] [description=]-->
