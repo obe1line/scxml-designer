@@ -1,6 +1,8 @@
 #ifndef CONNECTIONPOINTSUPPORT_H
 #define CONNECTIONPOINTSUPPORT_H
 
+#include <QPainterPath>
+
 class ConnectionPointSupport
 {
  public:

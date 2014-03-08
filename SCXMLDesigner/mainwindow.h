@@ -46,7 +46,8 @@ public:
 private slots:
     void CloseTabRequested(int index);
     void InsertTransition();
-    void TestAnimation();
+    void StartAnimation();
+    void StopAnimation();
     void InsertState();
     void SaveCurrentWorkflow();
     bool LoadWorkflowFromFile(QString workflowFilename);
@@ -69,7 +70,8 @@ private:
     QAction *mActionState;
     QAction *mActionTransition;
     QAction *mActionShowChildStates;
-    QAction *mActionAnimate;
+    QAction *mActionStartAnimation;
+    QAction *mActionStopAnimation;
 
     QToolBar *mFileToolBar;
     QToolBar *mInsertToolBar;

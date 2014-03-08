@@ -122,6 +122,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         SCXMLExecutableContent* onEntryContent = nullptr;
         if (onEntryElements.count() > 0) {
             onEntryContent = SCXMLExecutableContent::FromXmlElement(onEntryElements.at(0).childNodes());
+            onEntryContent->connect(onEntryContent, SIGNAL(LogToOutput(QString)), this, SLOT(WriteToOutput(QString)));
         }
 
         QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&element);
@@ -129,6 +130,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
         ExtractDataModelFromElement(&element, newState);
         newState->SetFinal(element.tagName() == XMLUtilities::SCXML_TAG_FINAL);
         newState->SetOnEntry(onEntryContent);
+        newState->connect(newState, SIGNAL(LogToOutput(QString)), this, SLOT(WriteToOutput(QString)));
 
         addState(newState);
         if (id == mInitialStateName) {
@@ -158,6 +160,7 @@ void Workflow::ConstructStateMachineFromSCXML(QDomDocument &doc)
             }
             QMap<QString,QString> metaData = ExtractMetaDataFromElementComments(&stateTransition);
             SCXMLTransition* newTransition = new SCXMLTransition(sourceState, targetState, transitionEvent, transitionType, &metaData);
+            Q_UNUSED(newTransition);
         }
 
         // need to adjust start and end points with update
@@ -255,4 +258,9 @@ void Workflow::ParseMetaData(QString text, QMap<QString, QString> &map)
         }
         pos += rx.matchedLength();
     }
+}
+
+void Workflow::WriteToOutput(QString msg)
+{
+    LogToOutput(msg);
 }

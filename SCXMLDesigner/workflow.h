@@ -46,9 +46,11 @@ public:
     //! Gets the underlying data model
     SCXMLDataModel *GetDataModel() { return &mDataModel; }
 signals:
-    
+    void LogToOutput(QString msg);
+
 public slots:
-    
+    void WriteToOutput(QString msg);
+
 private:
     QString mName;
     QString mInitialStateName;

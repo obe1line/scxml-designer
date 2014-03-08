@@ -14,7 +14,7 @@ SCXMLState::SCXMLState(QString id, QMap<QString, QString> *metaData) :
     mResizing(false),
     mResizeOriginalWidth(0), mResizeOriginalHeight(0),
     mResizeStartX(0), mResizeStartY(0),
-    mFinal(false)
+    mFinal(false), mOnEntry(nullptr), mOnExit(nullptr)
 {
     setX(0);
     setY(0);
@@ -196,13 +196,15 @@ void SCXMLState::UpdateTransitions()
 void SCXMLState::onEntry(QEvent *event)
 {
     Q_UNUSED(event);
-    qDebug() << "onEntry";
+    LogToOutput(QString("onEntry: %1").arg(this->GetId()));
+    if (mOnEntry != nullptr) mOnEntry->Execute();
     event->accept();
 }
 
 void SCXMLState::onExit(QEvent *event)
 {
     Q_UNUSED(event);
-    qDebug() << "onExit";
+    LogToOutput(QString("onExit: %1").arg(this->GetId()));
+    if (mOnExit != nullptr) mOnExit->Execute();
     event->accept();
 }

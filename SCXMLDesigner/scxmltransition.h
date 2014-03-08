@@ -51,7 +51,7 @@ public:
     void UpdateConnectionPointIndexes();
     qreal getCurveAnimationProgress() const
     {
-        return m_curveAnimationProgress;
+        return mCurveAnimationProgress;
     }
     void SetAnimation();
 
@@ -64,8 +64,8 @@ public slots:
 
     void setCurveAnimationProgress(qreal arg)
     {
-        if (m_curveAnimationProgress != arg) {
-            m_curveAnimationProgress = arg;
+        if (mCurveAnimationProgress != arg) {
+            mCurveAnimationProgress = arg;
             emit curveAnimationProgressChanged(arg);
         }
     }
@@ -87,7 +87,7 @@ private:
     SCXMLState* mSourceState;
     SCXMLState* mTargetState;
     bool mConnected;
-    qreal m_curveAnimationProgress;
+    qreal mCurveAnimationProgress;
 };
 
 #endif // SCXMLTRANSITION_H

@@ -103,9 +103,13 @@ void MainWindow::CreateActions()
     mActionTransition->setStatusTip(tr("Add a new transition"));
     QObject::connect(mActionTransition, SIGNAL(triggered()), this, SLOT(InsertTransition()));
 
-    mActionAnimate = new QAction(tr("&Animate"), this);
-    mActionAnimate->setStatusTip(tr("Animate"));
-    QObject::connect(mActionAnimate, SIGNAL(triggered()), this, SLOT(TestAnimation()));
+    mActionStartAnimation = new QAction(tr("&Start animation"), this);
+    mActionStartAnimation->setStatusTip(tr("Start animation"));
+    QObject::connect(mActionStartAnimation, SIGNAL(triggered()), this, SLOT(StartAnimation()));
+
+    mActionStopAnimation = new QAction(tr("&Stop animation"), this);
+    mActionStopAnimation->setStatusTip(tr("Stop animation"));
+    QObject::connect(mActionStopAnimation, SIGNAL(triggered()), this, SLOT(StopAnimation()));
 
     //TODO: connect these
     mActionAbout = new QAction(tr("&About"), this);
@@ -132,7 +136,8 @@ void MainWindow::CreateMenus()
     mMenuInsert = menuBar()->addMenu(tr("&Insert"));
     mMenuInsert->addAction(mActionState);
     mMenuInsert->addAction(mActionTransition);
-    mMenuInsert->addAction(mActionAnimate);
+    mMenuInsert->addAction(mActionStartAnimation);
+    mMenuInsert->addAction(mActionStopAnimation);
 
     mMenuTest = menuBar()->addMenu(tr("&Test"));
     mMenuTest->addAction(mActionShowChildStates);
@@ -151,7 +156,8 @@ void MainWindow::CreateToolbars()
     mInsertToolBar = addToolBar(tr("Insert"));
     mInsertToolBar->addAction(mActionState);
     mInsertToolBar->addAction(mActionTransition);
-    mInsertToolBar->addAction(mActionAnimate);
+    mInsertToolBar->addAction(mActionStartAnimation);
+    mInsertToolBar->addAction(mActionStopAnimation);
 
     statusBar()->showMessage(QString("Version: %1").arg(VERSION));
 }
@@ -178,30 +184,26 @@ void MainWindow::InsertState()
     activeTab->AddItemToScene(newState);
 }
 
-void MainWindow::TestAnimation()
+void MainWindow::StartAnimation()
 {
     WorkflowTab* activeTab = GetActiveWorkflowTab();
     if (activeTab == NULL) return;
     Workflow* activeWorkflow = activeTab->GetWorkflow();
-//    QObjectList nodes = activeWorkflow->children();
-//    foreach (QObject *obj, nodes) {
-//        SCXMLState* state = static_cast<SCXMLState*>(obj);
-//        QList<QAbstractTransition*> trans = state->transitions();
-//        foreach (QAbstractTransition *tran, trans) {
-//            SCXMLTransition* transition = static_cast<SCXMLTransition*>(tran);
-//            transition->AnimateEvent();
-//        }
-//    }
 
     // call the onEntry and wait for events
     if (activeWorkflow->isRunning()) {
         activeWorkflow->stop();
     }
-    activeWorkflow->start();
-    //QEvent *ev = QEvent();
-    //activeWorkflow->postEvent(ev);
-    //->initialState()->EnterState();
 
+    activeWorkflow->start();
+}
+
+void MainWindow::StopAnimation()
+{
+    WorkflowTab* activeTab = GetActiveWorkflowTab();
+    if (activeTab == NULL) return;
+    Workflow* activeWorkflow = activeTab->GetWorkflow();
+    activeWorkflow->stop();
 }
 
 //!

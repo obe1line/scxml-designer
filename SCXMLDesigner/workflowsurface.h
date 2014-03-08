@@ -23,14 +23,20 @@ public:
     ~WorkflowSurface();
 
     void SetSCMLText(QString scxml);
+    void AppendToTextOutput(QString txt);
     QGraphicsView *GetSurface();
 
     void CreateWidgets();
+
+public slots:
+    void WriteToOutput(QString msg);
 
 private:
     QVBoxLayout* verticalLayout;
     QSplitter* splitter;
     WorkflowGraphicsView* graphicsView;
-    QTextEdit* textSCXML;};
+    QTextEdit* textSCXML;
+    QTextEdit* textOutput;
+};
 
 #endif // WORKFLOWSURFACE_H
