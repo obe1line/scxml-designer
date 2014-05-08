@@ -62,6 +62,7 @@ public:
 
 signals:
     void sizeChanged();
+    void LogToOutput(QString msg);
 
 private:
   QString mId;

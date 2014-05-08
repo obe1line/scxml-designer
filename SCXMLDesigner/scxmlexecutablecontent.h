@@ -7,17 +7,24 @@
 #include <QDomElement>
 #include "xmlutilities.h"
 
-class SCXMLExecutableActionBase
+class SCXMLExecutableActionBase : public QObject
 {
+    Q_OBJECT
+
 public:
     SCXMLExecutableActionBase();
 
     virtual void ToXmlElement(QDomDocument &doc, QDomElement containerElement) = 0;
     virtual void Execute() = 0;
+
+signals:
+    void LogToOutput(QString msg);
 };
 
 class SCXMLIf : public SCXMLExecutableActionBase
 {
+    Q_OBJECT
+
     // if, ifelse, else
 public:
     SCXMLIf() {}
@@ -29,6 +36,8 @@ public:
 //! <log label='test' expr='21' />
 class SCXMLLog : public SCXMLExecutableActionBase
 {
+    Q_OBJECT
+
 public:
     SCXMLLog(QString label, QString expr) : mLabel(label), mExpr(expr) {}
 
@@ -51,8 +60,9 @@ public:
     }
 
     void Execute() {
-        qDebug() << mExpr;
+        emit LogToOutput(QString("Log expr:%1 label:%2").arg(mExpr).arg(mLabel));
     }
+
 
 private:
     QString mLabel;
@@ -61,6 +71,8 @@ private:
 
 class SCXMLExecutableContent : public SCXMLExecutableActionBase
 {
+    Q_OBJECT
+
 public:
     SCXMLExecutableContent();
 
@@ -70,6 +82,7 @@ public:
     void AddAction(SCXMLExecutableActionBase* action) {
         if (action != nullptr) {
             mActions.append(action);
+            connect(action, SIGNAL(LogToOutput(QString)), this, SLOT(WriteToOutput(QString)));
         }
     }
 
@@ -78,6 +91,13 @@ public:
             action->Execute();
         }
     }
+
+public slots:
+    void WriteToOutput(QString msg) {
+        // forward to the parent
+        emit LogToOutput(msg);
+    }
+
 private:
     QList<SCXMLExecutableActionBase*> mActions;
 };

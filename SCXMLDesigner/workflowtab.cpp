@@ -9,6 +9,9 @@ WorkflowTab::WorkflowTab(QWidget *parent, QString filename) :
 
     // create a scene for the view
     GetSurface()->setScene(mScene);
+
+    // connect the signals and slots between workflow and surface
+    this->connect(&mWorkflow, SIGNAL(LogToOutput(QString)), this, SLOT(WriteToOutput(QString)));
 }
 
 void WorkflowTab::SetFilename(QString filename)

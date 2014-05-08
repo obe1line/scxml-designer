@@ -56,7 +56,8 @@ ChaikinCurve::ChaikinCurve(int iterationCount, QVector<QVector3D> points) :
     this->setCursor(Qt::PointingHandCursor);
 
     mControlPointDragIndex = 0;
-    mControlPointVisible = true;    //TODO: change to false after testing
+    //mControlPointVisible = true;    //TODO: change to false after testing
+    mControlPointVisible = false;
     mDragInProgress = false;
     mAnimationActive = false;
 }

@@ -7,7 +7,8 @@ WorkflowSurface::WorkflowSurface(QWidget *parent) :
 
     QList<int> sizes;
     sizes.append(300);
-    sizes.append(100);
+    sizes.append(70);
+    sizes.append(30);
     splitter->setSizes(sizes);
 }
 
@@ -26,6 +27,10 @@ void WorkflowSurface::CreateWidgets()
     textSCXML->setMinimumSize(QSize(0, 0));
     textSCXML->setBaseSize(QSize(0, 0));
     splitter->addWidget(textSCXML);
+    textOutput = new QTextEdit(splitter);
+    textOutput->setMinimumSize(QSize(0, 0));
+    textOutput->setBaseSize(QSize(0, 0));
+    splitter->addWidget(textOutput);
 
     verticalLayout->addWidget(splitter);
 }
@@ -39,7 +44,17 @@ void WorkflowSurface::SetSCMLText(QString scxml)
     this->textSCXML->setText(scxml);
 }
 
+void WorkflowSurface::AppendToTextOutput(QString txt)
+{
+    this->textOutput->append(txt);
+}
+
 QGraphicsView *WorkflowSurface::GetSurface()
 {
     return this->graphicsView;
+}
+
+void WorkflowSurface::WriteToOutput(QString msg)
+{
+    this->AppendToTextOutput(msg);
 }
